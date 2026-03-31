@@ -3,3 +3,5 @@ export { OutputPanel } from "./OutputPanel";
 export { ModuleCard } from "./ModuleCard";
 export { Sidebar } from "./Sidebar";
 export { LessonView } from "./LessonView";
+export { ProjectCard } from "./ProjectCard";
+export { ProjectView } from "./ProjectView";

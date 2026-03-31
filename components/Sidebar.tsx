@@ -68,7 +68,14 @@ export function Sidebar({ modules, completedLessons }: SidebarProps) {
         ))}
       </nav>
 
-      <div className="p-4 border-t border-border mt-auto">
+      <div className="p-4 border-t border-border mt-auto space-y-2">
+        <Link
+          href="/projects"
+          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <span>🚀</span>
+          <span>Projects</span>
+        </Link>
         <Link
           href="/learn"
           className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"

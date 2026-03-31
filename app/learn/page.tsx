@@ -31,6 +31,17 @@ export default function LearnDashboard() {
             <span className="text-2xl">🐍</span>
             <span className="font-bold text-xl">Python Mastery</span>
           </Link>
+          <nav className="flex items-center gap-6">
+            <Link href="/learn" className="text-accent font-medium">
+              Lessons
+            </Link>
+            <Link
+              href="/projects"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Projects
+            </Link>
+          </nav>
         </div>
       </header>
 

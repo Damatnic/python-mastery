@@ -10,9 +10,23 @@ export default function Home() {
             <span className="text-2xl">🐍</span>
             <span className="font-bold text-xl">Python Mastery</span>
           </div>
-          <Link href="/learn" className="btn-primary">
-            Start Learning
-          </Link>
+          <nav className="flex items-center gap-6">
+            <Link
+              href="/learn"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Lessons
+            </Link>
+            <Link
+              href="/projects"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Projects
+            </Link>
+            <Link href="/learn" className="btn-primary">
+              Start Learning
+            </Link>
+          </nav>
         </div>
       </header>
 

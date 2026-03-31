@@ -34,6 +34,29 @@ export interface Module {
   lessons: Lesson[];
 }
 
+export type DifficultyLevel = "beginner" | "beginner-intermediate" | "intermediate" | "advanced";
+
+export interface ProjectStep {
+  id: string;
+  title: string;
+  description: string;
+  starterCode: string;
+  hints: string[];
+  validateFn: string;
+}
+
+export interface Project {
+  slug: string;
+  title: string;
+  description: string;
+  difficulty: DifficultyLevel;
+  estimatedTime: string;
+  dataset: string;
+  datasetName: string;
+  datasetDescription: string;
+  steps: ProjectStep[];
+}
+
 export const STARTER_DATA_CODE = `import pandas as pd
 import json
 import io

@@ -243,3 +243,36 @@ pre, code {
   border-left: 3px solid var(--accent);
   color: var(--accent);
 }
+
+/* Project step sidebar */
+.border-l-3 {
+  border-left-width: 3px;
+}
+
+/* Data preview table */
+.data-preview-table {
+  width: 100%;
+  font-size: 0.75rem;
+  font-family: var(--font-mono), ui-monospace, monospace;
+}
+
+.data-preview-table th {
+  text-align: left;
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--accent);
+}
+
+.data-preview-table td {
+  padding: 0.5rem;
+  border-bottom: 1px solid rgba(var(--border), 0.5);
+  color: var(--muted-foreground);
+}
+
+/* Line clamp utility */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
