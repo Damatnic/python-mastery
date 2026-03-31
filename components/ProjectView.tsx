@@ -7,7 +7,7 @@ import Link from "next/link";
 import { CodeEditor } from "./CodeEditor";
 import { OutputPanel } from "./OutputPanel";
 import { usePyodide } from "@/lib/pyodide";
-import type { Project, ProjectStep } from "@/lib/types";
+import type { Project } from "@/lib/types";
 
 interface ProjectViewProps {
   project: Project;
@@ -19,7 +19,6 @@ interface ProjectViewProps {
 function createValidator(
   validateFnString: string
 ): (output: string, locals: Record<string, unknown>) => boolean {
-  // eslint-disable-next-line @typescript-eslint/no-implied-eval
   return new Function("output", "locals", validateFnString) as (
     output: string,
     locals: Record<string, unknown>
@@ -37,6 +36,7 @@ export function ProjectView({
   const [output, setOutput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isRunning, setIsRunning] = useState(false);
+  const [executionTime, setExecutionTime] = useState<number>(0);
   const [showHints, setShowHints] = useState(false);
   const [showDataPreview, setShowDataPreview] = useState(false);
 
@@ -45,9 +45,11 @@ export function ProjectView({
   // Initialize code when step changes
   useEffect(() => {
     if (currentStep) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCode(currentStep.starterCode);
       setOutput("");
       setError(null);
+      setExecutionTime(0);
       setShowHints(false);
     }
   }, [currentStep]);
@@ -62,6 +64,7 @@ export function ProjectView({
 
     setOutput(result.output);
     setError(result.error);
+    setExecutionTime(result.executionTime);
 
     // Validate the step
     if (!result.error && currentStep) {
@@ -87,6 +90,7 @@ export function ProjectView({
       setCode(currentStep.starterCode);
       setOutput("");
       setError(null);
+      setExecutionTime(0);
     }
   }, [currentStep]);
 
@@ -299,22 +303,28 @@ export function ProjectView({
           {/* Right Panel - Editor & Output */}
           <div className="w-1/2 flex flex-col overflow-hidden">
             {/* Toolbar */}
-            <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-card">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-card">
+              <div className="flex items-center gap-3">
                 {isLoading ? (
-                  <span className="text-sm text-warning loading-pulse flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-warning animate-pulse" />
-                    Loading Python...
-                  </span>
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-warning/10 border border-warning/20">
+                    <div className="relative w-4 h-4">
+                      <span className="absolute inset-0 flex items-center justify-center text-xs">🐍</span>
+                      <svg className="absolute inset-0 w-4 h-4 animate-spin" viewBox="0 0 16 16">
+                        <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="20 10" className="text-warning/50" />
+                      </svg>
+                    </div>
+                    <span className="text-sm text-warning font-medium">Loading Python...</span>
+                  </div>
                 ) : pyodideError ? (
-                  <span className="text-sm text-error">
-                    Error: {pyodideError}
-                  </span>
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-error/10 border border-error/20">
+                    <span className="w-2 h-2 rounded-full bg-error" />
+                    <span className="text-sm text-error">Error: {pyodideError}</span>
+                  </div>
                 ) : (
-                  <span className="text-sm text-success flex items-center gap-2">
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-success/10 border border-success/20">
                     <span className="w-2 h-2 rounded-full bg-success" />
-                    Python Ready
-                  </span>
+                    <span className="text-sm text-success font-medium">Python Ready</span>
+                  </div>
                 )}
               </div>
               <div className="flex items-center gap-2">
@@ -326,10 +336,21 @@ export function ProjectView({
                   disabled={!isReady || isRunning}
                   className="btn-primary text-sm flex items-center gap-2 disabled:opacity-50"
                 >
-                  {isRunning ? "Running..." : "Run & Check"}
-                  <kbd className="hidden sm:inline text-xs opacity-70 bg-white/20 px-1.5 py-0.5 rounded">
-                    Shift+Enter
-                  </kbd>
+                  {isRunning ? (
+                    <>
+                      <svg className="w-3.5 h-3.5 animate-spin" viewBox="0 0 16 16" fill="none">
+                        <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="2" strokeDasharray="20 10" />
+                      </svg>
+                      Running...
+                    </>
+                  ) : (
+                    <>
+                      Run & Check
+                      <kbd className="hidden sm:inline text-xs opacity-70 bg-white/20 px-1.5 py-0.5 rounded">
+                        ⌘/Ctrl+Enter
+                      </kbd>
+                    </>
+                  )}
                 </button>
               </div>
             </div>
@@ -346,7 +367,7 @@ export function ProjectView({
 
             {/* Output */}
             <div className="h-48 p-4 pt-2">
-              <OutputPanel output={output} error={error} isRunning={isRunning} />
+              <OutputPanel output={output} error={error} isRunning={isRunning} executionTime={executionTime} />
             </div>
           </div>
         </div>

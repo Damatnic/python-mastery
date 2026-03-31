@@ -19,8 +19,8 @@ export function CodeEditor({
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-      // Shift+Enter to run
-      if (e.shiftKey && e.key === "Enter") {
+      // Shift+Enter, Ctrl+Enter, or Cmd+Enter to run
+      if ((e.shiftKey || e.ctrlKey || e.metaKey) && e.key === "Enter") {
         e.preventDefault();
         onRun();
         return;
@@ -95,8 +95,31 @@ export function CodeEditor({
         />
       </div>
       {disabled && (
-        <div className="absolute inset-0 bg-background/50 flex items-center justify-center">
-          <span className="text-muted-foreground">Loading Python...</span>
+        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex flex-col items-center justify-center">
+          <div className="relative mb-3">
+            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-accent/30 to-purple-500/30 flex items-center justify-center border border-accent/20">
+              <span className="text-2xl">🐍</span>
+            </div>
+            <svg
+              className="absolute inset-0 w-14 h-14 animate-spin"
+              style={{ animationDuration: "2s" }}
+              viewBox="0 0 56 56"
+            >
+              <circle
+                cx="28"
+                cy="28"
+                r="24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeDasharray="100 50"
+                strokeLinecap="round"
+                className="text-accent"
+              />
+            </svg>
+          </div>
+          <span className="text-sm font-medium text-foreground">Loading Python</span>
+          <span className="text-xs text-muted-foreground">Setting up pandas & numpy...</span>
         </div>
       )}
     </div>

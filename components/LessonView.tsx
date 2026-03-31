@@ -5,6 +5,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { CodeEditor } from "./CodeEditor";
 import { OutputPanel } from "./OutputPanel";
+import { CopyButton } from "./CopyButton";
 import { usePyodide } from "@/lib/pyodide";
 import type { Lesson, Example, Challenge } from "@/lib/types";
 
@@ -14,7 +15,6 @@ interface LessonViewProps {
 }
 
 function createValidator(validateFnString: string): (output: string, locals: Record<string, unknown>) => boolean {
-  // eslint-disable-next-line @typescript-eslint/no-implied-eval
   return new Function("output", "locals", validateFnString) as (output: string, locals: Record<string, unknown>) => boolean;
 }
 
@@ -24,15 +24,19 @@ export function LessonView({ lesson, onComplete }: LessonViewProps) {
   const [output, setOutput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isRunning, setIsRunning] = useState(false);
+  const [executionTime, setExecutionTime] = useState<number>(0);
   const [activeTab, setActiveTab] = useState<"theory" | "examples" | "challenges">("theory");
   const [showSolution, setShowSolution] = useState<string | null>(null);
   const [completedChallenges, setCompletedChallenges] = useState<Set<string>>(new Set());
   const [activeChallenge, setActiveChallenge] = useState<Challenge | null>(null);
 
   useEffect(() => {
+    // Reset state when lesson changes - this is intentional synchronization
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCode(lesson.starterCode);
     setOutput("");
     setError(null);
+    setExecutionTime(0);
     setShowSolution(null);
     setCompletedChallenges(new Set());
     setActiveChallenge(null);
@@ -49,6 +53,7 @@ export function LessonView({ lesson, onComplete }: LessonViewProps) {
 
     setOutput(result.output);
     setError(result.error);
+    setExecutionTime(result.executionTime);
 
     if (activeChallenge && !result.error) {
       try {
@@ -86,6 +91,7 @@ export function LessonView({ lesson, onComplete }: LessonViewProps) {
     }
     setOutput("");
     setError(null);
+    setExecutionTime(0);
   }, [lesson.starterCode, activeChallenge]);
 
   const loadExample = useCallback((example: Example) => {
@@ -161,12 +167,15 @@ export function LessonView({ lesson, onComplete }: LessonViewProps) {
                     <h3 className="font-medium text-foreground">
                       {example.title}
                     </h3>
-                    <button
-                      onClick={() => loadExample(example)}
-                      className="text-xs btn-secondary"
-                    >
-                      Load in Editor
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <CopyButton text={example.code} />
+                      <button
+                        onClick={() => loadExample(example)}
+                        className="text-xs btn-secondary"
+                      >
+                        Load in Editor
+                      </button>
+                    </div>
                   </div>
                   <p className="text-sm text-muted-foreground mb-3">
                     {example.explanation}
@@ -240,9 +249,14 @@ export function LessonView({ lesson, onComplete }: LessonViewProps) {
                       </div>
                     </div>
                     {showSolution === challenge.id && (
-                      <pre className="mt-3 p-3 rounded bg-background text-sm overflow-x-auto">
-                        <code>{challenge.solution}</code>
-                      </pre>
+                      <div className="mt-3 relative">
+                        <div className="absolute top-2 right-2">
+                          <CopyButton text={challenge.solution} />
+                        </div>
+                        <pre className="p-3 pr-16 rounded bg-background text-sm overflow-x-auto">
+                          <code>{challenge.solution}</code>
+                        </pre>
+                      </div>
                     )}
                   </div>
                 );
@@ -255,20 +269,28 @@ export function LessonView({ lesson, onComplete }: LessonViewProps) {
       {/* Right Panel - Editor & Output */}
       <div className="w-1/2 flex flex-col overflow-hidden">
         {/* Toolbar */}
-        <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-card">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-card">
+          <div className="flex items-center gap-3">
             {isLoading ? (
-              <span className="text-sm text-warning loading-pulse flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-warning animate-pulse" />
-                Loading Python...
-              </span>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-warning/10 border border-warning/20">
+                <div className="relative w-4 h-4">
+                  <span className="absolute inset-0 flex items-center justify-center text-xs">🐍</span>
+                  <svg className="absolute inset-0 w-4 h-4 animate-spin" viewBox="0 0 16 16">
+                    <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="20 10" className="text-warning/50" />
+                  </svg>
+                </div>
+                <span className="text-sm text-warning font-medium">Loading Python...</span>
+              </div>
             ) : pyodideError ? (
-              <span className="text-sm text-error">Error: {pyodideError}</span>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-error/10 border border-error/20">
+                <span className="w-2 h-2 rounded-full bg-error" />
+                <span className="text-sm text-error">Error: {pyodideError}</span>
+              </div>
             ) : (
-              <span className="text-sm text-success flex items-center gap-2">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-success/10 border border-success/20">
                 <span className="w-2 h-2 rounded-full bg-success" />
-                Python Ready
-              </span>
+                <span className="text-sm text-success font-medium">Python Ready</span>
+              </div>
             )}
           </div>
           <div className="flex items-center gap-2">
@@ -280,10 +302,21 @@ export function LessonView({ lesson, onComplete }: LessonViewProps) {
               disabled={!isReady || isRunning}
               className="btn-primary text-sm flex items-center gap-2 disabled:opacity-50"
             >
-              {isRunning ? "Running..." : "Run"}
-              <kbd className="hidden sm:inline text-xs opacity-70 bg-white/20 px-1.5 py-0.5 rounded">
-                Shift+Enter
-              </kbd>
+              {isRunning ? (
+                <>
+                  <svg className="w-3.5 h-3.5 animate-spin" viewBox="0 0 16 16" fill="none">
+                    <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="2" strokeDasharray="20 10" />
+                  </svg>
+                  Running...
+                </>
+              ) : (
+                <>
+                  Run
+                  <kbd className="hidden sm:inline text-xs opacity-70 bg-white/20 px-1.5 py-0.5 rounded">
+                    ⌘/Ctrl+Enter
+                  </kbd>
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -300,7 +333,7 @@ export function LessonView({ lesson, onComplete }: LessonViewProps) {
 
         {/* Output */}
         <div className="h-48 p-4 pt-2">
-          <OutputPanel output={output} error={error} isRunning={isRunning} />
+          <OutputPanel output={output} error={error} isRunning={isRunning} executionTime={executionTime} />
         </div>
       </div>
     </div>

@@ -24,6 +24,7 @@ interface PyodideResult {
   output: string;
   error: string | null;
   locals: Record<string, unknown>;
+  executionTime: number;
 }
 
 interface UsePyodideReturn {
@@ -86,12 +87,14 @@ export function usePyodide(): UsePyodideReturn {
         output: "",
         error: "Python is not ready yet",
         locals: {},
+        executionTime: 0,
       };
     }
 
     const pyodide = pyodideRef.current;
     let output = "";
     let errorOutput: string | null = null;
+    const startTime = performance.now();
 
     // Capture stdout
     pyodide.setStdout({
@@ -111,8 +114,45 @@ export function usePyodide(): UsePyodideReturn {
       // Reset starter data before each run
       await pyodide.runPythonAsync(STARTER_DATA_CODE);
 
+      // Install custom display function for DataFrames
+      await pyodide.runPythonAsync(`
+import pandas as pd
+import numpy as np
+
+def _custom_print(*args, **kwargs):
+    from io import StringIO
+    import sys
+    for arg in args:
+        if isinstance(arg, (pd.DataFrame, pd.Series)):
+            html = arg.to_html(classes='df-table', border=0, max_rows=20, max_cols=15)
+            print(f"<!--DATAFRAME_HTML-->{html}<!--/DATAFRAME_HTML-->")
+        else:
+            print(arg, **kwargs)
+
+# Override display behavior for DataFrames
+_original_repr = pd.DataFrame.__repr__
+def _df_repr(self):
+    html = self.to_html(classes='df-table', border=0, max_rows=20, max_cols=15)
+    return f"<!--DATAFRAME_HTML-->{html}<!--/DATAFRAME_HTML-->"
+`);
+
       // Run user code
-      await pyodide.runPythonAsync(code);
+      const result = await pyodide.runPythonAsync(code);
+
+      // If the result is a DataFrame or Series, add its HTML representation
+      if (result !== undefined && result !== null) {
+        const checkResult = await pyodide.runPythonAsync(`
+import pandas as pd
+_last_result = _
+if isinstance(_last_result, (pd.DataFrame, pd.Series)):
+    _last_result.to_html(classes='df-table', border=0, max_rows=20, max_cols=15)
+else:
+    None
+`);
+        if (checkResult && typeof checkResult === "string") {
+          output += `<!--DATAFRAME_HTML-->${checkResult}<!--/DATAFRAME_HTML-->\n`;
+        }
+      }
 
       // Get locals for validation
       const localsCode = `
@@ -133,10 +173,13 @@ json.dumps(_locals_dict)
       const locals =
         typeof localsJson === "string" ? JSON.parse(localsJson) : {};
 
+      const executionTime = performance.now() - startTime;
+
       return {
         output: output.trim(),
         error: null,
         locals,
+        executionTime,
       };
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
@@ -153,10 +196,13 @@ json.dumps(_locals_dict)
 
       errorOutput = cleanError || message;
 
+      const executionTime = performance.now() - startTime;
+
       return {
         output: output.trim(),
         error: errorOutput,
         locals: {},
+        executionTime,
       };
     }
   }, []);

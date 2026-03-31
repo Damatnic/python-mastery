@@ -276,3 +276,62 @@ pre, code {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* DataFrame table styles */
+.dataframe-container {
+  background: var(--card);
+}
+
+.dataframe-container table.df-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+  font-family: var(--font-mono), ui-monospace, monospace;
+}
+
+.dataframe-container table.df-table thead {
+  background: rgba(168, 85, 247, 0.08);
+  position: sticky;
+  top: 0;
+}
+
+.dataframe-container table.df-table th {
+  padding: 0.625rem 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--accent);
+  border-bottom: 2px solid var(--accent-muted);
+  white-space: nowrap;
+}
+
+.dataframe-container table.df-table td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--foreground);
+  white-space: nowrap;
+}
+
+.dataframe-container table.df-table tbody tr:hover {
+  background: rgba(168, 85, 247, 0.04);
+}
+
+.dataframe-container table.df-table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.dataframe-container table.df-table tbody tr:nth-child(even):hover {
+  background: rgba(168, 85, 247, 0.06);
+}
+
+/* Index column styling */
+.dataframe-container table.df-table th:first-child,
+.dataframe-container table.df-table td:first-child {
+  color: var(--muted-foreground);
+  font-style: italic;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+/* Numeric values */
+.dataframe-container table.df-table td:not(:first-child) {
+  font-variant-numeric: tabular-nums;
+}

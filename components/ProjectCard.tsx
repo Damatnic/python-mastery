@@ -8,18 +8,33 @@ interface ProjectCardProps {
   completedSteps: Set<string>;
 }
 
-const difficultyColors: Record<string, string> = {
-  beginner: "bg-green-500/15 text-green-400 border-green-500/30",
-  "beginner-intermediate": "bg-blue-500/15 text-blue-400 border-blue-500/30",
-  intermediate: "bg-amber-500/15 text-amber-400 border-amber-500/30",
-  advanced: "bg-red-500/15 text-red-400 border-red-500/30",
+const difficultyConfig: Record<string, { color: string; label: string; icon: string }> = {
+  beginner: {
+    color: "bg-green-500/15 text-green-400 border-green-500/30",
+    label: "Beginner",
+    icon: "🌱",
+  },
+  "beginner-intermediate": {
+    color: "bg-blue-500/15 text-blue-400 border-blue-500/30",
+    label: "Beginner-Intermediate",
+    icon: "📈",
+  },
+  intermediate: {
+    color: "bg-amber-500/15 text-amber-400 border-amber-500/30",
+    label: "Intermediate",
+    icon: "⚡",
+  },
+  advanced: {
+    color: "bg-red-500/15 text-red-400 border-red-500/30",
+    label: "Advanced",
+    icon: "🔥",
+  },
 };
 
-const difficultyLabels: Record<string, string> = {
-  beginner: "Beginner",
-  "beginner-intermediate": "Beginner-Intermediate",
-  intermediate: "Intermediate",
-  advanced: "Advanced",
+const projectIcons: Record<string, string> = {
+  "survey-explorer": "📋",
+  "sales-dashboard": "💰",
+  "building-permits": "🏗️",
 };
 
 export function ProjectCard({ project, completedSteps }: ProjectCardProps) {
@@ -30,56 +45,93 @@ export function ProjectCard({ project, completedSteps }: ProjectCardProps) {
   const totalSteps = project.steps.length;
   const progressPercent = Math.round((completedCount / totalSteps) * 100);
   const isComplete = completedCount === totalSteps;
+  const difficulty = difficultyConfig[project.difficulty];
 
   return (
     <Link
       href={`/projects/${project.slug}`}
-      className="group block p-6 rounded-xl border border-border bg-card hover:bg-card-hover hover:border-border-hover transition-all duration-200"
+      className={`group relative block rounded-2xl border transition-all duration-300 hover:shadow-xl overflow-hidden ${
+        isComplete
+          ? "border-success/30 bg-success/5 hover:border-success/50 hover:shadow-success/10"
+          : "border-border bg-card hover:bg-card-hover hover:border-accent/50 hover:shadow-accent/10"
+      }`}
     >
-      <div className="flex items-start justify-between gap-4 mb-4">
-        <h3 className="font-semibold text-lg text-foreground group-hover:text-accent transition-colors">
-          {project.title}
-        </h3>
-        {isComplete && (
-          <span className="flex-shrink-0 text-success text-lg">✓</span>
-        )}
+      {/* Header with gradient */}
+      <div className="p-6 pb-0">
+        <div className="flex items-start justify-between gap-4 mb-4">
+          <div className="flex items-center gap-3">
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl ${
+              isComplete
+                ? "bg-success/20"
+                : "bg-gradient-to-br from-accent/20 to-purple-500/20"
+            }`}>
+              {isComplete ? "✓" : projectIcons[project.slug] || "📊"}
+            </div>
+            <div>
+              <h3 className={`font-semibold text-lg transition-colors ${
+                isComplete
+                  ? "text-success"
+                  : "text-foreground group-hover:text-accent"
+              }`}>
+                {project.title}
+              </h3>
+              <span className="text-xs text-muted-foreground">
+                {project.datasetName}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+          {project.description}
+        </p>
       </div>
 
-      <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-        {project.description}
-      </p>
-
-      <div className="flex flex-wrap gap-2 mb-4">
-        <span
-          className={`inline-block px-2 py-0.5 text-xs rounded-full border ${
-            difficultyColors[project.difficulty]
-          }`}
-        >
-          {difficultyLabels[project.difficulty]}
-        </span>
-        <span className="inline-block px-2 py-0.5 text-xs rounded-full bg-muted/20 text-muted-foreground border border-border">
-          {project.estimatedTime}
-        </span>
-        <span className="inline-block px-2 py-0.5 text-xs rounded-full bg-muted/20 text-muted-foreground border border-border">
-          {totalSteps} steps
-        </span>
+      {/* Tags */}
+      <div className="px-6 pb-4">
+        <div className="flex flex-wrap gap-2">
+          <span className={`inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded-full border ${difficulty.color}`}>
+            <span>{difficulty.icon}</span>
+            {difficulty.label}
+          </span>
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded-full bg-card-hover text-muted-foreground border border-border">
+            <span>⏱️</span>
+            {project.estimatedTime}
+          </span>
+        </div>
       </div>
 
-      <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
-        <span className="text-base">📊</span>
-        <span>{project.datasetName}</span>
-      </div>
+      {/* Progress section */}
+      <div className="p-6 pt-4 border-t border-border/50 bg-background/30">
+        {/* Step indicators */}
+        <div className="flex gap-1 mb-3">
+          {project.steps.map((step) => (
+            <div
+              key={step.id}
+              className={`flex-1 h-1.5 rounded-full transition-colors ${
+                completedSteps.has(step.id)
+                  ? "bg-success"
+                  : "bg-border group-hover:bg-accent/30"
+              }`}
+            />
+          ))}
+        </div>
 
-      {/* Progress bar */}
-      <div className="progress-bar h-2">
-        <div
-          className="progress-bar-fill"
-          style={{ width: `${progressPercent}%` }}
-        />
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">
+            {completedCount} of {totalSteps} steps
+          </span>
+          <span className={`text-sm font-medium px-3 py-1 rounded-full ${
+            isComplete
+              ? "bg-success/20 text-success"
+              : progressPercent > 0
+              ? "bg-accent/20 text-accent"
+              : "bg-border text-muted-foreground"
+          }`}>
+            {isComplete ? "Complete" : progressPercent > 0 ? `${progressPercent}%` : "Start"}
+          </span>
+        </div>
       </div>
-      <p className="mt-2 text-xs text-muted-foreground">
-        {completedCount} / {totalSteps} steps completed
-      </p>
     </Link>
   );
 }

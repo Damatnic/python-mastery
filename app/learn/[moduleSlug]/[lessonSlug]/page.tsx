@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, use } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Sidebar } from "@/components/Sidebar";
 import { LessonView } from "@/components/LessonView";
 import { getAllModules, getLessonBySlug, getNextLesson } from "@/lib/lessons";
@@ -27,6 +28,7 @@ export default function LessonPage({ params }: LessonPageProps) {
   useEffect(() => {
     const saved = localStorage.getItem("python-mastery-completed");
     if (saved) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrating from localStorage
       setCompletedLessons(new Set(JSON.parse(saved)));
     }
   }, []);
@@ -59,9 +61,9 @@ export default function LessonPage({ params }: LessonPageProps) {
           <p className="text-muted-foreground mb-4">
             The lesson you&apos;re looking for doesn&apos;t exist.
           </p>
-          <a href="/learn" className="btn-primary">
+          <Link href="/learn" className="btn-primary">
             Back to Dashboard
-          </a>
+          </Link>
         </div>
       </div>
     );
