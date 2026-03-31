@@ -4,10 +4,10 @@ const BUILDING_PERMITS_CSV = `Permit Number|Permit Type Definition|Street Number
 BP2023-0001|alterations|450|Market St|Suite 200|issued|2023-01-15|2023-02-10||office|office|Financial District|Y
 BP2023-0002|new construction|1200|Mission St||complete|2023-01-18|2023-02-28|2023-08-15|vacant lot|apartments|SoMa|Y
 BP2023-0003|additions|2847|24th St||issued|2023-01-22|2023-03-05||1 family dwelling|1 family dwelling|Mission|Y
-BP2023-0004|alterations|555|California St|Floor 12|cancelled|2023-01-25||||office|office|Nob Hill|Y
+BP2023-0004|alterations|555|California St|Floor 12|cancelled|2023-01-25|||office|office|Nob Hill|Y
 BP2023-0005|demolition|890|Folsom St||complete|2023-02-01|2023-02-15|2023-03-20|warehouse|vacant lot|SoMa|Y
 BP2023-0006|new construction|3200|16th St||issued|2023-02-05|2023-04-01||parking lot|retail|Mission|Y
-BP2023-0007|alterations|100|Van Ness Ave||withdrawn|2023-02-10||||retail|restaurant|Civic Center|Y
+BP2023-0007|alterations|100|Van Ness Ave||withdrawn|2023-02-10|||retail|restaurant|Civic Center|Y
 BP2023-0008|sign erection|1800|Haight St||complete|2023-02-12|2023-02-20|2023-02-28|retail|retail|Haight-Ashbury|Y
 BP2023-0009|additions|4521|Judah St||issued|2023-02-15|2023-04-10||1 family dwelling|2 family dwelling|Sunset|Y
 BP2023-0010|alterations|601|Montgomery St|Suite 500|issued|2023-02-18|2023-03-25||office|office|Financial District|Y
@@ -18,9 +18,9 @@ BP2023-0014|additions|3845|Noriega St||issued|2023-03-01|2023-05-01||1 family dw
 BP2023-0015|new construction|425|Mission St||issued|2023-03-05|2023-06-15||parking lot|office tower|Financial District|Y
 BP2023-0016|alterations|2200|Market St|Unit 3|complete|2023-03-08|2023-04-20|2023-06-30|retail|restaurant|Castro|Y
 BP2023-0017|sign erection|300|Geary St||issued|2023-03-10|2023-03-25||retail|retail|Union Square|Y
-BP2023-0018|alterations|1725|Ocean Ave||withdrawn|2023-03-12||||retail|medical office|Ingleside|Y
+BP2023-0018|alterations|1725|Ocean Ave||withdrawn|2023-03-12|||retail|medical office|Ingleside|Y
 BP2023-0019|new construction|5600|3rd St||issued|2023-03-15|2023-06-01||industrial|mixed use|Bayview|Y
-BP2023-0020|additions|145|Leavenworth St||cancelled|2023-03-18||||apartments|apartments|Tenderloin|Y
+BP2023-0020|additions|145|Leavenworth St||cancelled|2023-03-18|||apartments|apartments|Tenderloin|Y
 BP2023-0021|alterations|888|Brannan St||complete|2023-03-20|2023-05-10|2023-08-20|office|office|SoMa|Y
 BP2023-0022|demolition|2400|Cesar Chavez St||complete|2023-03-22|2023-04-05|2023-05-01|warehouse|vacant lot|Mission|Y
 BP2023-0023|new construction|1950|Mission St||issued|2023-03-25|2023-07-01||vacant lot|apartments|Mission|Y
@@ -38,12 +38,12 @@ BP2023-0034|alterations|3100|Fillmore St||issued|2023-04-25|2023-06-20||retail|r
 BP2023-0035|sign erection|2800|Leavenworth St||issued|2023-04-28|2023-05-10||retail|retail|Fishermans Wharf|Y
 BP2023-0036|new construction|820|Harrison St||issued|2023-05-01|2023-08-15||parking lot|office|SoMa|Y
 BP2023-0037|additions|1650|Vallejo St||complete|2023-05-05|2023-07-10|2023-10-01|1 family dwelling|1 family dwelling|Russian Hill|Y
-BP2023-0038|alterations|222|Sansome St|Floor 3|cancelled|2023-05-08||||office|office|Financial District|Y
+BP2023-0038|alterations|222|Sansome St|Floor 3|cancelled|2023-05-08|||office|office|Financial District|Y
 BP2023-0039|demolition|1800|Evans Ave||issued|2023-05-10|2023-06-01||industrial|vacant lot|Bayview|Y
 BP2023-0040|alterations|660|Market St||complete|2023-05-12|2023-07-20|2023-09-25|retail|office|Financial District|Y
 BP2023-0041|new construction|3450|18th St||issued|2023-05-15|2023-09-01||vacant lot|apartments|Castro|Y
 BP2023-0042|additions|4800|Taraval St||issued|2023-05-18|2023-08-05||1 family dwelling|2 family dwelling|Parkside|Y
-BP2023-0043|alterations|1250|Van Ness Ave||withdrawn|2023-05-20||||retail|medical office|Polk Gulch|Y
+BP2023-0043|alterations|1250|Van Ness Ave||withdrawn|2023-05-20|||retail|medical office|Polk Gulch|Y
 BP2023-0044|sign erection|501|Castro St||complete|2023-05-22|2023-06-05|2023-06-15|retail|retail|Castro|Y
 BP2023-0045|alterations|955|Market St|Unit 7|issued|2023-05-25|2023-08-10||office|office|Civic Center|Y
 BP2023-0046|new construction|2000|Evans Ave||issued|2023-05-28|2023-09-15||industrial|mixed use|Bayview|Y
