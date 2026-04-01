@@ -9,9 +9,88 @@ interface OutputPanelProps {
   executionTime?: number;
 }
 
+interface DataFrameInfo {
+  html: string;
+  rows: number;
+  cols: number;
+  truncated: boolean;
+}
+
 interface OutputPart {
   type: "text" | "dataframe";
   content: string;
+  dataframeInfo?: DataFrameInfo;
+}
+
+// Common error causes for different error types
+const ERROR_CAUSES: Record<string, string[]> = {
+  NameError: [
+    "Variable or function name is misspelled",
+    "Variable was used before it was defined",
+    "Forgot to import a module (e.g., import pandas as pd)",
+  ],
+  SyntaxError: [
+    "Missing colon after if/for/def/class statement",
+    "Unmatched parentheses, brackets, or quotes",
+    "Invalid indentation or mixing tabs and spaces",
+  ],
+  TypeError: [
+    "Wrong argument type passed to a function",
+    "Trying to use an operator on incompatible types",
+    "Calling a non-callable object (like a list or int)",
+  ],
+  KeyError: [
+    "Column name doesn't exist in the DataFrame",
+    "Dictionary key doesn't exist",
+    "Check for typos in column/key names",
+  ],
+  IndexError: [
+    "List index is out of range",
+    "Trying to access an element that doesn't exist",
+    "Remember: Python uses 0-based indexing",
+  ],
+  ValueError: [
+    "Invalid value passed to a function",
+    "Data format doesn't match expected format",
+    "Trying to convert incompatible data types",
+  ],
+  AttributeError: [
+    "Method or attribute doesn't exist on this object",
+    "Check if the object is the expected type",
+    "Maybe the object is None when you expected a value",
+  ],
+  ImportError: [
+    "Module is not installed",
+    "Module name is misspelled",
+    "Trying to import something that doesn't exist in the module",
+  ],
+  FileNotFoundError: [
+    "File path is incorrect",
+    "File doesn't exist at the specified location",
+    "Check for typos in the file path",
+  ],
+};
+
+function parseDataFrameShape(html: string): { rows: number; cols: number; truncated: boolean } {
+  let rows = 0;
+  let cols = 0;
+  let truncated = false;
+
+  const rowMatches = html.match(/<tr>/gi);
+  if (rowMatches) {
+    rows = rowMatches.length - 1;
+  }
+
+  const headerMatch = html.match(/<th[^>]*>/gi);
+  if (headerMatch) {
+    cols = headerMatch.length - 1;
+  }
+
+  if (html.includes("...") || html.includes("&hellip;")) {
+    truncated = true;
+  }
+
+  return { rows, cols, truncated };
 }
 
 function parseOutput(output: string): OutputPart[] {
@@ -29,7 +108,19 @@ function parseOutput(output: string): OutputPart[] {
         parts.push({ type: "text", content: text });
       }
     }
-    parts.push({ type: "dataframe", content: match[1] });
+
+    const html = match[1];
+    const shape = parseDataFrameShape(html);
+    parts.push({
+      type: "dataframe",
+      content: html,
+      dataframeInfo: {
+        html,
+        rows: shape.rows,
+        cols: shape.cols,
+        truncated: shape.truncated,
+      },
+    });
     lastIndex = match.index + match[0].length;
   }
 
@@ -49,13 +140,20 @@ function formatExecutionTime(ms: number): string {
   return `${(ms / 1000).toFixed(2)}s`;
 }
 
-function parseError(error: string): { type: string; message: string; details: string[] } {
+function parseError(error: string): { type: string; message: string; details: string[]; lineInfo: string | null } {
   const lines = error.split("\n").filter(Boolean);
 
-  const errorLine = lines.find(line =>
-    line.includes("Error:") ||
-    line.includes("Exception:") ||
-    line.match(/^[A-Z][a-zA-Z]*Error/)
+  let lineInfo: string | null = null;
+  const lineMatch = error.match(/line (\d+)/i);
+  if (lineMatch) {
+    lineInfo = `Line ${lineMatch[1]}`;
+  }
+
+  const errorLine = lines.find(
+    (line) =>
+      line.includes("Error:") ||
+      line.includes("Exception:") ||
+      line.match(/^[A-Z][a-zA-Z]*Error/)
   );
 
   if (errorLine) {
@@ -64,7 +162,8 @@ function parseError(error: string): { type: string; message: string; details: st
       return {
         type: match[1],
         message: match[2],
-        details: lines.filter(l => l !== errorLine && !l.startsWith("Traceback"))
+        details: lines.filter((l) => l !== errorLine && !l.startsWith("Traceback")),
+        lineInfo,
       };
     }
   }
@@ -72,23 +171,130 @@ function parseError(error: string): { type: string; message: string; details: st
   return {
     type: "Error",
     message: lines[lines.length - 1] || error,
-    details: lines.slice(0, -1).filter(l => !l.startsWith("Traceback"))
+    details: lines.slice(0, -1).filter((l) => !l.startsWith("Traceback")),
+    lineInfo,
   };
+}
+
+function EmptyState() {
+  return (
+    <div className="flex flex-col items-center justify-center h-full text-center p-4">
+      <div className="w-12 h-12 rounded-xl bg-card-hover flex items-center justify-center mb-3">
+        <span className="text-2xl opacity-50">▶</span>
+      </div>
+      <p className="text-muted-foreground text-sm mb-1">No output yet</p>
+      <p className="text-muted text-xs">
+        Press <kbd className="px-1.5 py-0.5 rounded bg-card border border-border text-xs">Cmd/Ctrl+Enter</kbd> or click <span className="text-accent">Run</span> to execute
+      </p>
+    </div>
+  );
+}
+
+function NoOutputHint() {
+  return (
+    <div className="flex items-start gap-3 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 mt-3">
+      <span className="text-amber-400">💡</span>
+      <div className="text-sm">
+        <p className="text-amber-400 font-medium mb-1">No visible output?</p>
+        <p className="text-muted-foreground">
+          Try adding <code className="px-1 py-0.5 rounded bg-card text-xs">print()</code> to see your results, or end your code with just a variable name to display it.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function DataFrameDisplay({ info }: { info: DataFrameInfo }) {
+  return (
+    <div className="dataframe-wrapper rounded-lg border border-border overflow-hidden">
+      <div className="flex items-center justify-between px-3 py-2 bg-accent/5 border-b border-border">
+        <div className="flex items-center gap-2">
+          <span className="text-accent text-sm">📊</span>
+          <span className="text-sm font-medium text-foreground">DataFrame</span>
+        </div>
+        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+          <span>{info.rows} rows</span>
+          <span className="text-border">×</span>
+          <span>{info.cols} columns</span>
+          {info.truncated && (
+            <span className="px-1.5 py-0.5 rounded bg-warning/10 text-warning text-[10px]">
+              truncated
+            </span>
+          )}
+        </div>
+      </div>
+      <div
+        className="dataframe-container overflow-x-auto"
+        dangerouslySetInnerHTML={{ __html: info.html }}
+      />
+    </div>
+  );
+}
+
+function ErrorDisplay({ parsedError }: { parsedError: { type: string; message: string; details: string[]; lineInfo: string | null } }) {
+  const commonCauses = ERROR_CAUSES[parsedError.type] || [];
+
+  return (
+    <div className="error-display rounded-lg border border-error/30 bg-error/5 overflow-hidden">
+      <div className="flex items-center justify-between px-4 py-2.5 bg-error/10 border-b border-error/20">
+        <div className="flex items-center gap-2">
+          <span className="text-error font-semibold">{parsedError.type}</span>
+          {parsedError.lineInfo && (
+            <span className="px-2 py-0.5 rounded bg-error/20 text-error text-xs">
+              {parsedError.lineInfo}
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div className="p-4">
+        <p className="text-error font-medium mb-2">{parsedError.message}</p>
+
+        {parsedError.details.length > 0 && (
+          <pre className="text-xs text-error/70 whitespace-pre-wrap mb-3 p-2 rounded bg-error/5 border border-error/10">
+            {parsedError.details.join("\n")}
+          </pre>
+        )}
+
+        {commonCauses.length > 0 && (
+          <div className="mt-3 pt-3 border-t border-error/20">
+            <p className="text-xs font-medium text-error/80 mb-2">Common causes:</p>
+            <ul className="space-y-1">
+              {commonCauses.map((cause, index) => (
+                <li key={index} className="flex items-start gap-2 text-xs text-error/70">
+                  <span className="text-error/50 mt-0.5">•</span>
+                  <span>{cause}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export function OutputPanel({ output, error, isRunning, executionTime }: OutputPanelProps) {
   const outputParts = useMemo(() => parseOutput(output), [output]);
-  const parsedError = useMemo(() => error ? parseError(error) : null, [error]);
+  const parsedError = useMemo(() => (error ? parseError(error) : null), [error]);
+
+  const hasRealOutput = outputParts.some(
+    (part) =>
+      part.type === "dataframe" ||
+      (part.type === "text" && !part.content.startsWith("✅") && part.content.trim().length > 0)
+  );
 
   return (
-    <div className="h-full flex flex-col rounded-lg border border-border bg-card overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-card">
-        <span className="text-sm font-medium text-muted-foreground">
-          Output
-        </span>
+    <div className="output-panel h-full flex flex-col rounded-lg border border-border bg-[#1a1a1f] overflow-hidden">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-[#1e1e23]">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-accent/50" />
+          <span className="text-sm font-medium text-muted-foreground">Output</span>
+        </div>
         <div className="flex items-center gap-3">
           {executionTime !== undefined && executionTime > 0 && !isRunning && (
-            <span className="text-xs text-muted-foreground">
+            <span className="text-xs text-muted-foreground flex items-center gap-1">
+              <span className="text-success">⚡</span>
               {formatExecutionTime(executionTime)}
             </span>
           )}
@@ -100,41 +306,27 @@ export function OutputPanel({ output, error, isRunning, executionTime }: OutputP
           )}
         </div>
       </div>
-      <div className="flex-1 overflow-auto p-4 font-mono text-sm">
-        {!output && !error && !isRunning && (
-          <span className="text-muted">
-            Press Cmd/Ctrl+Enter or click Run to execute your code
-          </span>
-        )}
+
+      <div className="flex-1 overflow-auto p-4 font-mono text-sm output-content">
+        {!output && !error && !isRunning && <EmptyState />}
 
         {outputParts.map((part, index) => (
-          <div key={index} className={index > 0 ? "mt-3" : ""}>
+          <div key={index} className={index > 0 ? "mt-4" : ""}>
             {part.type === "text" ? (
-              <pre className="whitespace-pre-wrap text-foreground">{part.content}</pre>
+              <div className="text-output">
+                <pre className="whitespace-pre-wrap text-foreground leading-relaxed">{part.content}</pre>
+              </div>
             ) : (
-              <div
-                className="dataframe-container overflow-x-auto rounded-lg border border-border"
-                dangerouslySetInnerHTML={{ __html: part.content }}
-              />
+              part.dataframeInfo && <DataFrameDisplay info={part.dataframeInfo} />
             )}
           </div>
         ))}
 
-        {parsedError && (
-          <div className="mt-2 rounded-lg border border-error/30 bg-error/5 overflow-hidden">
-            <div className="px-3 py-2 bg-error/10 border-b border-error/20">
-              <span className="text-error font-semibold">{parsedError.type}</span>
-            </div>
-            <div className="p-3">
-              <p className="text-error font-medium">{parsedError.message}</p>
-              {parsedError.details.length > 0 && (
-                <pre className="mt-2 text-xs text-error/70 whitespace-pre-wrap">
-                  {parsedError.details.join("\n")}
-                </pre>
-              )}
-            </div>
-          </div>
+        {!error && !isRunning && output && !hasRealOutput && outputParts.length === 0 && (
+          <NoOutputHint />
         )}
+
+        {parsedError && <ErrorDisplay parsedError={parsedError} />}
       </div>
     </div>
   );

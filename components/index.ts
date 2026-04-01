@@ -5,3 +5,4 @@ export { Sidebar } from "./Sidebar";
 export { LessonView } from "./LessonView";
 export { ProjectCard } from "./ProjectCard";
 export { ProjectView } from "./ProjectView";
+export { TheoryContent, LearningObjectives, WhatYouLearned } from "./TheoryContent";

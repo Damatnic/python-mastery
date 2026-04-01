@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Sidebar } from "@/components/Sidebar";
 import { LessonView } from "@/components/LessonView";
-import { getAllModules, getLessonBySlug, getNextLesson } from "@/lib/lessons";
+import { getAllModules, getLessonBySlug, getNextLesson, getPreviousLesson } from "@/lib/lessons";
 
 interface LessonPageProps {
   params: Promise<{
@@ -24,6 +24,7 @@ export default function LessonPage({ params }: LessonPageProps) {
   const modules = getAllModules();
   const lesson = getLessonBySlug(moduleSlug, lessonSlug);
   const nextLesson = lesson ? getNextLesson(moduleSlug, lessonSlug) : null;
+  const prevLesson = lesson ? getPreviousLesson(moduleSlug, lessonSlug) : null;
 
   useEffect(() => {
     const saved = localStorage.getItem("python-mastery-completed");
@@ -73,7 +74,12 @@ export default function LessonPage({ params }: LessonPageProps) {
     <div className="h-screen flex overflow-hidden">
       <Sidebar modules={modules} completedLessons={completedLessons} />
       <main className="flex-1 flex flex-col overflow-hidden">
-        <LessonView lesson={lesson} onComplete={handleComplete} />
+        <LessonView
+          lesson={lesson}
+          onComplete={handleComplete}
+          prevLesson={prevLesson ? { slug: prevLesson.slug, moduleSlug: prevLesson.moduleSlug, title: prevLesson.title } : null}
+          nextLesson={nextLesson ? { slug: nextLesson.slug, moduleSlug: nextLesson.moduleSlug, title: nextLesson.title } : null}
+        />
       </main>
     </div>
   );
