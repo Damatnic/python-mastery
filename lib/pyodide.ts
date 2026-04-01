@@ -156,22 +156,46 @@ else:
 
       // Get locals for validation
       const localsCode = `
-import json
+import json, math, re
+
+def _clean_nan(obj):
+    if isinstance(obj, float) and (math.isnan(obj) or math.isinf(obj)):
+        return None
+    if isinstance(obj, dict):
+        return {k: _clean_nan(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_clean_nan(v) for v in obj]
+    return obj
+
 _locals_dict = {}
 for name, val in list(locals().items()):
     if not name.startswith('_'):
         try:
             if hasattr(val, 'to_dict'):
-                _locals_dict[name] = val.to_dict()
+                import pandas as pd
+                cleaned = val.where(pd.notnull(val), other=None) if hasattr(val, 'where') else val
+                _locals_dict[name] = _clean_nan(cleaned.to_dict())
             elif isinstance(val, (int, float, str, bool, list, dict, type(None))):
-                _locals_dict[name] = val
+                _locals_dict[name] = _clean_nan(val)
         except:
             pass
-json.dumps(_locals_dict)
+json_str = json.dumps(_locals_dict, default=str)
+# Belt-and-suspenders: replace any bare NaN/Infinity that slipped through
+import re as _re
+json_str = _re.sub(r'\\bNaN\\b', 'null', json_str)
+json_str = _re.sub(r'\\b-?Infinity\\b', 'null', json_str)
+json_str
 `;
       const localsJson = await pyodide.runPythonAsync(localsCode);
-      const locals =
-        typeof localsJson === "string" ? JSON.parse(localsJson) : {};
+      let locals: Record<string, unknown> = {};
+      if (typeof localsJson === "string") {
+        try {
+          locals = JSON.parse(localsJson);
+        } catch {
+          // NaN or other non-JSON values slipped through — safe to ignore
+          locals = {};
+        }
+      }
 
       const executionTime = performance.now() - startTime;
 
