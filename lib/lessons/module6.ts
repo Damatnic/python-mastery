@@ -189,6 +189,68 @@ print(get_data(good))
 print(get_data(bad))`,
       },
     ],
+    projectChallenge: {
+      threadId: "sales",
+      threadTitle: "Sales Performance Dashboard",
+      taskTitle: "Process Sales API Response",
+      context: "The inventory system returns sales data via an API. Process the simulated API response to extract sales records and calculate summary statistics.",
+      starterCode: `import pandas as pd
+import io
+
+# Simulated API response from inventory system
+api_response = {
+    "status": 200,
+    "timestamp": "2023-03-15T10:30:00Z",
+    "data": {
+        "sales": [
+            {"SaleID": "S001", "SalesRep": "Alice Chen", "Region": "North", "Product": "Widget Pro", "Category": "Electronics", "Quantity": 15, "UnitPrice": 49.99, "CustomerSegment": "Enterprise"},
+            {"SaleID": "S002", "SalesRep": "Bob Martinez", "Region": "South", "Product": "Gadget Plus", "Category": "Tools", "Quantity": 8, "UnitPrice": 29.99, "CustomerSegment": "SMB"},
+            {"SaleID": "S003", "SalesRep": "Carol Davis", "Region": "East", "Product": "Widget Pro", "Category": "Electronics", "Quantity": 22, "UnitPrice": 49.99, "CustomerSegment": "Enterprise"},
+            {"SaleID": "S004", "SalesRep": "Dan Wilson", "Region": "West", "Product": "Super Tool", "Category": "Tools", "Quantity": 45, "UnitPrice": 19.99, "CustomerSegment": "Consumer"},
+            {"SaleID": "S005", "SalesRep": "Eva Brown", "Region": "North", "Product": "Power Unit", "Category": "Electronics", "Quantity": 10, "UnitPrice": 89.99, "CustomerSegment": "Enterprise"}
+        ],
+        "total_count": 5
+    }
+}
+
+# Task:
+# 1. Check if response status is 200
+# 2. Extract the sales list from the response
+# 3. Convert to DataFrame and calculate revenue
+# 4. Print summary: total sales count and total revenue
+`,
+      solution: `import pandas as pd
+import io
+
+api_response = {
+    "status": 200,
+    "timestamp": "2023-03-15T10:30:00Z",
+    "data": {
+        "sales": [
+            {"SaleID": "S001", "SalesRep": "Alice Chen", "Region": "North", "Product": "Widget Pro", "Category": "Electronics", "Quantity": 15, "UnitPrice": 49.99, "CustomerSegment": "Enterprise"},
+            {"SaleID": "S002", "SalesRep": "Bob Martinez", "Region": "South", "Product": "Gadget Plus", "Category": "Tools", "Quantity": 8, "UnitPrice": 29.99, "CustomerSegment": "SMB"},
+            {"SaleID": "S003", "SalesRep": "Carol Davis", "Region": "East", "Product": "Widget Pro", "Category": "Electronics", "Quantity": 22, "UnitPrice": 49.99, "CustomerSegment": "Enterprise"},
+            {"SaleID": "S004", "SalesRep": "Dan Wilson", "Region": "West", "Product": "Super Tool", "Category": "Tools", "Quantity": 45, "UnitPrice": 19.99, "CustomerSegment": "Consumer"},
+            {"SaleID": "S005", "SalesRep": "Eva Brown", "Region": "North", "Product": "Power Unit", "Category": "Electronics", "Quantity": 10, "UnitPrice": 89.99, "CustomerSegment": "Enterprise"}
+        ],
+        "total_count": 5
+    }
+}
+
+if api_response["status"] == 200:
+    sales_list = api_response["data"]["sales"]
+    sales = pd.DataFrame(sales_list)
+    sales["Revenue"] = sales["Quantity"] * sales["UnitPrice"]
+
+    print(f"API Status: {api_response['status']} OK")
+    print(f"Total Sales: {len(sales)}")
+    print(f"Total Revenue: \${sales['Revenue'].sum():,.2f}")
+else:
+    print(f"API Error: {api_response['status']}")`,
+      validateFn: `return output.includes("200") && output.includes("Total") && output.includes("Revenue")`,
+      hint: "Check status first, then navigate to api_response['data']['sales'] and convert to DataFrame",
+      xpReward: 50,
+    },
   },
   {
     module: "Web & APIs",
@@ -383,6 +445,112 @@ for user in data['users']:
 print(f"Average age: {sum(ages)/len(ages)}")`,
       },
     ],
+    projectChallenge: {
+      threadId: "sales",
+      threadTitle: "Sales Performance Dashboard",
+      taskTitle: "Parse Nested Sales Report",
+      context: "The analytics API returns a nested JSON report with sales grouped by region. Parse this structure to create a flat DataFrame showing regional performance.",
+      starterCode: `import pandas as pd
+import io
+
+# Nested JSON sales report from analytics API
+sales_report = {
+    "report_date": "2023-Q1",
+    "regions": [
+        {
+            "name": "North",
+            "manager": "Alice Chen",
+            "sales": [
+                {"product": "Widget Pro", "quantity": 37, "revenue": 1849.63},
+                {"product": "Power Unit", "quantity": 10, "revenue": 899.90},
+                {"product": "Widget Basic", "quantity": 145, "revenue": 3623.55}
+            ]
+        },
+        {
+            "name": "South",
+            "manager": "Bob Martinez",
+            "sales": [
+                {"product": "Gadget Plus", "quantity": 8, "revenue": 239.92},
+                {"product": "Widget Pro", "quantity": 18, "revenue": 899.82},
+                {"product": "Power Unit", "quantity": 12, "revenue": 1079.88}
+            ]
+        },
+        {
+            "name": "East",
+            "manager": "Carol Davis",
+            "sales": [
+                {"product": "Widget Pro", "quantity": 22, "revenue": 1099.78},
+                {"product": "Super Tool", "quantity": 55, "revenue": 1099.45},
+                {"product": "Gadget Plus", "quantity": 25, "revenue": 749.75}
+            ]
+        }
+    ]
+}
+
+# Task:
+# 1. Flatten the nested structure into a list of dicts
+# 2. Each dict should have: Region, Manager, Product, Quantity, Revenue
+# 3. Convert to DataFrame and print regional totals
+`,
+      solution: `import pandas as pd
+import io
+
+sales_report = {
+    "report_date": "2023-Q1",
+    "regions": [
+        {
+            "name": "North",
+            "manager": "Alice Chen",
+            "sales": [
+                {"product": "Widget Pro", "quantity": 37, "revenue": 1849.63},
+                {"product": "Power Unit", "quantity": 10, "revenue": 899.90},
+                {"product": "Widget Basic", "quantity": 145, "revenue": 3623.55}
+            ]
+        },
+        {
+            "name": "South",
+            "manager": "Bob Martinez",
+            "sales": [
+                {"product": "Gadget Plus", "quantity": 8, "revenue": 239.92},
+                {"product": "Widget Pro", "quantity": 18, "revenue": 899.82},
+                {"product": "Power Unit", "quantity": 12, "revenue": 1079.88}
+            ]
+        },
+        {
+            "name": "East",
+            "manager": "Carol Davis",
+            "sales": [
+                {"product": "Widget Pro", "quantity": 22, "revenue": 1099.78},
+                {"product": "Super Tool", "quantity": 55, "revenue": 1099.45},
+                {"product": "Gadget Plus", "quantity": 25, "revenue": 749.75}
+            ]
+        }
+    ]
+}
+
+# Flatten the structure
+rows = []
+for region in sales_report["regions"]:
+    for sale in region["sales"]:
+        rows.append({
+            "Region": region["name"],
+            "Manager": region["manager"],
+            "Product": sale["product"],
+            "Quantity": sale["quantity"],
+            "Revenue": sale["revenue"]
+        })
+
+df = pd.DataFrame(rows)
+
+# Regional totals
+print("Regional Performance:")
+regional = df.groupby("Region")["Revenue"].sum()
+for region, rev in regional.items():
+    print(f"  {region}: \${rev:,.2f}")`,
+      validateFn: `return output.includes("North") && output.includes("South") && output.includes("East") && output.includes("$")`,
+      hint: "Loop through regions, then through each region's sales, building a flat list of dicts",
+      xpReward: 50,
+    },
   },
   {
     module: "Web & APIs",
@@ -588,6 +756,104 @@ for url, text in links:
     print(f"{text}: {url}")`,
       },
     ],
+    projectChallenge: {
+      threadId: "sales",
+      threadTitle: "Sales Performance Dashboard",
+      taskTitle: "Extract Sales from HTML",
+      context: "The legacy system exports sales data as HTML. Extract the sales information from the HTML table structure using regex patterns.",
+      starterCode: `import pandas as pd
+import io
+import re
+
+# HTML sales report from legacy system
+html_report = """
+<div class="sales-report">
+    <h2>Q1 Sales Summary</h2>
+    <div class="sale-card">
+        <span class="rep">Alice Chen</span>
+        <span class="region">North</span>
+        <span class="product">Widget Pro</span>
+        <span class="revenue">$749.85</span>
+    </div>
+    <div class="sale-card">
+        <span class="rep">Bob Martinez</span>
+        <span class="region">South</span>
+        <span class="product">Gadget Plus</span>
+        <span class="revenue">$239.92</span>
+    </div>
+    <div class="sale-card">
+        <span class="rep">Carol Davis</span>
+        <span class="region">East</span>
+        <span class="product">Widget Pro</span>
+        <span class="revenue">$1099.78</span>
+    </div>
+    <div class="sale-card">
+        <span class="rep">Dan Wilson</span>
+        <span class="region">West</span>
+        <span class="product">Super Tool</span>
+        <span class="revenue">$899.55</span>
+    </div>
+</div>
+"""
+
+# Task:
+# 1. Extract rep names, regions, products, and revenues using regex
+# 2. Parse revenue strings (remove $ and convert to float)
+# 3. Print each sale and the total revenue
+`,
+      solution: `import pandas as pd
+import io
+import re
+
+html_report = """
+<div class="sales-report">
+    <h2>Q1 Sales Summary</h2>
+    <div class="sale-card">
+        <span class="rep">Alice Chen</span>
+        <span class="region">North</span>
+        <span class="product">Widget Pro</span>
+        <span class="revenue">$749.85</span>
+    </div>
+    <div class="sale-card">
+        <span class="rep">Bob Martinez</span>
+        <span class="region">South</span>
+        <span class="product">Gadget Plus</span>
+        <span class="revenue">$239.92</span>
+    </div>
+    <div class="sale-card">
+        <span class="rep">Carol Davis</span>
+        <span class="region">East</span>
+        <span class="product">Widget Pro</span>
+        <span class="revenue">$1099.78</span>
+    </div>
+    <div class="sale-card">
+        <span class="rep">Dan Wilson</span>
+        <span class="region">West</span>
+        <span class="product">Super Tool</span>
+        <span class="revenue">$899.55</span>
+    </div>
+</div>
+"""
+
+# Extract each field
+reps = re.findall(r'<span class="rep">([^<]+)</span>', html_report)
+regions = re.findall(r'<span class="region">([^<]+)</span>', html_report)
+products = re.findall(r'<span class="product">([^<]+)</span>', html_report)
+revenues = re.findall(r'<span class="revenue">\\$([^<]+)</span>', html_report)
+
+# Build and display results
+total = 0
+print("Extracted Sales:")
+for rep, region, product, rev in zip(reps, regions, products, revenues):
+    amount = float(rev.replace(",", ""))
+    total += amount
+    print(f"  {rep} ({region}): {product} - \${amount:.2f}")
+
+print(f"\\nTotal Revenue: \${total:,.2f}")`,
+      validateFn: `return output.includes("Alice") && output.includes("Bob") && output.includes("Total") && output.includes("$")`,
+      hint: "Use separate findall patterns for each span class, then zip them together",
+      xpReward: 50,
+    },
   },
   {
     module: "Web & APIs",
@@ -769,6 +1035,72 @@ df['Price'] = df['Price'].str.replace('$', '', regex=False).astype(float)
 print(f"Max price: \${df['Price'].max()}")`,
       },
     ],
+    projectChallenge: {
+      threadId: "sales",
+      threadTitle: "Sales Performance Dashboard",
+      taskTitle: "Parse HTML Sales Report",
+      context: "The weekly sales report is distributed as an HTML table. Use pd.read_html to extract the data and clean up the currency formatting for analysis.",
+      starterCode: `import pandas as pd
+import io
+
+# Weekly sales report as HTML table
+html_table = """
+<table border="1">
+    <thead>
+        <tr><th>SalesRep</th><th>Region</th><th>Product</th><th>Units</th><th>Revenue</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>Alice Chen</td><td>North</td><td>Widget Pro</td><td>15</td><td>$749.85</td></tr>
+        <tr><td>Bob Martinez</td><td>South</td><td>Gadget Plus</td><td>8</td><td>$239.92</td></tr>
+        <tr><td>Carol Davis</td><td>East</td><td>Widget Pro</td><td>22</td><td>$1,099.78</td></tr>
+        <tr><td>Dan Wilson</td><td>West</td><td>Super Tool</td><td>45</td><td>$899.55</td></tr>
+        <tr><td>Eva Brown</td><td>North</td><td>Power Unit</td><td>10</td><td>$899.90</td></tr>
+    </tbody>
+</table>
+"""
+
+# Task:
+# 1. Parse the HTML table with pd.read_html
+# 2. Clean the Revenue column (remove $ and commas, convert to float)
+# 3. Find the top performer by revenue
+# 4. Print the DataFrame and the top performer
+`,
+      solution: `import pandas as pd
+import io
+
+html_table = """
+<table border="1">
+    <thead>
+        <tr><th>SalesRep</th><th>Region</th><th>Product</th><th>Units</th><th>Revenue</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>Alice Chen</td><td>North</td><td>Widget Pro</td><td>15</td><td>$749.85</td></tr>
+        <tr><td>Bob Martinez</td><td>South</td><td>Gadget Plus</td><td>8</td><td>$239.92</td></tr>
+        <tr><td>Carol Davis</td><td>East</td><td>Widget Pro</td><td>22</td><td>$1,099.78</td></tr>
+        <tr><td>Dan Wilson</td><td>West</td><td>Super Tool</td><td>45</td><td>$899.55</td></tr>
+        <tr><td>Eva Brown</td><td>North</td><td>Power Unit</td><td>10</td><td>$899.90</td></tr>
+    </tbody>
+</table>
+"""
+
+# Parse HTML table
+df = pd.read_html(html_table)[0]
+
+# Clean revenue column
+df["Revenue"] = df["Revenue"].str.replace("$", "", regex=False).str.replace(",", "", regex=False).astype(float)
+
+print("Sales Data:")
+print(df)
+
+# Find top performer
+top_idx = df["Revenue"].idxmax()
+top_rep = df.loc[top_idx, "SalesRep"]
+top_rev = df.loc[top_idx, "Revenue"]
+print(f"\\nTop Performer: {top_rep} with \${top_rev:,.2f}")`,
+      validateFn: `return output.includes("Carol") && output.includes("1099") || output.includes("1,099")`,
+      hint: "Use pd.read_html, then str.replace to remove $ and commas before converting to float",
+      xpReward: 50,
+    },
   },
   {
     module: "Web & APIs",
@@ -1037,5 +1369,92 @@ def run_pipeline():
 run_pipeline()`,
       },
     ],
+    projectChallenge: {
+      threadId: "sales",
+      threadTitle: "Sales Performance Dashboard",
+      taskTitle: "Build Sales ETL Pipeline",
+      context: "Create a complete ETL pipeline for the sales dashboard. Extract data from the source, transform it with revenue calculations and categorization, then load a summary report.",
+      starterCode: `import pandas as pd
+import io
+
+sales_csv = """SaleID,SalesRep,Region,Product,Category,Quantity,UnitPrice,SaleDate,CustomerSegment
+S001,Alice Chen,North,Widget Pro,Electronics,15,49.99,2023-01-05,Enterprise
+S002,Bob Martinez,South,Gadget Plus,Tools,8,29.99,2023-01-08,SMB
+S003,Carol Davis,East,Widget Pro,Electronics,22,49.99,2023-01-10,Enterprise
+S004,Dan Wilson,West,Super Tool,Tools,45,19.99,2023-01-12,Consumer
+S005,Eva Brown,North,Power Unit,Electronics,10,89.99,2023-01-15,Enterprise
+S006,Alice Chen,North,Gadget Plus,Tools,30,29.99,2023-01-18,SMB
+S007,Bob Martinez,South,Widget Pro,Electronics,18,49.99,2023-01-20,Consumer
+S008,Carol Davis,East,Super Tool,Tools,55,19.99,2023-02-01,SMB
+S009,Dan Wilson,West,Power Unit,Electronics,8,89.99,2023-02-05,Enterprise
+S010,Eva Brown,North,Widget Basic,Electronics,65,24.99,2023-02-10,Consumer
+S011,Alice Chen,North,Super Tool,Tools,40,19.99,2023-02-15,Consumer
+S012,Bob Martinez,South,Power Unit,Electronics,12,89.99,2023-02-20,Enterprise
+S013,Carol Davis,East,Gadget Plus,Tools,25,29.99,2023-03-01,SMB
+S014,Dan Wilson,West,Widget Pro,Electronics,20,49.99,2023-03-05,Enterprise
+S015,Eva Brown,North,Widget Basic,Electronics,80,24.99,2023-03-10,Consumer"""
+
+# Task: Build a complete ETL pipeline with 3 functions:
+# 1. extract() - Load and return the sales DataFrame
+# 2. transform(df) - Add Revenue, SaleTier (High/Medium/Low based on revenue)
+# 3. load(df) - Print summary by Region and by SaleTier
+# Run the full pipeline and print results
+`,
+      solution: `import pandas as pd
+import io
+
+sales_csv = """SaleID,SalesRep,Region,Product,Category,Quantity,UnitPrice,SaleDate,CustomerSegment
+S001,Alice Chen,North,Widget Pro,Electronics,15,49.99,2023-01-05,Enterprise
+S002,Bob Martinez,South,Gadget Plus,Tools,8,29.99,2023-01-08,SMB
+S003,Carol Davis,East,Widget Pro,Electronics,22,49.99,2023-01-10,Enterprise
+S004,Dan Wilson,West,Super Tool,Tools,45,19.99,2023-01-12,Consumer
+S005,Eva Brown,North,Power Unit,Electronics,10,89.99,2023-01-15,Enterprise
+S006,Alice Chen,North,Gadget Plus,Tools,30,29.99,2023-01-18,SMB
+S007,Bob Martinez,South,Widget Pro,Electronics,18,49.99,2023-01-20,Consumer
+S008,Carol Davis,East,Super Tool,Tools,55,19.99,2023-02-01,SMB
+S009,Dan Wilson,West,Power Unit,Electronics,8,89.99,2023-02-05,Enterprise
+S010,Eva Brown,North,Widget Basic,Electronics,65,24.99,2023-02-10,Consumer
+S011,Alice Chen,North,Super Tool,Tools,40,19.99,2023-02-15,Consumer
+S012,Bob Martinez,South,Power Unit,Electronics,12,89.99,2023-02-20,Enterprise
+S013,Carol Davis,East,Gadget Plus,Tools,25,29.99,2023-03-01,SMB
+S014,Dan Wilson,West,Widget Pro,Electronics,20,49.99,2023-03-05,Enterprise
+S015,Eva Brown,North,Widget Basic,Electronics,80,24.99,2023-03-10,Consumer"""
+
+def extract():
+    print("[EXTRACT] Loading sales data...")
+    df = pd.read_csv(io.StringIO(sales_csv))
+    print(f"[EXTRACT] Loaded {len(df)} records")
+    return df
+
+def transform(df):
+    print("[TRANSFORM] Processing data...")
+    df["Revenue"] = df["Quantity"] * df["UnitPrice"]
+    df["SaleTier"] = pd.cut(df["Revenue"],
+                            bins=[0, 500, 1000, float("inf")],
+                            labels=["Low", "Medium", "High"])
+    print(f"[TRANSFORM] Added Revenue and SaleTier columns")
+    return df
+
+def load(df):
+    print("[LOAD] Generating reports...")
+    print("\\n=== Revenue by Region ===")
+    by_region = df.groupby("Region")["Revenue"].sum()
+    for region, rev in by_region.items():
+        print(f"  {region}: \${rev:,.2f}")
+
+    print("\\n=== Sales by Tier ===")
+    print(df["SaleTier"].value_counts())
+
+    print(f"\\n[LOAD] Total Revenue: \${df['Revenue'].sum():,.2f}")
+
+# Run pipeline
+raw = extract()
+transformed = transform(raw)
+load(transformed)
+print("\\n[COMPLETE] Pipeline finished successfully!")`,
+      validateFn: `return output.includes("EXTRACT") && output.includes("TRANSFORM") && output.includes("LOAD") && output.includes("Region")`,
+      hint: "Create three functions for extract/transform/load, then call them in sequence",
+      xpReward: 50,
+    },
   },
 ];

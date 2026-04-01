@@ -157,6 +157,78 @@ result = " - ".join(fruits)
 print(result)`,
       },
     ],
+    projectChallenge: {
+      threadId: "sales",
+      threadTitle: "Sales Performance Dashboard",
+      taskTitle: "Clean Sales Rep Names",
+      context: "The sales data has inconsistent SalesRep name formatting. Some names have extra spaces or inconsistent capitalization. Clean the names to ensure proper formatting for the dashboard display.",
+      starterCode: `import pandas as pd
+import io
+
+sales_csv = """SaleID,SalesRep,Region,Product,Category,Quantity,UnitPrice,SaleDate,CustomerSegment
+S001,Alice Chen,North,Widget Pro,Electronics,15,49.99,2023-01-05,Enterprise
+S002,Bob Martinez,South,Gadget Plus,Tools,8,29.99,2023-01-08,SMB
+S003,Carol Davis,East,Widget Pro,Electronics,22,49.99,2023-01-10,Enterprise
+S004,Dan Wilson,West,Super Tool,Tools,45,19.99,2023-01-12,Consumer
+S005,Eva Brown,North,Power Unit,Electronics,10,89.99,2023-01-15,Enterprise
+S006,Alice Chen,North,Gadget Plus,Tools,30,29.99,2023-01-18,SMB
+S007,Bob Martinez,South,Widget Pro,Electronics,18,49.99,2023-01-20,Consumer
+S008,Carol Davis,East,Super Tool,Tools,55,19.99,2023-02-01,SMB
+S009,Dan Wilson,West,Power Unit,Electronics,8,89.99,2023-02-05,Enterprise
+S010,Eva Brown,North,Widget Basic,Electronics,65,24.99,2023-02-10,Consumer
+S011,Alice Chen,North,Super Tool,Tools,40,19.99,2023-02-15,Consumer
+S012,Bob Martinez,South,Power Unit,Electronics,12,89.99,2023-02-20,Enterprise
+S013,Carol Davis,East,Gadget Plus,Tools,25,29.99,2023-03-01,SMB
+S014,Dan Wilson,West,Widget Pro,Electronics,20,49.99,2023-03-05,Enterprise
+S015,Eva Brown,North,Widget Basic,Electronics,80,24.99,2023-03-10,Consumer"""
+
+sales = pd.read_csv(io.StringIO(sales_csv))
+
+# Task: Clean the SalesRep names by:
+# 1. Stripping whitespace
+# 2. Converting to title case
+# 3. Extract just the first name into a new column 'FirstName'
+# Print the unique SalesRep names and their first names
+`,
+      solution: `import pandas as pd
+import io
+
+sales_csv = """SaleID,SalesRep,Region,Product,Category,Quantity,UnitPrice,SaleDate,CustomerSegment
+S001,Alice Chen,North,Widget Pro,Electronics,15,49.99,2023-01-05,Enterprise
+S002,Bob Martinez,South,Gadget Plus,Tools,8,29.99,2023-01-08,SMB
+S003,Carol Davis,East,Widget Pro,Electronics,22,49.99,2023-01-10,Enterprise
+S004,Dan Wilson,West,Super Tool,Tools,45,19.99,2023-01-12,Consumer
+S005,Eva Brown,North,Power Unit,Electronics,10,89.99,2023-01-15,Enterprise
+S006,Alice Chen,North,Gadget Plus,Tools,30,29.99,2023-01-18,SMB
+S007,Bob Martinez,South,Widget Pro,Electronics,18,49.99,2023-01-20,Consumer
+S008,Carol Davis,East,Super Tool,Tools,55,19.99,2023-02-01,SMB
+S009,Dan Wilson,West,Power Unit,Electronics,8,89.99,2023-02-05,Enterprise
+S010,Eva Brown,North,Widget Basic,Electronics,65,24.99,2023-02-10,Consumer
+S011,Alice Chen,North,Super Tool,Tools,40,19.99,2023-02-15,Consumer
+S012,Bob Martinez,South,Power Unit,Electronics,12,89.99,2023-02-20,Enterprise
+S013,Carol Davis,East,Gadget Plus,Tools,25,29.99,2023-03-01,SMB
+S014,Dan Wilson,West,Widget Pro,Electronics,20,49.99,2023-03-05,Enterprise
+S015,Eva Brown,North,Widget Basic,Electronics,80,24.99,2023-03-10,Consumer"""
+
+sales = pd.read_csv(io.StringIO(sales_csv))
+
+# Clean SalesRep names
+sales["SalesRep"] = sales["SalesRep"].str.strip().str.title()
+
+# Extract first name
+sales["FirstName"] = sales["SalesRep"].str.split().str[0]
+
+# Print unique names
+print("Unique Sales Reps:")
+for rep in sales["SalesRep"].unique():
+    print(f"  {rep}")
+
+print("\\nFirst Names:")
+print(sales["FirstName"].unique().tolist())`,
+      validateFn: `return output.includes("Alice") && output.includes("Bob") && output.includes("FirstName") || output.includes("First Names")`,
+      hint: "Use .str.strip().str.title() to clean names, and .str.split().str[0] to extract first names",
+      xpReward: 50,
+    },
   },
   {
     module: "String & File Ops",
@@ -318,6 +390,70 @@ result = re.sub(r"\\d", "X", text)
 print(result)`,
       },
     ],
+    projectChallenge: {
+      threadId: "sales",
+      threadTitle: "Sales Performance Dashboard",
+      taskTitle: "Extract Sale ID Numbers",
+      context: "Each sale has an ID like 'S001' or 'S015'. For database integration, you need to extract just the numeric portion of each SaleID. Use regex to parse out the numbers.",
+      starterCode: `import pandas as pd
+import io
+import re
+
+sales_csv = """SaleID,SalesRep,Region,Product,Category,Quantity,UnitPrice,SaleDate,CustomerSegment
+S001,Alice Chen,North,Widget Pro,Electronics,15,49.99,2023-01-05,Enterprise
+S002,Bob Martinez,South,Gadget Plus,Tools,8,29.99,2023-01-08,SMB
+S003,Carol Davis,East,Widget Pro,Electronics,22,49.99,2023-01-10,Enterprise
+S004,Dan Wilson,West,Super Tool,Tools,45,19.99,2023-01-12,Consumer
+S005,Eva Brown,North,Power Unit,Electronics,10,89.99,2023-01-15,Enterprise
+S006,Alice Chen,North,Gadget Plus,Tools,30,29.99,2023-01-18,SMB
+S007,Bob Martinez,South,Widget Pro,Electronics,18,49.99,2023-01-20,Consumer
+S008,Carol Davis,East,Super Tool,Tools,55,19.99,2023-02-01,SMB
+S009,Dan Wilson,West,Power Unit,Electronics,8,89.99,2023-02-05,Enterprise
+S010,Eva Brown,North,Widget Basic,Electronics,65,24.99,2023-02-10,Consumer
+S011,Alice Chen,North,Super Tool,Tools,40,19.99,2023-02-15,Consumer
+S012,Bob Martinez,South,Power Unit,Electronics,12,89.99,2023-02-20,Enterprise
+S013,Carol Davis,East,Gadget Plus,Tools,25,29.99,2023-03-01,SMB
+S014,Dan Wilson,West,Widget Pro,Electronics,20,49.99,2023-03-05,Enterprise
+S015,Eva Brown,North,Widget Basic,Electronics,80,24.99,2023-03-10,Consumer"""
+
+sales = pd.read_csv(io.StringIO(sales_csv))
+
+# Task: Use regex to extract the numeric part of SaleID
+# Create a new column 'SaleNum' with just the integer (1, 2, 3, etc.)
+# Print the first 5 rows showing SaleID and SaleNum
+`,
+      solution: `import pandas as pd
+import io
+import re
+
+sales_csv = """SaleID,SalesRep,Region,Product,Category,Quantity,UnitPrice,SaleDate,CustomerSegment
+S001,Alice Chen,North,Widget Pro,Electronics,15,49.99,2023-01-05,Enterprise
+S002,Bob Martinez,South,Gadget Plus,Tools,8,29.99,2023-01-08,SMB
+S003,Carol Davis,East,Widget Pro,Electronics,22,49.99,2023-01-10,Enterprise
+S004,Dan Wilson,West,Super Tool,Tools,45,19.99,2023-01-12,Consumer
+S005,Eva Brown,North,Power Unit,Electronics,10,89.99,2023-01-15,Enterprise
+S006,Alice Chen,North,Gadget Plus,Tools,30,29.99,2023-01-18,SMB
+S007,Bob Martinez,South,Widget Pro,Electronics,18,49.99,2023-01-20,Consumer
+S008,Carol Davis,East,Super Tool,Tools,55,19.99,2023-02-01,SMB
+S009,Dan Wilson,West,Power Unit,Electronics,8,89.99,2023-02-05,Enterprise
+S010,Eva Brown,North,Widget Basic,Electronics,65,24.99,2023-02-10,Consumer
+S011,Alice Chen,North,Super Tool,Tools,40,19.99,2023-02-15,Consumer
+S012,Bob Martinez,South,Power Unit,Electronics,12,89.99,2023-02-20,Enterprise
+S013,Carol Davis,East,Gadget Plus,Tools,25,29.99,2023-03-01,SMB
+S014,Dan Wilson,West,Widget Pro,Electronics,20,49.99,2023-03-05,Enterprise
+S015,Eva Brown,North,Widget Basic,Electronics,80,24.99,2023-03-10,Consumer"""
+
+sales = pd.read_csv(io.StringIO(sales_csv))
+
+# Extract numeric part using regex
+sales["SaleNum"] = sales["SaleID"].str.extract(r"(\\d+)").astype(int)
+
+print("Sale IDs with extracted numbers:")
+print(sales[["SaleID", "SaleNum"]].head())`,
+      validateFn: `return output.includes("SaleNum") && output.includes("1") && output.includes("2") && output.includes("3")`,
+      hint: "Use .str.extract(r'(\\d+)') to pull out digits, then convert to int",
+      xpReward: 50,
+    },
   },
   {
     module: "String & File Ops",
@@ -506,6 +642,83 @@ for row in reader:
     print(f"{row['name']}: {row['score']}")`,
       },
     ],
+    projectChallenge: {
+      threadId: "sales",
+      threadTitle: "Sales Performance Dashboard",
+      taskTitle: "Write Sales Summary Report",
+      context: "Management wants a text summary of sales by region. Generate a report showing total revenue per region and write it to a file-like object for export.",
+      starterCode: `import pandas as pd
+import io
+
+sales_csv = """SaleID,SalesRep,Region,Product,Category,Quantity,UnitPrice,SaleDate,CustomerSegment
+S001,Alice Chen,North,Widget Pro,Electronics,15,49.99,2023-01-05,Enterprise
+S002,Bob Martinez,South,Gadget Plus,Tools,8,29.99,2023-01-08,SMB
+S003,Carol Davis,East,Widget Pro,Electronics,22,49.99,2023-01-10,Enterprise
+S004,Dan Wilson,West,Super Tool,Tools,45,19.99,2023-01-12,Consumer
+S005,Eva Brown,North,Power Unit,Electronics,10,89.99,2023-01-15,Enterprise
+S006,Alice Chen,North,Gadget Plus,Tools,30,29.99,2023-01-18,SMB
+S007,Bob Martinez,South,Widget Pro,Electronics,18,49.99,2023-01-20,Consumer
+S008,Carol Davis,East,Super Tool,Tools,55,19.99,2023-02-01,SMB
+S009,Dan Wilson,West,Power Unit,Electronics,8,89.99,2023-02-05,Enterprise
+S010,Eva Brown,North,Widget Basic,Electronics,65,24.99,2023-02-10,Consumer
+S011,Alice Chen,North,Super Tool,Tools,40,19.99,2023-02-15,Consumer
+S012,Bob Martinez,South,Power Unit,Electronics,12,89.99,2023-02-20,Enterprise
+S013,Carol Davis,East,Gadget Plus,Tools,25,29.99,2023-03-01,SMB
+S014,Dan Wilson,West,Widget Pro,Electronics,20,49.99,2023-03-05,Enterprise
+S015,Eva Brown,North,Widget Basic,Electronics,80,24.99,2023-03-10,Consumer"""
+
+sales = pd.read_csv(io.StringIO(sales_csv))
+
+# Task:
+# 1. Calculate revenue (Quantity * UnitPrice) for each sale
+# 2. Group by Region and sum the revenue
+# 3. Write a formatted report to a StringIO object
+# 4. Print the report contents
+`,
+      solution: `import pandas as pd
+import io
+
+sales_csv = """SaleID,SalesRep,Region,Product,Category,Quantity,UnitPrice,SaleDate,CustomerSegment
+S001,Alice Chen,North,Widget Pro,Electronics,15,49.99,2023-01-05,Enterprise
+S002,Bob Martinez,South,Gadget Plus,Tools,8,29.99,2023-01-08,SMB
+S003,Carol Davis,East,Widget Pro,Electronics,22,49.99,2023-01-10,Enterprise
+S004,Dan Wilson,West,Super Tool,Tools,45,19.99,2023-01-12,Consumer
+S005,Eva Brown,North,Power Unit,Electronics,10,89.99,2023-01-15,Enterprise
+S006,Alice Chen,North,Gadget Plus,Tools,30,29.99,2023-01-18,SMB
+S007,Bob Martinez,South,Widget Pro,Electronics,18,49.99,2023-01-20,Consumer
+S008,Carol Davis,East,Super Tool,Tools,55,19.99,2023-02-01,SMB
+S009,Dan Wilson,West,Power Unit,Electronics,8,89.99,2023-02-05,Enterprise
+S010,Eva Brown,North,Widget Basic,Electronics,65,24.99,2023-02-10,Consumer
+S011,Alice Chen,North,Super Tool,Tools,40,19.99,2023-02-15,Consumer
+S012,Bob Martinez,South,Power Unit,Electronics,12,89.99,2023-02-20,Enterprise
+S013,Carol Davis,East,Gadget Plus,Tools,25,29.99,2023-03-01,SMB
+S014,Dan Wilson,West,Widget Pro,Electronics,20,49.99,2023-03-05,Enterprise
+S015,Eva Brown,North,Widget Basic,Electronics,80,24.99,2023-03-10,Consumer"""
+
+sales = pd.read_csv(io.StringIO(sales_csv))
+
+# Calculate revenue
+sales["Revenue"] = sales["Quantity"] * sales["UnitPrice"]
+
+# Group by region
+by_region = sales.groupby("Region")["Revenue"].sum()
+
+# Write report to StringIO
+report = io.StringIO()
+report.write("SALES SUMMARY BY REGION\\n")
+report.write("=" * 30 + "\\n")
+for region, revenue in by_region.items():
+    report.write(f"{region}: \${revenue:,.2f}\\n")
+report.write("=" * 30 + "\\n")
+report.write(f"Total: \${by_region.sum():,.2f}\\n")
+
+# Print the report
+report.seek(0)
+print(report.read())`,
+      validateFn: `return output.includes("North") && output.includes("South") && output.includes("East") && output.includes("West") && output.includes("$")`,
+      hint: "Calculate revenue first, then groupby('Region')['Revenue'].sum(), and write each line to a StringIO object",
+      xpReward: 50,
+    },
   },
   {
     module: "String & File Ops",
@@ -693,6 +906,77 @@ for item in data["items"]:
 print(json_str)`,
       },
     ],
+    projectChallenge: {
+      threadId: "sales",
+      threadTitle: "Sales Performance Dashboard",
+      taskTitle: "Export Top Sales to JSON",
+      context: "The API team needs the top 5 sales (by revenue) in JSON format for the mobile app. Convert the filtered sales data to a JSON string with proper formatting.",
+      starterCode: `import pandas as pd
+import io
+import json
+
+sales_csv = """SaleID,SalesRep,Region,Product,Category,Quantity,UnitPrice,SaleDate,CustomerSegment
+S001,Alice Chen,North,Widget Pro,Electronics,15,49.99,2023-01-05,Enterprise
+S002,Bob Martinez,South,Gadget Plus,Tools,8,29.99,2023-01-08,SMB
+S003,Carol Davis,East,Widget Pro,Electronics,22,49.99,2023-01-10,Enterprise
+S004,Dan Wilson,West,Super Tool,Tools,45,19.99,2023-01-12,Consumer
+S005,Eva Brown,North,Power Unit,Electronics,10,89.99,2023-01-15,Enterprise
+S006,Alice Chen,North,Gadget Plus,Tools,30,29.99,2023-01-18,SMB
+S007,Bob Martinez,South,Widget Pro,Electronics,18,49.99,2023-01-20,Consumer
+S008,Carol Davis,East,Super Tool,Tools,55,19.99,2023-02-01,SMB
+S009,Dan Wilson,West,Power Unit,Electronics,8,89.99,2023-02-05,Enterprise
+S010,Eva Brown,North,Widget Basic,Electronics,65,24.99,2023-02-10,Consumer
+S011,Alice Chen,North,Super Tool,Tools,40,19.99,2023-02-15,Consumer
+S012,Bob Martinez,South,Power Unit,Electronics,12,89.99,2023-02-20,Enterprise
+S013,Carol Davis,East,Gadget Plus,Tools,25,29.99,2023-03-01,SMB
+S014,Dan Wilson,West,Widget Pro,Electronics,20,49.99,2023-03-05,Enterprise
+S015,Eva Brown,North,Widget Basic,Electronics,80,24.99,2023-03-10,Consumer"""
+
+sales = pd.read_csv(io.StringIO(sales_csv))
+
+# Task:
+# 1. Calculate Revenue for each sale
+# 2. Find the top 5 sales by revenue
+# 3. Select only SaleID, Product, Revenue columns
+# 4. Convert to JSON (records format) and print with indentation
+`,
+      solution: `import pandas as pd
+import io
+import json
+
+sales_csv = """SaleID,SalesRep,Region,Product,Category,Quantity,UnitPrice,SaleDate,CustomerSegment
+S001,Alice Chen,North,Widget Pro,Electronics,15,49.99,2023-01-05,Enterprise
+S002,Bob Martinez,South,Gadget Plus,Tools,8,29.99,2023-01-08,SMB
+S003,Carol Davis,East,Widget Pro,Electronics,22,49.99,2023-01-10,Enterprise
+S004,Dan Wilson,West,Super Tool,Tools,45,19.99,2023-01-12,Consumer
+S005,Eva Brown,North,Power Unit,Electronics,10,89.99,2023-01-15,Enterprise
+S006,Alice Chen,North,Gadget Plus,Tools,30,29.99,2023-01-18,SMB
+S007,Bob Martinez,South,Widget Pro,Electronics,18,49.99,2023-01-20,Consumer
+S008,Carol Davis,East,Super Tool,Tools,55,19.99,2023-02-01,SMB
+S009,Dan Wilson,West,Power Unit,Electronics,8,89.99,2023-02-05,Enterprise
+S010,Eva Brown,North,Widget Basic,Electronics,65,24.99,2023-02-10,Consumer
+S011,Alice Chen,North,Super Tool,Tools,40,19.99,2023-02-15,Consumer
+S012,Bob Martinez,South,Power Unit,Electronics,12,89.99,2023-02-20,Enterprise
+S013,Carol Davis,East,Gadget Plus,Tools,25,29.99,2023-03-01,SMB
+S014,Dan Wilson,West,Widget Pro,Electronics,20,49.99,2023-03-05,Enterprise
+S015,Eva Brown,North,Widget Basic,Electronics,80,24.99,2023-03-10,Consumer"""
+
+sales = pd.read_csv(io.StringIO(sales_csv))
+
+# Calculate revenue
+sales["Revenue"] = sales["Quantity"] * sales["UnitPrice"]
+
+# Get top 5 by revenue
+top5 = sales.nlargest(5, "Revenue")[["SaleID", "Product", "Revenue"]]
+
+# Convert to JSON
+json_data = top5.to_dict(orient="records")
+json_str = json.dumps(json_data, indent=2)
+print(json_str)`,
+      validateFn: `return output.includes("SaleID") && output.includes("Revenue") && output.includes("Product")`,
+      hint: "Use nlargest(5, 'Revenue') to get top sales, then to_dict(orient='records') and json.dumps with indent",
+      xpReward: 50,
+    },
   },
   {
     module: "String & File Ops",
@@ -889,5 +1173,80 @@ for v in values:
 print(total)`,
       },
     ],
+    projectChallenge: {
+      threadId: "sales",
+      threadTitle: "Sales Performance Dashboard",
+      taskTitle: "Safe Revenue Calculator",
+      context: "Some sales records might have invalid data. Create a function that safely calculates revenue, handling cases where Quantity or UnitPrice might be invalid, and returns 0 for those records.",
+      starterCode: `import pandas as pd
+import io
+
+sales_csv = """SaleID,SalesRep,Region,Product,Category,Quantity,UnitPrice,SaleDate,CustomerSegment
+S001,Alice Chen,North,Widget Pro,Electronics,15,49.99,2023-01-05,Enterprise
+S002,Bob Martinez,South,Gadget Plus,Tools,8,29.99,2023-01-08,SMB
+S003,Carol Davis,East,Widget Pro,Electronics,22,49.99,2023-01-10,Enterprise
+S004,Dan Wilson,West,Super Tool,Tools,45,19.99,2023-01-12,Consumer
+S005,Eva Brown,North,Power Unit,Electronics,10,89.99,2023-01-15,Enterprise
+S006,Alice Chen,North,Gadget Plus,Tools,30,29.99,2023-01-18,SMB
+S007,Bob Martinez,South,Widget Pro,Electronics,18,49.99,2023-01-20,Consumer
+S008,Carol Davis,East,Super Tool,Tools,55,19.99,2023-02-01,SMB
+S009,Dan Wilson,West,Power Unit,Electronics,8,89.99,2023-02-05,Enterprise
+S010,Eva Brown,North,Widget Basic,Electronics,65,24.99,2023-02-10,Consumer
+S011,Alice Chen,North,Super Tool,Tools,40,19.99,2023-02-15,Consumer
+S012,Bob Martinez,South,Power Unit,Electronics,12,89.99,2023-02-20,Enterprise
+S013,Carol Davis,East,Gadget Plus,Tools,25,29.99,2023-03-01,SMB
+S014,Dan Wilson,West,Widget Pro,Electronics,20,49.99,2023-03-05,Enterprise
+S015,Eva Brown,North,Widget Basic,Electronics,80,24.99,2023-03-10,Consumer"""
+
+sales = pd.read_csv(io.StringIO(sales_csv))
+
+# Task:
+# 1. Create a safe_revenue(qty, price) function that:
+#    - Returns qty * price if both are valid numbers
+#    - Returns 0 if there's any error (TypeError, ValueError)
+# 2. Apply it to calculate revenue for each row
+# 3. Print total revenue and count of successful calculations
+`,
+      solution: `import pandas as pd
+import io
+
+sales_csv = """SaleID,SalesRep,Region,Product,Category,Quantity,UnitPrice,SaleDate,CustomerSegment
+S001,Alice Chen,North,Widget Pro,Electronics,15,49.99,2023-01-05,Enterprise
+S002,Bob Martinez,South,Gadget Plus,Tools,8,29.99,2023-01-08,SMB
+S003,Carol Davis,East,Widget Pro,Electronics,22,49.99,2023-01-10,Enterprise
+S004,Dan Wilson,West,Super Tool,Tools,45,19.99,2023-01-12,Consumer
+S005,Eva Brown,North,Power Unit,Electronics,10,89.99,2023-01-15,Enterprise
+S006,Alice Chen,North,Gadget Plus,Tools,30,29.99,2023-01-18,SMB
+S007,Bob Martinez,South,Widget Pro,Electronics,18,49.99,2023-01-20,Consumer
+S008,Carol Davis,East,Super Tool,Tools,55,19.99,2023-02-01,SMB
+S009,Dan Wilson,West,Power Unit,Electronics,8,89.99,2023-02-05,Enterprise
+S010,Eva Brown,North,Widget Basic,Electronics,65,24.99,2023-02-10,Consumer
+S011,Alice Chen,North,Super Tool,Tools,40,19.99,2023-02-15,Consumer
+S012,Bob Martinez,South,Power Unit,Electronics,12,89.99,2023-02-20,Enterprise
+S013,Carol Davis,East,Gadget Plus,Tools,25,29.99,2023-03-01,SMB
+S014,Dan Wilson,West,Widget Pro,Electronics,20,49.99,2023-03-05,Enterprise
+S015,Eva Brown,North,Widget Basic,Electronics,80,24.99,2023-03-10,Consumer"""
+
+sales = pd.read_csv(io.StringIO(sales_csv))
+
+def safe_revenue(qty, price):
+    try:
+        return float(qty) * float(price)
+    except (TypeError, ValueError):
+        return 0
+
+# Apply the function
+sales["Revenue"] = sales.apply(lambda row: safe_revenue(row["Quantity"], row["UnitPrice"]), axis=1)
+
+# Count successful calculations
+successful = (sales["Revenue"] > 0).sum()
+total_revenue = sales["Revenue"].sum()
+
+print(f"Successful calculations: {successful}")
+print(f"Total Revenue: \${total_revenue:,.2f}")`,
+      validateFn: `return output.includes("Successful") && output.includes("Revenue") && output.includes("$")`,
+      hint: "Use try/except in the function to catch errors and return 0, then use apply with axis=1 to call it per row",
+      xpReward: 50,
+    },
   },
 ];

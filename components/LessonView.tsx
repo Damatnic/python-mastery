@@ -7,7 +7,8 @@ import { CodeEditor } from "./CodeEditor";
 import { OutputPanel } from "./OutputPanel";
 import { CopyButton } from "./CopyButton";
 import { usePyodide } from "@/lib/pyodide";
-import type { Lesson, Example, Challenge } from "@/lib/types";
+import type { Lesson, Example, Challenge, ProjectChallenge } from "@/lib/types";
+import { PROJECT_THREAD_INFO } from "@/lib/project-threads";
 
 interface LessonViewProps {
   lesson: Lesson;
@@ -30,6 +31,18 @@ export function LessonView({ lesson, onComplete }: LessonViewProps) {
   const [completedChallenges, setCompletedChallenges] = useState<Set<string>>(new Set());
   const [activeChallenge, setActiveChallenge] = useState<Challenge | null>(null);
 
+  // Project Challenge state
+  const [projectCode, setProjectCode] = useState("");
+  const [projectOutput, setProjectOutput] = useState("");
+  const [projectError, setProjectError] = useState<string | null>(null);
+  const [projectExecutionTime, setProjectExecutionTime] = useState(0);
+  const [isRunningProject, setIsRunningProject] = useState(false);
+  const [projectCompleted, setProjectCompleted] = useState(false);
+  const [projectFailedAttempts, setProjectFailedAttempts] = useState(0);
+  const [showProjectSolution, setShowProjectSolution] = useState(false);
+  const [showProjectHint, setShowProjectHint] = useState(false);
+  const [totalXP, setTotalXP] = useState(0);
+
   useEffect(() => {
     // Reset state when lesson changes - this is intentional synchronization
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -41,7 +54,33 @@ export function LessonView({ lesson, onComplete }: LessonViewProps) {
     setCompletedChallenges(new Set());
     setActiveChallenge(null);
     setActiveTab("theory");
-  }, [lesson.slug, lesson.starterCode]);
+
+    // Reset project challenge state
+    if (lesson.projectChallenge) {
+      setProjectCode(lesson.projectChallenge.starterCode);
+    }
+    setProjectOutput("");
+    setProjectError(null);
+    setProjectExecutionTime(0);
+    setProjectFailedAttempts(0);
+    setShowProjectSolution(false);
+    setShowProjectHint(false);
+
+    // Load project completion state from localStorage
+    const savedCompletions = localStorage.getItem("python-mastery-project-completed");
+    if (savedCompletions) {
+      const completed = new Set(JSON.parse(savedCompletions));
+      setProjectCompleted(completed.has(`${lesson.moduleSlug}/${lesson.slug}`));
+    } else {
+      setProjectCompleted(false);
+    }
+
+    // Load XP from localStorage
+    const savedXP = localStorage.getItem("python-mastery-xp");
+    if (savedXP) {
+      setTotalXP(parseInt(savedXP, 10));
+    }
+  }, [lesson.slug, lesson.starterCode, lesson.projectChallenge, lesson.moduleSlug]);
 
   const handleRun = useCallback(async () => {
     if (!isReady) return;
@@ -108,6 +147,59 @@ export function LessonView({ lesson, onComplete }: LessonViewProps) {
     setError(null);
     setShowSolution(null);
   }, [lesson.starterCode]);
+
+  const handleRunProject = useCallback(async () => {
+    if (!isReady || !lesson.projectChallenge) return;
+
+    setIsRunningProject(true);
+    setProjectError(null);
+
+    const result = await runCode(projectCode);
+
+    setProjectOutput(result.output);
+    setProjectError(result.error);
+    setProjectExecutionTime(result.executionTime);
+
+    if (!result.error) {
+      try {
+        const validateFn = createValidator(lesson.projectChallenge.validateFn);
+        const isValid = validateFn(result.output, result.locals);
+        if (isValid && !projectCompleted) {
+          setProjectCompleted(true);
+          const xpGained = lesson.projectChallenge.xpReward;
+          const newXP = totalXP + xpGained;
+          setTotalXP(newXP);
+          localStorage.setItem("python-mastery-xp", String(newXP));
+
+          // Save project completion
+          const savedCompletions = localStorage.getItem("python-mastery-project-completed");
+          const completed = savedCompletions ? new Set(JSON.parse(savedCompletions)) : new Set();
+          completed.add(`${lesson.moduleSlug}/${lesson.slug}`);
+          localStorage.setItem("python-mastery-project-completed", JSON.stringify([...completed]));
+
+          setProjectOutput((prev) => prev + `\n\n✅ Project Challenge completed! +${xpGained} XP`);
+        } else if (!isValid) {
+          setProjectFailedAttempts((prev) => prev + 1);
+          setProjectOutput((prev) => prev + "\n\n❌ Not quite right. Check your output and try again.");
+        }
+      } catch {
+        setProjectFailedAttempts((prev) => prev + 1);
+      }
+    } else {
+      setProjectFailedAttempts((prev) => prev + 1);
+    }
+
+    setIsRunningProject(false);
+  }, [isReady, runCode, projectCode, lesson.projectChallenge, lesson.moduleSlug, lesson.slug, projectCompleted, totalXP]);
+
+  const handleResetProject = useCallback(() => {
+    if (lesson.projectChallenge) {
+      setProjectCode(lesson.projectChallenge.starterCode);
+      setProjectOutput("");
+      setProjectError(null);
+      setProjectExecutionTime(0);
+    }
+  }, [lesson.projectChallenge]);
 
   return (
     <div className="flex flex-1 h-full overflow-hidden">
@@ -261,6 +353,126 @@ export function LessonView({ lesson, onComplete }: LessonViewProps) {
                   </div>
                 );
               })}
+
+              {/* Project Challenge Section */}
+              {lesson.projectChallenge && (
+                <div className="mt-8 p-5 rounded-xl border-2 border-amber-500/50 bg-amber-500/5">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-amber-500/20 text-xl">
+                      🏗️
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold text-lg text-amber-400">
+                          Project Challenge
+                        </h3>
+                        {projectCompleted && (
+                          <span className="px-2 py-0.5 text-xs rounded-full bg-success/20 text-success">
+                            ✓ Complete
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <span>{PROJECT_THREAD_INFO[lesson.projectChallenge.threadId].icon}</span>
+                        <span>{lesson.projectChallenge.threadTitle}</span>
+                        <span className="text-amber-500/50">•</span>
+                        <span className="text-amber-400">+{lesson.projectChallenge.xpReward} XP</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <h4 className="font-medium text-foreground mb-2">
+                    {lesson.projectChallenge.taskTitle}
+                  </h4>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    {lesson.projectChallenge.context}
+                  </p>
+
+                  {/* Collapsible Hint */}
+                  <div className="mb-4">
+                    <button
+                      onClick={() => setShowProjectHint(!showProjectHint)}
+                      className="text-sm text-amber-400 hover:text-amber-300 flex items-center gap-1"
+                    >
+                      <span>{showProjectHint ? "▼" : "▶"}</span>
+                      <span>{showProjectHint ? "Hide Hint" : "Show Hint"}</span>
+                    </button>
+                    {showProjectHint && (
+                      <p className="mt-2 text-sm text-muted-foreground p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                        💡 {lesson.projectChallenge.hint}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Project Code Editor */}
+                  <div className="rounded-lg border border-amber-500/30 overflow-hidden">
+                    <div className="flex items-center justify-between px-3 py-2 bg-amber-500/10 border-b border-amber-500/30">
+                      <span className="text-sm font-medium text-amber-400">Project Code</span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={handleResetProject}
+                          className="text-xs px-2 py-1 rounded bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 transition-colors"
+                        >
+                          Reset
+                        </button>
+                        <button
+                          onClick={handleRunProject}
+                          disabled={!isReady || isRunningProject}
+                          className="text-xs px-3 py-1 rounded bg-amber-500 text-black font-medium hover:bg-amber-400 transition-colors disabled:opacity-50"
+                        >
+                          {isRunningProject ? "Running..." : "Run & Check"}
+                        </button>
+                      </div>
+                    </div>
+                    <div className="h-64">
+                      <CodeEditor
+                        code={projectCode}
+                        onChange={setProjectCode}
+                        onRun={handleRunProject}
+                        disabled={!isReady}
+                      />
+                    </div>
+                    <div className="h-32 border-t border-amber-500/30">
+                      <OutputPanel
+                        output={projectOutput}
+                        error={projectError}
+                        isRunning={isRunningProject}
+                        executionTime={projectExecutionTime}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Show Solution after 3 failed attempts */}
+                  {(projectFailedAttempts >= 3 || showProjectSolution) && !projectCompleted && (
+                    <div className="mt-4">
+                      <button
+                        onClick={() => setShowProjectSolution(!showProjectSolution)}
+                        className="text-sm text-muted-foreground hover:text-foreground mb-2"
+                      >
+                        {showProjectSolution ? "Hide Solution" : "Show Solution"}
+                      </button>
+                      {showProjectSolution && (
+                        <div className="relative">
+                          <div className="absolute top-2 right-2">
+                            <CopyButton text={lesson.projectChallenge.solution} />
+                          </div>
+                          <pre className="p-3 pr-16 rounded-lg bg-background text-sm overflow-x-auto border border-amber-500/20">
+                            <code>{lesson.projectChallenge.solution}</code>
+                          </pre>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {projectCompleted && (
+                    <div className="mt-4 p-3 rounded-lg bg-success/10 border border-success/20 text-center">
+                      <span className="text-success font-medium">
+                        ✅ Project Challenge Complete! +{lesson.projectChallenge.xpReward} XP earned
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </div>

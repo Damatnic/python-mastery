@@ -160,6 +160,73 @@ long_words = list(filter(lambda s: len(s) > 3, words))
 print(long_words)`,
       },
     ],
+    projectChallenge: {
+      threadId: "sales",
+      threadTitle: "Sales Performance Dashboard",
+      taskTitle: "Calculate Revenue with Lambda",
+      context: "The dashboard needs a quick revenue calculation for each sale. Use a lambda function to calculate Quantity times UnitPrice for all sales records.",
+      starterCode: `import pandas as pd
+import io
+
+sales_csv = """SaleID,SalesRep,Region,Product,Category,Quantity,UnitPrice,SaleDate,CustomerSegment
+S001,Alice Chen,North,Widget Pro,Electronics,15,49.99,2023-01-05,Enterprise
+S002,Bob Martinez,South,Gadget Plus,Tools,8,29.99,2023-01-08,SMB
+S003,Carol Davis,East,Widget Pro,Electronics,22,49.99,2023-01-10,Enterprise
+S004,Dan Wilson,West,Super Tool,Tools,45,19.99,2023-01-12,Consumer
+S005,Eva Brown,North,Power Unit,Electronics,10,89.99,2023-01-15,Enterprise
+S006,Alice Chen,North,Gadget Plus,Tools,30,29.99,2023-01-18,SMB
+S007,Bob Martinez,South,Widget Pro,Electronics,18,49.99,2023-01-20,Consumer
+S008,Carol Davis,East,Super Tool,Tools,55,19.99,2023-02-01,SMB
+S009,Dan Wilson,West,Power Unit,Electronics,8,89.99,2023-02-05,Enterprise
+S010,Eva Brown,North,Widget Basic,Electronics,65,24.99,2023-02-10,Consumer
+S011,Alice Chen,North,Super Tool,Tools,40,19.99,2023-02-15,Consumer
+S012,Bob Martinez,South,Power Unit,Electronics,12,89.99,2023-02-20,Enterprise
+S013,Carol Davis,East,Gadget Plus,Tools,25,29.99,2023-03-01,SMB
+S014,Dan Wilson,West,Widget Pro,Electronics,20,49.99,2023-03-05,Enterprise
+S015,Eva Brown,North,Widget Basic,Electronics,80,24.99,2023-03-10,Consumer"""
+
+sales = pd.read_csv(io.StringIO(sales_csv))
+
+# Task:
+# 1. Use apply with a lambda to calculate Revenue (Quantity * UnitPrice)
+# 2. Add a column 'HighValue' that's True if Revenue > 1000 (use lambda)
+# 3. Print sales with SaleID, Product, Revenue, HighValue columns
+`,
+      solution: `import pandas as pd
+import io
+
+sales_csv = """SaleID,SalesRep,Region,Product,Category,Quantity,UnitPrice,SaleDate,CustomerSegment
+S001,Alice Chen,North,Widget Pro,Electronics,15,49.99,2023-01-05,Enterprise
+S002,Bob Martinez,South,Gadget Plus,Tools,8,29.99,2023-01-08,SMB
+S003,Carol Davis,East,Widget Pro,Electronics,22,49.99,2023-01-10,Enterprise
+S004,Dan Wilson,West,Super Tool,Tools,45,19.99,2023-01-12,Consumer
+S005,Eva Brown,North,Power Unit,Electronics,10,89.99,2023-01-15,Enterprise
+S006,Alice Chen,North,Gadget Plus,Tools,30,29.99,2023-01-18,SMB
+S007,Bob Martinez,South,Widget Pro,Electronics,18,49.99,2023-01-20,Consumer
+S008,Carol Davis,East,Super Tool,Tools,55,19.99,2023-02-01,SMB
+S009,Dan Wilson,West,Power Unit,Electronics,8,89.99,2023-02-05,Enterprise
+S010,Eva Brown,North,Widget Basic,Electronics,65,24.99,2023-02-10,Consumer
+S011,Alice Chen,North,Super Tool,Tools,40,19.99,2023-02-15,Consumer
+S012,Bob Martinez,South,Power Unit,Electronics,12,89.99,2023-02-20,Enterprise
+S013,Carol Davis,East,Gadget Plus,Tools,25,29.99,2023-03-01,SMB
+S014,Dan Wilson,West,Widget Pro,Electronics,20,49.99,2023-03-05,Enterprise
+S015,Eva Brown,North,Widget Basic,Electronics,80,24.99,2023-03-10,Consumer"""
+
+sales = pd.read_csv(io.StringIO(sales_csv))
+
+# Calculate revenue with lambda
+sales["Revenue"] = sales.apply(lambda row: row["Quantity"] * row["UnitPrice"], axis=1)
+
+# Flag high value sales
+sales["HighValue"] = sales["Revenue"].apply(lambda x: x > 1000)
+
+# Display results
+print(sales[["SaleID", "Product", "Revenue", "HighValue"]])
+print(f"\\nHigh-value sales: {sales['HighValue'].sum()}")`,
+      validateFn: `return output.includes("Revenue") && output.includes("HighValue") && output.includes("True")`,
+      hint: "Use apply with axis=1 to access multiple columns, or just multiply the series directly",
+      xpReward: 50,
+    },
   },
   {
     module: "Functions & Apply",
@@ -313,6 +380,79 @@ students["points"] = students["grade"].map(points)
 print(students[["name", "grade", "points"]])`,
       },
     ],
+    projectChallenge: {
+      threadId: "sales",
+      threadTitle: "Sales Performance Dashboard",
+      taskTitle: "Map Customer Priority Levels",
+      context: "Sales operations wants to assign priority levels to customers based on their segment. Use map to add a Priority column where Enterprise=1, SMB=2, Consumer=3.",
+      starterCode: `import pandas as pd
+import io
+
+sales_csv = """SaleID,SalesRep,Region,Product,Category,Quantity,UnitPrice,SaleDate,CustomerSegment
+S001,Alice Chen,North,Widget Pro,Electronics,15,49.99,2023-01-05,Enterprise
+S002,Bob Martinez,South,Gadget Plus,Tools,8,29.99,2023-01-08,SMB
+S003,Carol Davis,East,Widget Pro,Electronics,22,49.99,2023-01-10,Enterprise
+S004,Dan Wilson,West,Super Tool,Tools,45,19.99,2023-01-12,Consumer
+S005,Eva Brown,North,Power Unit,Electronics,10,89.99,2023-01-15,Enterprise
+S006,Alice Chen,North,Gadget Plus,Tools,30,29.99,2023-01-18,SMB
+S007,Bob Martinez,South,Widget Pro,Electronics,18,49.99,2023-01-20,Consumer
+S008,Carol Davis,East,Super Tool,Tools,55,19.99,2023-02-01,SMB
+S009,Dan Wilson,West,Power Unit,Electronics,8,89.99,2023-02-05,Enterprise
+S010,Eva Brown,North,Widget Basic,Electronics,65,24.99,2023-02-10,Consumer
+S011,Alice Chen,North,Super Tool,Tools,40,19.99,2023-02-15,Consumer
+S012,Bob Martinez,South,Power Unit,Electronics,12,89.99,2023-02-20,Enterprise
+S013,Carol Davis,East,Gadget Plus,Tools,25,29.99,2023-03-01,SMB
+S014,Dan Wilson,West,Widget Pro,Electronics,20,49.99,2023-03-05,Enterprise
+S015,Eva Brown,North,Widget Basic,Electronics,80,24.99,2023-03-10,Consumer"""
+
+sales = pd.read_csv(io.StringIO(sales_csv))
+
+# Task:
+# 1. Create a priority mapping: Enterprise=1, SMB=2, Consumer=3
+# 2. Use map() to add a Priority column
+# 3. Also add a PriorityLabel using map: 1="High", 2="Medium", 3="Low"
+# 4. Print the first 8 rows showing CustomerSegment, Priority, PriorityLabel
+`,
+      solution: `import pandas as pd
+import io
+
+sales_csv = """SaleID,SalesRep,Region,Product,Category,Quantity,UnitPrice,SaleDate,CustomerSegment
+S001,Alice Chen,North,Widget Pro,Electronics,15,49.99,2023-01-05,Enterprise
+S002,Bob Martinez,South,Gadget Plus,Tools,8,29.99,2023-01-08,SMB
+S003,Carol Davis,East,Widget Pro,Electronics,22,49.99,2023-01-10,Enterprise
+S004,Dan Wilson,West,Super Tool,Tools,45,19.99,2023-01-12,Consumer
+S005,Eva Brown,North,Power Unit,Electronics,10,89.99,2023-01-15,Enterprise
+S006,Alice Chen,North,Gadget Plus,Tools,30,29.99,2023-01-18,SMB
+S007,Bob Martinez,South,Widget Pro,Electronics,18,49.99,2023-01-20,Consumer
+S008,Carol Davis,East,Super Tool,Tools,55,19.99,2023-02-01,SMB
+S009,Dan Wilson,West,Power Unit,Electronics,8,89.99,2023-02-05,Enterprise
+S010,Eva Brown,North,Widget Basic,Electronics,65,24.99,2023-02-10,Consumer
+S011,Alice Chen,North,Super Tool,Tools,40,19.99,2023-02-15,Consumer
+S012,Bob Martinez,South,Power Unit,Electronics,12,89.99,2023-02-20,Enterprise
+S013,Carol Davis,East,Gadget Plus,Tools,25,29.99,2023-03-01,SMB
+S014,Dan Wilson,West,Widget Pro,Electronics,20,49.99,2023-03-05,Enterprise
+S015,Eva Brown,North,Widget Basic,Electronics,80,24.99,2023-03-10,Consumer"""
+
+sales = pd.read_csv(io.StringIO(sales_csv))
+
+# Priority mapping
+priority_map = {"Enterprise": 1, "SMB": 2, "Consumer": 3}
+sales["Priority"] = sales["CustomerSegment"].map(priority_map)
+
+# Priority labels
+label_map = {1: "High", 2: "Medium", 3: "Low"}
+sales["PriorityLabel"] = sales["Priority"].map(label_map)
+
+# Display results
+print(sales[["SaleID", "CustomerSegment", "Priority", "PriorityLabel"]].head(8))
+
+# Summary
+print("\\nPriority Distribution:")
+print(sales["PriorityLabel"].value_counts())`,
+      validateFn: `return output.includes("Priority") && output.includes("High") && output.includes("Medium") && output.includes("Low")`,
+      hint: "Create a dict for segment to priority number, then another dict for number to label, use map() for each",
+      xpReward: 50,
+    },
   },
   {
     module: "Functions & Apply",
@@ -459,6 +599,87 @@ print(ranges)`,
 print(students[["name", "subject", "score", "rank_in_subject"]])`,
       },
     ],
+    projectChallenge: {
+      threadId: "sales",
+      threadTitle: "Sales Performance Dashboard",
+      taskTitle: "Calculate Sales Variance",
+      context: "Finance needs to understand revenue variability by category. Create a custom aggregation function that calculates the coefficient of variation (std/mean) for each category's revenue.",
+      starterCode: `import pandas as pd
+import io
+
+sales_csv = """SaleID,SalesRep,Region,Product,Category,Quantity,UnitPrice,SaleDate,CustomerSegment
+S001,Alice Chen,North,Widget Pro,Electronics,15,49.99,2023-01-05,Enterprise
+S002,Bob Martinez,South,Gadget Plus,Tools,8,29.99,2023-01-08,SMB
+S003,Carol Davis,East,Widget Pro,Electronics,22,49.99,2023-01-10,Enterprise
+S004,Dan Wilson,West,Super Tool,Tools,45,19.99,2023-01-12,Consumer
+S005,Eva Brown,North,Power Unit,Electronics,10,89.99,2023-01-15,Enterprise
+S006,Alice Chen,North,Gadget Plus,Tools,30,29.99,2023-01-18,SMB
+S007,Bob Martinez,South,Widget Pro,Electronics,18,49.99,2023-01-20,Consumer
+S008,Carol Davis,East,Super Tool,Tools,55,19.99,2023-02-01,SMB
+S009,Dan Wilson,West,Power Unit,Electronics,8,89.99,2023-02-05,Enterprise
+S010,Eva Brown,North,Widget Basic,Electronics,65,24.99,2023-02-10,Consumer
+S011,Alice Chen,North,Super Tool,Tools,40,19.99,2023-02-15,Consumer
+S012,Bob Martinez,South,Power Unit,Electronics,12,89.99,2023-02-20,Enterprise
+S013,Carol Davis,East,Gadget Plus,Tools,25,29.99,2023-03-01,SMB
+S014,Dan Wilson,West,Widget Pro,Electronics,20,49.99,2023-03-05,Enterprise
+S015,Eva Brown,North,Widget Basic,Electronics,80,24.99,2023-03-10,Consumer"""
+
+sales = pd.read_csv(io.StringIO(sales_csv))
+sales["Revenue"] = sales["Quantity"] * sales["UnitPrice"]
+
+# Task:
+# 1. Define a coefficient_of_variation function: (std / mean) * 100
+# 2. Group by Category and calculate: sum, mean, std, and CV
+# 3. Print the results showing revenue variability by category
+`,
+      solution: `import pandas as pd
+import io
+
+sales_csv = """SaleID,SalesRep,Region,Product,Category,Quantity,UnitPrice,SaleDate,CustomerSegment
+S001,Alice Chen,North,Widget Pro,Electronics,15,49.99,2023-01-05,Enterprise
+S002,Bob Martinez,South,Gadget Plus,Tools,8,29.99,2023-01-08,SMB
+S003,Carol Davis,East,Widget Pro,Electronics,22,49.99,2023-01-10,Enterprise
+S004,Dan Wilson,West,Super Tool,Tools,45,19.99,2023-01-12,Consumer
+S005,Eva Brown,North,Power Unit,Electronics,10,89.99,2023-01-15,Enterprise
+S006,Alice Chen,North,Gadget Plus,Tools,30,29.99,2023-01-18,SMB
+S007,Bob Martinez,South,Widget Pro,Electronics,18,49.99,2023-01-20,Consumer
+S008,Carol Davis,East,Super Tool,Tools,55,19.99,2023-02-01,SMB
+S009,Dan Wilson,West,Power Unit,Electronics,8,89.99,2023-02-05,Enterprise
+S010,Eva Brown,North,Widget Basic,Electronics,65,24.99,2023-02-10,Consumer
+S011,Alice Chen,North,Super Tool,Tools,40,19.99,2023-02-15,Consumer
+S012,Bob Martinez,South,Power Unit,Electronics,12,89.99,2023-02-20,Enterprise
+S013,Carol Davis,East,Gadget Plus,Tools,25,29.99,2023-03-01,SMB
+S014,Dan Wilson,West,Widget Pro,Electronics,20,49.99,2023-03-05,Enterprise
+S015,Eva Brown,North,Widget Basic,Electronics,80,24.99,2023-03-10,Consumer"""
+
+sales = pd.read_csv(io.StringIO(sales_csv))
+sales["Revenue"] = sales["Quantity"] * sales["UnitPrice"]
+
+def coefficient_of_variation(x):
+    if x.mean() == 0:
+        return 0
+    return (x.std() / x.mean()) * 100
+
+# Aggregate with custom function
+category_stats = sales.groupby("Category")["Revenue"].agg([
+    ("Total", "sum"),
+    ("Mean", "mean"),
+    ("Std", "std"),
+    ("CV%", coefficient_of_variation)
+]).round(2)
+
+print("Revenue Variability by Category:")
+print(category_stats)
+
+print("\\nInterpretation:")
+for cat in category_stats.index:
+    cv = category_stats.loc[cat, "CV%"]
+    label = "High variability" if cv > 50 else "Moderate variability" if cv > 25 else "Low variability"
+    print(f"  {cat}: {label} (CV={cv:.1f}%)")`,
+      validateFn: `return output.includes("Category") && output.includes("CV") && (output.includes("Electronics") || output.includes("Tools"))`,
+      hint: "Define CV as (std/mean)*100, then use it in agg with a tuple like ('CV%', coefficient_of_variation)",
+      xpReward: 50,
+    },
   },
   {
     module: "Functions & Apply",
@@ -616,6 +837,87 @@ print(students[["name", "score", "status"]])`,
 print(students["age_group"].value_counts())`,
       },
     ],
+    projectChallenge: {
+      threadId: "sales",
+      threadTitle: "Sales Performance Dashboard",
+      taskTitle: "Assign Performance Tiers",
+      context: "Management wants to tier sales reps based on revenue performance. Use np.where to assign Star/Solid/Developing tiers based on total revenue thresholds.",
+      starterCode: `import pandas as pd
+import numpy as np
+import io
+
+sales_csv = """SaleID,SalesRep,Region,Product,Category,Quantity,UnitPrice,SaleDate,CustomerSegment
+S001,Alice Chen,North,Widget Pro,Electronics,15,49.99,2023-01-05,Enterprise
+S002,Bob Martinez,South,Gadget Plus,Tools,8,29.99,2023-01-08,SMB
+S003,Carol Davis,East,Widget Pro,Electronics,22,49.99,2023-01-10,Enterprise
+S004,Dan Wilson,West,Super Tool,Tools,45,19.99,2023-01-12,Consumer
+S005,Eva Brown,North,Power Unit,Electronics,10,89.99,2023-01-15,Enterprise
+S006,Alice Chen,North,Gadget Plus,Tools,30,29.99,2023-01-18,SMB
+S007,Bob Martinez,South,Widget Pro,Electronics,18,49.99,2023-01-20,Consumer
+S008,Carol Davis,East,Super Tool,Tools,55,19.99,2023-02-01,SMB
+S009,Dan Wilson,West,Power Unit,Electronics,8,89.99,2023-02-05,Enterprise
+S010,Eva Brown,North,Widget Basic,Electronics,65,24.99,2023-02-10,Consumer
+S011,Alice Chen,North,Super Tool,Tools,40,19.99,2023-02-15,Consumer
+S012,Bob Martinez,South,Power Unit,Electronics,12,89.99,2023-02-20,Enterprise
+S013,Carol Davis,East,Gadget Plus,Tools,25,29.99,2023-03-01,SMB
+S014,Dan Wilson,West,Widget Pro,Electronics,20,49.99,2023-03-05,Enterprise
+S015,Eva Brown,North,Widget Basic,Electronics,80,24.99,2023-03-10,Consumer"""
+
+sales = pd.read_csv(io.StringIO(sales_csv))
+sales["Revenue"] = sales["Quantity"] * sales["UnitPrice"]
+
+# Task:
+# 1. Group by SalesRep and sum Revenue
+# 2. Use np.where to assign tiers:
+#    - Revenue >= 4000: "Star"
+#    - Revenue >= 2500: "Solid"
+#    - else: "Developing"
+# 3. Print the rep performance summary with tiers
+`,
+      solution: `import pandas as pd
+import numpy as np
+import io
+
+sales_csv = """SaleID,SalesRep,Region,Product,Category,Quantity,UnitPrice,SaleDate,CustomerSegment
+S001,Alice Chen,North,Widget Pro,Electronics,15,49.99,2023-01-05,Enterprise
+S002,Bob Martinez,South,Gadget Plus,Tools,8,29.99,2023-01-08,SMB
+S003,Carol Davis,East,Widget Pro,Electronics,22,49.99,2023-01-10,Enterprise
+S004,Dan Wilson,West,Super Tool,Tools,45,19.99,2023-01-12,Consumer
+S005,Eva Brown,North,Power Unit,Electronics,10,89.99,2023-01-15,Enterprise
+S006,Alice Chen,North,Gadget Plus,Tools,30,29.99,2023-01-18,SMB
+S007,Bob Martinez,South,Widget Pro,Electronics,18,49.99,2023-01-20,Consumer
+S008,Carol Davis,East,Super Tool,Tools,55,19.99,2023-02-01,SMB
+S009,Dan Wilson,West,Power Unit,Electronics,8,89.99,2023-02-05,Enterprise
+S010,Eva Brown,North,Widget Basic,Electronics,65,24.99,2023-02-10,Consumer
+S011,Alice Chen,North,Super Tool,Tools,40,19.99,2023-02-15,Consumer
+S012,Bob Martinez,South,Power Unit,Electronics,12,89.99,2023-02-20,Enterprise
+S013,Carol Davis,East,Gadget Plus,Tools,25,29.99,2023-03-01,SMB
+S014,Dan Wilson,West,Widget Pro,Electronics,20,49.99,2023-03-05,Enterprise
+S015,Eva Brown,North,Widget Basic,Electronics,80,24.99,2023-03-10,Consumer"""
+
+sales = pd.read_csv(io.StringIO(sales_csv))
+sales["Revenue"] = sales["Quantity"] * sales["UnitPrice"]
+
+# Aggregate by sales rep
+rep_performance = sales.groupby("SalesRep")["Revenue"].sum().reset_index()
+
+# Assign tiers using np.where
+rep_performance["Tier"] = np.where(
+    rep_performance["Revenue"] >= 4000, "Star",
+    np.where(rep_performance["Revenue"] >= 2500, "Solid", "Developing")
+)
+
+# Sort and display
+rep_performance = rep_performance.sort_values("Revenue", ascending=False)
+print("Sales Rep Performance Tiers:")
+print(rep_performance)
+
+print("\\nTier Distribution:")
+print(rep_performance["Tier"].value_counts())`,
+      validateFn: `return output.includes("Tier") && (output.includes("Star") || output.includes("Solid") || output.includes("Developing"))`,
+      hint: "Group by SalesRep first to get totals, then use nested np.where for multiple conditions",
+      xpReward: 50,
+    },
   },
   {
     module: "Functions & Apply",
@@ -833,5 +1135,114 @@ print("\\nBy Subject:")
 print(students["subject"].value_counts())`,
       },
     ],
+    projectChallenge: {
+      threadId: "sales",
+      threadTitle: "Sales Performance Dashboard",
+      taskTitle: "Complete Sales Dashboard",
+      context: "Build the complete sales performance dashboard combining all techniques: revenue calculation, rep rankings, regional analysis, and category breakdowns. This is your capstone for the sales thread!",
+      starterCode: `import pandas as pd
+import numpy as np
+import io
+
+sales_csv = """SaleID,SalesRep,Region,Product,Category,Quantity,UnitPrice,SaleDate,CustomerSegment
+S001,Alice Chen,North,Widget Pro,Electronics,15,49.99,2023-01-05,Enterprise
+S002,Bob Martinez,South,Gadget Plus,Tools,8,29.99,2023-01-08,SMB
+S003,Carol Davis,East,Widget Pro,Electronics,22,49.99,2023-01-10,Enterprise
+S004,Dan Wilson,West,Super Tool,Tools,45,19.99,2023-01-12,Consumer
+S005,Eva Brown,North,Power Unit,Electronics,10,89.99,2023-01-15,Enterprise
+S006,Alice Chen,North,Gadget Plus,Tools,30,29.99,2023-01-18,SMB
+S007,Bob Martinez,South,Widget Pro,Electronics,18,49.99,2023-01-20,Consumer
+S008,Carol Davis,East,Super Tool,Tools,55,19.99,2023-02-01,SMB
+S009,Dan Wilson,West,Power Unit,Electronics,8,89.99,2023-02-05,Enterprise
+S010,Eva Brown,North,Widget Basic,Electronics,65,24.99,2023-02-10,Consumer
+S011,Alice Chen,North,Super Tool,Tools,40,19.99,2023-02-15,Consumer
+S012,Bob Martinez,South,Power Unit,Electronics,12,89.99,2023-02-20,Enterprise
+S013,Carol Davis,East,Gadget Plus,Tools,25,29.99,2023-03-01,SMB
+S014,Dan Wilson,West,Widget Pro,Electronics,20,49.99,2023-03-05,Enterprise
+S015,Eva Brown,North,Widget Basic,Electronics,80,24.99,2023-03-10,Consumer"""
+
+sales = pd.read_csv(io.StringIO(sales_csv))
+
+# Task: Build the complete dashboard with these sections:
+# 1. OVERVIEW: Total revenue, total units, avg sale value
+# 2. BY REGION: Revenue and unit count per region
+# 3. BY REP: Revenue ranking with performance tier (Star/Solid/Developing)
+# 4. BY CATEGORY: Revenue and % of total per category
+# 5. TOP PRODUCTS: Top 3 products by revenue
+# Print a formatted dashboard report
+`,
+      solution: `import pandas as pd
+import numpy as np
+import io
+
+sales_csv = """SaleID,SalesRep,Region,Product,Category,Quantity,UnitPrice,SaleDate,CustomerSegment
+S001,Alice Chen,North,Widget Pro,Electronics,15,49.99,2023-01-05,Enterprise
+S002,Bob Martinez,South,Gadget Plus,Tools,8,29.99,2023-01-08,SMB
+S003,Carol Davis,East,Widget Pro,Electronics,22,49.99,2023-01-10,Enterprise
+S004,Dan Wilson,West,Super Tool,Tools,45,19.99,2023-01-12,Consumer
+S005,Eva Brown,North,Power Unit,Electronics,10,89.99,2023-01-15,Enterprise
+S006,Alice Chen,North,Gadget Plus,Tools,30,29.99,2023-01-18,SMB
+S007,Bob Martinez,South,Widget Pro,Electronics,18,49.99,2023-01-20,Consumer
+S008,Carol Davis,East,Super Tool,Tools,55,19.99,2023-02-01,SMB
+S009,Dan Wilson,West,Power Unit,Electronics,8,89.99,2023-02-05,Enterprise
+S010,Eva Brown,North,Widget Basic,Electronics,65,24.99,2023-02-10,Consumer
+S011,Alice Chen,North,Super Tool,Tools,40,19.99,2023-02-15,Consumer
+S012,Bob Martinez,South,Power Unit,Electronics,12,89.99,2023-02-20,Enterprise
+S013,Carol Davis,East,Gadget Plus,Tools,25,29.99,2023-03-01,SMB
+S014,Dan Wilson,West,Widget Pro,Electronics,20,49.99,2023-03-05,Enterprise
+S015,Eva Brown,North,Widget Basic,Electronics,80,24.99,2023-03-10,Consumer"""
+
+sales = pd.read_csv(io.StringIO(sales_csv))
+sales["Revenue"] = sales["Quantity"] * sales["UnitPrice"]
+
+print("=" * 50)
+print("       SALES PERFORMANCE DASHBOARD")
+print("=" * 50)
+
+# 1. OVERVIEW
+print("\\n[1] OVERVIEW")
+print(f"    Total Revenue:  \${sales['Revenue'].sum():,.2f}")
+print(f"    Total Units:    {sales['Quantity'].sum():,}")
+print(f"    Avg Sale Value: \${sales['Revenue'].mean():,.2f}")
+
+# 2. BY REGION
+print("\\n[2] REVENUE BY REGION")
+by_region = sales.groupby("Region").agg(
+    Revenue=("Revenue", "sum"),
+    Units=("Quantity", "sum")
+).sort_values("Revenue", ascending=False)
+for region, row in by_region.iterrows():
+    print(f"    {region}: \${row['Revenue']:,.2f} ({row['Units']} units)")
+
+# 3. BY REP
+print("\\n[3] SALES REP RANKINGS")
+by_rep = sales.groupby("SalesRep")["Revenue"].sum().sort_values(ascending=False)
+by_rep = by_rep.reset_index()
+by_rep["Tier"] = np.where(by_rep["Revenue"] >= 4000, "Star",
+                 np.where(by_rep["Revenue"] >= 2500, "Solid", "Developing"))
+for i, row in by_rep.iterrows():
+    print(f"    #{i+1} {row['SalesRep']}: \${row['Revenue']:,.2f} [{row['Tier']}]")
+
+# 4. BY CATEGORY
+print("\\n[4] CATEGORY BREAKDOWN")
+total_rev = sales["Revenue"].sum()
+by_cat = sales.groupby("Category")["Revenue"].sum()
+for cat, rev in by_cat.items():
+    pct = (rev / total_rev) * 100
+    print(f"    {cat}: \${rev:,.2f} ({pct:.1f}%)")
+
+# 5. TOP PRODUCTS
+print("\\n[5] TOP 3 PRODUCTS")
+by_product = sales.groupby("Product")["Revenue"].sum().nlargest(3)
+for i, (product, rev) in enumerate(by_product.items(), 1):
+    print(f"    #{i} {product}: \${rev:,.2f}")
+
+print("\\n" + "=" * 50)
+print("         Dashboard Generated Successfully!")
+print("=" * 50)`,
+      validateFn: `return output.includes("DASHBOARD") && output.includes("REGION") && output.includes("REP") && output.includes("CATEGORY")`,
+      hint: "Break it into sections using groupby for each analysis type, format output cleanly",
+      xpReward: 50,
+    },
   },
 ];

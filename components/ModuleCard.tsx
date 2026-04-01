@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import type { Module } from "@/lib/types";
 
@@ -24,12 +25,28 @@ export function ModuleCard({
   moduleIndex,
   completedLessons,
 }: ModuleCardProps) {
+  const [projectCompletions, setProjectCompletions] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const saved = localStorage.getItem("python-mastery-project-completed");
+    if (saved) {
+      setProjectCompletions(new Set(JSON.parse(saved)));
+    }
+  }, []);
+
   const completedCount = module.lessons.filter((l) =>
     completedLessons.has(`${module.slug}/${l.slug}`)
   ).length;
   const totalLessons = module.lessons.length;
   const progressPercent = Math.round((completedCount / totalLessons) * 100);
   const isComplete = completedCount === totalLessons;
+
+  // Project challenge tracking
+  const lessonsWithProjects = module.lessons.filter((l) => l.projectChallenge);
+  const totalProjectTasks = lessonsWithProjects.length;
+  const completedProjectTasks = lessonsWithProjects.filter((l) =>
+    projectCompletions.has(`${module.slug}/${l.slug}`)
+  ).length;
 
   const firstIncompleteLesson =
     module.lessons.find(
@@ -99,11 +116,22 @@ export function ModuleCard({
 
         {/* Footer */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm">
-            <span className={`font-medium ${isComplete ? "text-success" : "text-accent"}`}>
-              {completedCount}/{totalLessons}
-            </span>
-            <span className="text-muted-foreground">lessons</span>
+          <div className="flex items-center gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <span className={`font-medium ${isComplete ? "text-success" : "text-accent"}`}>
+                {completedCount}/{totalLessons}
+              </span>
+              <span className="text-muted-foreground">lessons</span>
+            </div>
+            {totalProjectTasks > 0 && (
+              <div className="flex items-center gap-2">
+                <span className="text-amber-400/70">•</span>
+                <span className={`font-medium ${completedProjectTasks === totalProjectTasks && totalProjectTasks > 0 ? "text-amber-400" : "text-amber-400/60"}`}>
+                  {completedProjectTasks}/{totalProjectTasks}
+                </span>
+                <span className="text-muted-foreground">🏗️</span>
+              </div>
+            )}
           </div>
           <div className={`text-sm font-medium px-3 py-1 rounded-full ${
             isComplete

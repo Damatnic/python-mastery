@@ -9,6 +9,10 @@ export default function LearnDashboard() {
   const [completedLessons, setCompletedLessons] = useState<Set<string>>(
     new Set()
   );
+  const [totalXP, setTotalXP] = useState(0);
+  const [projectCompletions, setProjectCompletions] = useState<Set<string>>(
+    new Set()
+  );
   const modules = getAllModules();
 
   useEffect(() => {
@@ -16,6 +20,18 @@ export default function LearnDashboard() {
     if (saved) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrating from localStorage
       setCompletedLessons(new Set(JSON.parse(saved)));
+    }
+
+    const savedXP = localStorage.getItem("python-mastery-xp");
+    if (savedXP) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrating from localStorage
+      setTotalXP(parseInt(savedXP, 10));
+    }
+
+    const savedProjects = localStorage.getItem("python-mastery-project-completed");
+    if (savedProjects) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrating from localStorage
+      setProjectCompletions(new Set(JSON.parse(savedProjects)));
     }
   }, []);
 
@@ -25,6 +41,13 @@ export default function LearnDashboard() {
   const modulesComplete = modules.filter(
     (m) => m.lessons.every((l) => completedLessons.has(`${m.slug}/${l.slug}`))
   ).length;
+
+  // Project challenge stats
+  const totalProjectChallenges = modules.reduce(
+    (sum, m) => sum + m.lessons.filter((l) => l.projectChallenge).length,
+    0
+  );
+  const completedProjectChallenges = projectCompletions.size;
 
   return (
     <div className="min-h-screen bg-background">
@@ -77,7 +100,7 @@ export default function LearnDashboard() {
             <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-accent/10 to-transparent rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
 
             <div className="relative">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-8">
                 <div>
                   <div className="text-4xl font-bold text-foreground mb-1">
                     {progressPercent}%
@@ -91,16 +114,22 @@ export default function LearnDashboard() {
                   <div className="text-sm text-muted-foreground">Lessons Done</div>
                 </div>
                 <div>
+                  <div className="text-4xl font-bold text-amber-400 mb-1">
+                    {completedProjectChallenges}
+                  </div>
+                  <div className="text-sm text-muted-foreground">🏗️ Project Tasks</div>
+                </div>
+                <div>
                   <div className="text-4xl font-bold text-foreground mb-1">
                     {modulesComplete}
                   </div>
                   <div className="text-sm text-muted-foreground">Modules Complete</div>
                 </div>
                 <div>
-                  <div className="text-4xl font-bold text-foreground mb-1">
-                    {totalLessons - completedCount}
+                  <div className="text-4xl font-bold text-amber-300 mb-1">
+                    {totalXP}
                   </div>
-                  <div className="text-sm text-muted-foreground">Lessons Left</div>
+                  <div className="text-sm text-muted-foreground">⭐ Total XP</div>
                 </div>
               </div>
 

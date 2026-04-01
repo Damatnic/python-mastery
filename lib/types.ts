@@ -14,6 +14,20 @@ export interface Challenge {
   solution: string;
 }
 
+export type ProjectThreadId = "permits" | "survey" | "sales";
+
+export interface ProjectChallenge {
+  threadId: ProjectThreadId;
+  threadTitle: string;
+  taskTitle: string;
+  context: string;
+  starterCode: string;
+  solution: string;
+  validateFn: string;
+  hint: string;
+  xpReward: number;
+}
+
 export interface Lesson {
   module: string;
   moduleSlug: string;
@@ -25,6 +39,7 @@ export interface Lesson {
   starterCode: string;
   examples: Example[];
   challenges: Challenge[];
+  projectChallenge?: ProjectChallenge;
 }
 
 export interface Module {

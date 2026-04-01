@@ -134,6 +134,63 @@ print("Columns:", list(sales.columns))`,
         solution: `print(students.tail(3))`,
       },
     ],
+    projectChallenge: {
+      threadId: "permits",
+      threadTitle: "SF Permits Analysis",
+      taskTitle: "Explore Permits Data",
+      context: "You just received the SF building permits dataset. Before any analysis, explore its structure to understand what you're working with.",
+      starterCode: `import pandas as pd
+import io
+
+permits_csv = """Permit Number|Permit Type|Street Number|Street Name|Status|Filed Date|Issued Date|Neighborhood|Existing Use|Proposed Use
+BP2023-0001|alterations|450|Market St|issued|2023-01-15|2023-02-10|Financial District|office|office
+BP2023-0002|new construction|1200|Mission St|complete|2023-01-18|2023-02-28|SoMa|vacant lot|apartments
+BP2023-0003|additions|2847|24th St|issued|2023-01-22|2023-03-05|Mission|1 family dwelling|1 family dwelling
+BP2023-0004|alterations|555|California St|cancelled|2023-01-25||Nob Hill|office|office
+BP2023-0005|demolition|890|Folsom St|complete|2023-02-01|2023-02-15|SoMa|warehouse|vacant lot
+BP2023-0006|new construction|3200|16th St|issued|2023-02-05|2023-04-01|Mission|parking lot|retail
+BP2023-0007|alterations|100|Van Ness Ave|withdrawn|2023-02-10||Civic Center|retail|restaurant
+BP2023-0008|sign erection|1800|Haight St|complete|2023-02-12|2023-02-20|Haight-Ashbury|retail|retail
+BP2023-0009|additions|4521|Judah St|issued|2023-02-15|2023-04-10|Sunset|1 family dwelling|2 family dwelling
+BP2023-0010|alterations|601|Montgomery St|issued|2023-02-18|2023-03-25|Financial District|office|office
+BP2023-0011|new construction|2100|Folsom St|expired|2023-02-20|2023-03-30|Mission|vacant lot|apartments
+BP2023-0012|alterations|789|Brannan St|complete|2023-02-22|2023-04-05|SoMa|warehouse|office
+BP2023-0013|demolition|1550|Howard St|complete|2023-02-25|2023-03-10|SoMa|industrial|vacant lot
+BP2023-0014|additions|3845|Noriega St|issued|2023-03-01|2023-05-01|Sunset|1 family dwelling|1 family dwelling
+BP2023-0015|new construction|425|Mission St|issued|2023-03-05|2023-06-15|Financial District|parking lot|office tower"""
+
+permits = pd.read_csv(io.StringIO(permits_csv), sep='|')
+
+# TODO: Print the shape of the DataFrame and its column data types
+`,
+      solution: `import pandas as pd
+import io
+
+permits_csv = """Permit Number|Permit Type|Street Number|Street Name|Status|Filed Date|Issued Date|Neighborhood|Existing Use|Proposed Use
+BP2023-0001|alterations|450|Market St|issued|2023-01-15|2023-02-10|Financial District|office|office
+BP2023-0002|new construction|1200|Mission St|complete|2023-01-18|2023-02-28|SoMa|vacant lot|apartments
+BP2023-0003|additions|2847|24th St|issued|2023-01-22|2023-03-05|Mission|1 family dwelling|1 family dwelling
+BP2023-0004|alterations|555|California St|cancelled|2023-01-25||Nob Hill|office|office
+BP2023-0005|demolition|890|Folsom St|complete|2023-02-01|2023-02-15|SoMa|warehouse|vacant lot
+BP2023-0006|new construction|3200|16th St|issued|2023-02-05|2023-04-01|Mission|parking lot|retail
+BP2023-0007|alterations|100|Van Ness Ave|withdrawn|2023-02-10||Civic Center|retail|restaurant
+BP2023-0008|sign erection|1800|Haight St|complete|2023-02-12|2023-02-20|Haight-Ashbury|retail|retail
+BP2023-0009|additions|4521|Judah St|issued|2023-02-15|2023-04-10|Sunset|1 family dwelling|2 family dwelling
+BP2023-0010|alterations|601|Montgomery St|issued|2023-02-18|2023-03-25|Financial District|office|office
+BP2023-0011|new construction|2100|Folsom St|expired|2023-02-20|2023-03-30|Mission|vacant lot|apartments
+BP2023-0012|alterations|789|Brannan St|complete|2023-02-22|2023-04-05|SoMa|warehouse|office
+BP2023-0013|demolition|1550|Howard St|complete|2023-02-25|2023-03-10|SoMa|industrial|vacant lot
+BP2023-0014|additions|3845|Noriega St|issued|2023-03-01|2023-05-01|Sunset|1 family dwelling|1 family dwelling
+BP2023-0015|new construction|425|Mission St|issued|2023-03-05|2023-06-15|Financial District|parking lot|office tower"""
+
+permits = pd.read_csv(io.StringIO(permits_csv), sep='|')
+
+print(f"Shape: {permits.shape}")
+print(f"\\nData types:\\n{permits.dtypes}")`,
+      validateFn: `return output.includes("15") && output.includes("10") && output.includes("object") && output.includes("Permit Number")`,
+      hint: "Use permits.shape to get (rows, columns) and permits.dtypes to see the data type of each column.",
+      xpReward: 50,
+    },
   },
   {
     module: "Pandas Fundamentals",
@@ -269,6 +326,64 @@ print(subset)`,
 print(result)`,
       },
     ],
+    projectChallenge: {
+      threadId: "permits",
+      threadTitle: "SF Permits Analysis",
+      taskTitle: "Create Status Report View",
+      context: "The status dashboard only needs three columns: Permit Number, Status, and Neighborhood. Select just these columns for the report view.",
+      starterCode: `import pandas as pd
+import io
+
+permits_csv = """Permit Number|Permit Type|Street Number|Street Name|Status|Filed Date|Issued Date|Neighborhood|Existing Use|Proposed Use
+BP2023-0001|alterations|450|Market St|issued|2023-01-15|2023-02-10|Financial District|office|office
+BP2023-0002|new construction|1200|Mission St|complete|2023-01-18|2023-02-28|SoMa|vacant lot|apartments
+BP2023-0003|additions|2847|24th St|issued|2023-01-22|2023-03-05|Mission|1 family dwelling|1 family dwelling
+BP2023-0004|alterations|555|California St|cancelled|2023-01-25||Nob Hill|office|office
+BP2023-0005|demolition|890|Folsom St|complete|2023-02-01|2023-02-15|SoMa|warehouse|vacant lot
+BP2023-0006|new construction|3200|16th St|issued|2023-02-05|2023-04-01|Mission|parking lot|retail
+BP2023-0007|alterations|100|Van Ness Ave|withdrawn|2023-02-10||Civic Center|retail|restaurant
+BP2023-0008|sign erection|1800|Haight St|complete|2023-02-12|2023-02-20|Haight-Ashbury|retail|retail
+BP2023-0009|additions|4521|Judah St|issued|2023-02-15|2023-04-10|Sunset|1 family dwelling|2 family dwelling
+BP2023-0010|alterations|601|Montgomery St|issued|2023-02-18|2023-03-25|Financial District|office|office
+BP2023-0011|new construction|2100|Folsom St|expired|2023-02-20|2023-03-30|Mission|vacant lot|apartments
+BP2023-0012|alterations|789|Brannan St|complete|2023-02-22|2023-04-05|SoMa|warehouse|office
+BP2023-0013|demolition|1550|Howard St|complete|2023-02-25|2023-03-10|SoMa|industrial|vacant lot
+BP2023-0014|additions|3845|Noriega St|issued|2023-03-01|2023-05-01|Sunset|1 family dwelling|1 family dwelling
+BP2023-0015|new construction|425|Mission St|issued|2023-03-05|2023-06-15|Financial District|parking lot|office tower"""
+
+permits = pd.read_csv(io.StringIO(permits_csv), sep='|')
+
+# TODO: Select only Permit Number, Status, and Neighborhood columns
+# Print the result
+`,
+      solution: `import pandas as pd
+import io
+
+permits_csv = """Permit Number|Permit Type|Street Number|Street Name|Status|Filed Date|Issued Date|Neighborhood|Existing Use|Proposed Use
+BP2023-0001|alterations|450|Market St|issued|2023-01-15|2023-02-10|Financial District|office|office
+BP2023-0002|new construction|1200|Mission St|complete|2023-01-18|2023-02-28|SoMa|vacant lot|apartments
+BP2023-0003|additions|2847|24th St|issued|2023-01-22|2023-03-05|Mission|1 family dwelling|1 family dwelling
+BP2023-0004|alterations|555|California St|cancelled|2023-01-25||Nob Hill|office|office
+BP2023-0005|demolition|890|Folsom St|complete|2023-02-01|2023-02-15|SoMa|warehouse|vacant lot
+BP2023-0006|new construction|3200|16th St|issued|2023-02-05|2023-04-01|Mission|parking lot|retail
+BP2023-0007|alterations|100|Van Ness Ave|withdrawn|2023-02-10||Civic Center|retail|restaurant
+BP2023-0008|sign erection|1800|Haight St|complete|2023-02-12|2023-02-20|Haight-Ashbury|retail|retail
+BP2023-0009|additions|4521|Judah St|issued|2023-02-15|2023-04-10|Sunset|1 family dwelling|2 family dwelling
+BP2023-0010|alterations|601|Montgomery St|issued|2023-02-18|2023-03-25|Financial District|office|office
+BP2023-0011|new construction|2100|Folsom St|expired|2023-02-20|2023-03-30|Mission|vacant lot|apartments
+BP2023-0012|alterations|789|Brannan St|complete|2023-02-22|2023-04-05|SoMa|warehouse|office
+BP2023-0013|demolition|1550|Howard St|complete|2023-02-25|2023-03-10|SoMa|industrial|vacant lot
+BP2023-0014|additions|3845|Noriega St|issued|2023-03-01|2023-05-01|Sunset|1 family dwelling|1 family dwelling
+BP2023-0015|new construction|425|Mission St|issued|2023-03-05|2023-06-15|Financial District|parking lot|office tower"""
+
+permits = pd.read_csv(io.StringIO(permits_csv), sep='|')
+
+status_report = permits[["Permit Number", "Status", "Neighborhood"]]
+print(status_report)`,
+      validateFn: `return output.includes("Permit Number") && output.includes("Status") && output.includes("Neighborhood") && output.includes("BP2023-0001") && !output.includes("Street Name")`,
+      hint: "Use double brackets with a list of column names: permits[['Permit Number', 'Status', 'Neighborhood']]",
+      xpReward: 50,
+    },
   },
   {
     module: "Pandas Fundamentals",
@@ -405,6 +520,64 @@ print(expensive)`,
 print(ab_students)`,
       },
     ],
+    projectChallenge: {
+      threadId: "permits",
+      threadTitle: "SF Permits Analysis",
+      taskTitle: "Filter Active Permits",
+      context: "The city wants to see only permits that are currently active. Filter to show permits that are either 'issued' or 'complete' status.",
+      starterCode: `import pandas as pd
+import io
+
+permits_csv = """Permit Number|Permit Type|Street Number|Street Name|Status|Filed Date|Issued Date|Neighborhood|Existing Use|Proposed Use
+BP2023-0001|alterations|450|Market St|issued|2023-01-15|2023-02-10|Financial District|office|office
+BP2023-0002|new construction|1200|Mission St|complete|2023-01-18|2023-02-28|SoMa|vacant lot|apartments
+BP2023-0003|additions|2847|24th St|issued|2023-01-22|2023-03-05|Mission|1 family dwelling|1 family dwelling
+BP2023-0004|alterations|555|California St|cancelled|2023-01-25||Nob Hill|office|office
+BP2023-0005|demolition|890|Folsom St|complete|2023-02-01|2023-02-15|SoMa|warehouse|vacant lot
+BP2023-0006|new construction|3200|16th St|issued|2023-02-05|2023-04-01|Mission|parking lot|retail
+BP2023-0007|alterations|100|Van Ness Ave|withdrawn|2023-02-10||Civic Center|retail|restaurant
+BP2023-0008|sign erection|1800|Haight St|complete|2023-02-12|2023-02-20|Haight-Ashbury|retail|retail
+BP2023-0009|additions|4521|Judah St|issued|2023-02-15|2023-04-10|Sunset|1 family dwelling|2 family dwelling
+BP2023-0010|alterations|601|Montgomery St|issued|2023-02-18|2023-03-25|Financial District|office|office
+BP2023-0011|new construction|2100|Folsom St|expired|2023-02-20|2023-03-30|Mission|vacant lot|apartments
+BP2023-0012|alterations|789|Brannan St|complete|2023-02-22|2023-04-05|SoMa|warehouse|office
+BP2023-0013|demolition|1550|Howard St|complete|2023-02-25|2023-03-10|SoMa|industrial|vacant lot
+BP2023-0014|additions|3845|Noriega St|issued|2023-03-01|2023-05-01|Sunset|1 family dwelling|1 family dwelling
+BP2023-0015|new construction|425|Mission St|issued|2023-03-05|2023-06-15|Financial District|parking lot|office tower"""
+
+permits = pd.read_csv(io.StringIO(permits_csv), sep='|')
+
+# TODO: Filter permits where Status is 'issued' OR 'complete'
+# Print the filtered DataFrame
+`,
+      solution: `import pandas as pd
+import io
+
+permits_csv = """Permit Number|Permit Type|Street Number|Street Name|Status|Filed Date|Issued Date|Neighborhood|Existing Use|Proposed Use
+BP2023-0001|alterations|450|Market St|issued|2023-01-15|2023-02-10|Financial District|office|office
+BP2023-0002|new construction|1200|Mission St|complete|2023-01-18|2023-02-28|SoMa|vacant lot|apartments
+BP2023-0003|additions|2847|24th St|issued|2023-01-22|2023-03-05|Mission|1 family dwelling|1 family dwelling
+BP2023-0004|alterations|555|California St|cancelled|2023-01-25||Nob Hill|office|office
+BP2023-0005|demolition|890|Folsom St|complete|2023-02-01|2023-02-15|SoMa|warehouse|vacant lot
+BP2023-0006|new construction|3200|16th St|issued|2023-02-05|2023-04-01|Mission|parking lot|retail
+BP2023-0007|alterations|100|Van Ness Ave|withdrawn|2023-02-10||Civic Center|retail|restaurant
+BP2023-0008|sign erection|1800|Haight St|complete|2023-02-12|2023-02-20|Haight-Ashbury|retail|retail
+BP2023-0009|additions|4521|Judah St|issued|2023-02-15|2023-04-10|Sunset|1 family dwelling|2 family dwelling
+BP2023-0010|alterations|601|Montgomery St|issued|2023-02-18|2023-03-25|Financial District|office|office
+BP2023-0011|new construction|2100|Folsom St|expired|2023-02-20|2023-03-30|Mission|vacant lot|apartments
+BP2023-0012|alterations|789|Brannan St|complete|2023-02-22|2023-04-05|SoMa|warehouse|office
+BP2023-0013|demolition|1550|Howard St|complete|2023-02-25|2023-03-10|SoMa|industrial|vacant lot
+BP2023-0014|additions|3845|Noriega St|issued|2023-03-01|2023-05-01|Sunset|1 family dwelling|1 family dwelling
+BP2023-0015|new construction|425|Mission St|issued|2023-03-05|2023-06-15|Financial District|parking lot|office tower"""
+
+permits = pd.read_csv(io.StringIO(permits_csv), sep='|')
+
+active_permits = permits[(permits["Status"] == "issued") | (permits["Status"] == "complete")]
+print(active_permits)`,
+      validateFn: `return output.includes("BP2023-0001") && output.includes("BP2023-0002") && output.includes("issued") && output.includes("complete") && !output.includes("cancelled") && !output.includes("withdrawn")`,
+      hint: "Use | for OR and wrap each condition in parentheses: (permits['Status'] == 'issued') | (permits['Status'] == 'complete')",
+      xpReward: 50,
+    },
   },
   {
     module: "Pandas Fundamentals",
@@ -548,6 +721,64 @@ print(sorted_sales)`,
 print(sales[["product", "revenue"]])`,
       },
     ],
+    projectChallenge: {
+      threadId: "permits",
+      threadTitle: "SF Permits Analysis",
+      taskTitle: "Add Active Status Column",
+      context: "The dashboard needs a boolean column to quickly identify active permits. Add an 'is_active' column that is True for permits with 'issued' or 'complete' status.",
+      starterCode: `import pandas as pd
+import io
+
+permits_csv = """Permit Number|Permit Type|Street Number|Street Name|Status|Filed Date|Issued Date|Neighborhood|Existing Use|Proposed Use
+BP2023-0001|alterations|450|Market St|issued|2023-01-15|2023-02-10|Financial District|office|office
+BP2023-0002|new construction|1200|Mission St|complete|2023-01-18|2023-02-28|SoMa|vacant lot|apartments
+BP2023-0003|additions|2847|24th St|issued|2023-01-22|2023-03-05|Mission|1 family dwelling|1 family dwelling
+BP2023-0004|alterations|555|California St|cancelled|2023-01-25||Nob Hill|office|office
+BP2023-0005|demolition|890|Folsom St|complete|2023-02-01|2023-02-15|SoMa|warehouse|vacant lot
+BP2023-0006|new construction|3200|16th St|issued|2023-02-05|2023-04-01|Mission|parking lot|retail
+BP2023-0007|alterations|100|Van Ness Ave|withdrawn|2023-02-10||Civic Center|retail|restaurant
+BP2023-0008|sign erection|1800|Haight St|complete|2023-02-12|2023-02-20|Haight-Ashbury|retail|retail
+BP2023-0009|additions|4521|Judah St|issued|2023-02-15|2023-04-10|Sunset|1 family dwelling|2 family dwelling
+BP2023-0010|alterations|601|Montgomery St|issued|2023-02-18|2023-03-25|Financial District|office|office
+BP2023-0011|new construction|2100|Folsom St|expired|2023-02-20|2023-03-30|Mission|vacant lot|apartments
+BP2023-0012|alterations|789|Brannan St|complete|2023-02-22|2023-04-05|SoMa|warehouse|office
+BP2023-0013|demolition|1550|Howard St|complete|2023-02-25|2023-03-10|SoMa|industrial|vacant lot
+BP2023-0014|additions|3845|Noriega St|issued|2023-03-01|2023-05-01|Sunset|1 family dwelling|1 family dwelling
+BP2023-0015|new construction|425|Mission St|issued|2023-03-05|2023-06-15|Financial District|parking lot|office tower"""
+
+permits = pd.read_csv(io.StringIO(permits_csv), sep='|')
+
+# TODO: Add a column 'is_active' that is True when Status is 'issued' or 'complete'
+# Then print the Permit Number, Status, and is_active columns
+`,
+      solution: `import pandas as pd
+import io
+
+permits_csv = """Permit Number|Permit Type|Street Number|Street Name|Status|Filed Date|Issued Date|Neighborhood|Existing Use|Proposed Use
+BP2023-0001|alterations|450|Market St|issued|2023-01-15|2023-02-10|Financial District|office|office
+BP2023-0002|new construction|1200|Mission St|complete|2023-01-18|2023-02-28|SoMa|vacant lot|apartments
+BP2023-0003|additions|2847|24th St|issued|2023-01-22|2023-03-05|Mission|1 family dwelling|1 family dwelling
+BP2023-0004|alterations|555|California St|cancelled|2023-01-25||Nob Hill|office|office
+BP2023-0005|demolition|890|Folsom St|complete|2023-02-01|2023-02-15|SoMa|warehouse|vacant lot
+BP2023-0006|new construction|3200|16th St|issued|2023-02-05|2023-04-01|Mission|parking lot|retail
+BP2023-0007|alterations|100|Van Ness Ave|withdrawn|2023-02-10||Civic Center|retail|restaurant
+BP2023-0008|sign erection|1800|Haight St|complete|2023-02-12|2023-02-20|Haight-Ashbury|retail|retail
+BP2023-0009|additions|4521|Judah St|issued|2023-02-15|2023-04-10|Sunset|1 family dwelling|2 family dwelling
+BP2023-0010|alterations|601|Montgomery St|issued|2023-02-18|2023-03-25|Financial District|office|office
+BP2023-0011|new construction|2100|Folsom St|expired|2023-02-20|2023-03-30|Mission|vacant lot|apartments
+BP2023-0012|alterations|789|Brannan St|complete|2023-02-22|2023-04-05|SoMa|warehouse|office
+BP2023-0013|demolition|1550|Howard St|complete|2023-02-25|2023-03-10|SoMa|industrial|vacant lot
+BP2023-0014|additions|3845|Noriega St|issued|2023-03-01|2023-05-01|Sunset|1 family dwelling|1 family dwelling
+BP2023-0015|new construction|425|Mission St|issued|2023-03-05|2023-06-15|Financial District|parking lot|office tower"""
+
+permits = pd.read_csv(io.StringIO(permits_csv), sep='|')
+
+permits["is_active"] = permits["Status"].isin(["issued", "complete"])
+print(permits[["Permit Number", "Status", "is_active"]])`,
+      validateFn: `return output.includes("is_active") && output.includes("True") && output.includes("False") && output.includes("BP2023-0004")`,
+      hint: "Use the isin() method to check if Status is in a list: permits['Status'].isin(['issued', 'complete'])",
+      xpReward: 50,
+    },
   },
   {
     module: "Pandas Fundamentals",
@@ -704,5 +935,64 @@ print(df.head(2))`,
         solution: `print(sales.info())`,
       },
     ],
+    projectChallenge: {
+      threadId: "permits",
+      threadTitle: "SF Permits Analysis",
+      taskTitle: "Check Data Quality",
+      context: "Before building reports, you need to check the data quality. Some permits are missing their Issued Date. Find and report any missing values in the dataset.",
+      starterCode: `import pandas as pd
+import io
+
+permits_csv = """Permit Number|Permit Type|Street Number|Street Name|Status|Filed Date|Issued Date|Neighborhood|Existing Use|Proposed Use
+BP2023-0001|alterations|450|Market St|issued|2023-01-15|2023-02-10|Financial District|office|office
+BP2023-0002|new construction|1200|Mission St|complete|2023-01-18|2023-02-28|SoMa|vacant lot|apartments
+BP2023-0003|additions|2847|24th St|issued|2023-01-22|2023-03-05|Mission|1 family dwelling|1 family dwelling
+BP2023-0004|alterations|555|California St|cancelled|2023-01-25||Nob Hill|office|office
+BP2023-0005|demolition|890|Folsom St|complete|2023-02-01|2023-02-15|SoMa|warehouse|vacant lot
+BP2023-0006|new construction|3200|16th St|issued|2023-02-05|2023-04-01|Mission|parking lot|retail
+BP2023-0007|alterations|100|Van Ness Ave|withdrawn|2023-02-10||Civic Center|retail|restaurant
+BP2023-0008|sign erection|1800|Haight St|complete|2023-02-12|2023-02-20|Haight-Ashbury|retail|retail
+BP2023-0009|additions|4521|Judah St|issued|2023-02-15|2023-04-10|Sunset|1 family dwelling|2 family dwelling
+BP2023-0010|alterations|601|Montgomery St|issued|2023-02-18|2023-03-25|Financial District|office|office
+BP2023-0011|new construction|2100|Folsom St|expired|2023-02-20|2023-03-30|Mission|vacant lot|apartments
+BP2023-0012|alterations|789|Brannan St|complete|2023-02-22|2023-04-05|SoMa|warehouse|office
+BP2023-0013|demolition|1550|Howard St|complete|2023-02-25|2023-03-10|SoMa|industrial|vacant lot
+BP2023-0014|additions|3845|Noriega St|issued|2023-03-01|2023-05-01|Sunset|1 family dwelling|1 family dwelling
+BP2023-0015|new construction|425|Mission St|issued|2023-03-05|2023-06-15|Financial District|parking lot|office tower"""
+
+permits = pd.read_csv(io.StringIO(permits_csv), sep='|')
+
+# TODO: Check for missing values in each column
+# Print a summary showing which columns have missing data
+`,
+      solution: `import pandas as pd
+import io
+
+permits_csv = """Permit Number|Permit Type|Street Number|Street Name|Status|Filed Date|Issued Date|Neighborhood|Existing Use|Proposed Use
+BP2023-0001|alterations|450|Market St|issued|2023-01-15|2023-02-10|Financial District|office|office
+BP2023-0002|new construction|1200|Mission St|complete|2023-01-18|2023-02-28|SoMa|vacant lot|apartments
+BP2023-0003|additions|2847|24th St|issued|2023-01-22|2023-03-05|Mission|1 family dwelling|1 family dwelling
+BP2023-0004|alterations|555|California St|cancelled|2023-01-25||Nob Hill|office|office
+BP2023-0005|demolition|890|Folsom St|complete|2023-02-01|2023-02-15|SoMa|warehouse|vacant lot
+BP2023-0006|new construction|3200|16th St|issued|2023-02-05|2023-04-01|Mission|parking lot|retail
+BP2023-0007|alterations|100|Van Ness Ave|withdrawn|2023-02-10||Civic Center|retail|restaurant
+BP2023-0008|sign erection|1800|Haight St|complete|2023-02-12|2023-02-20|Haight-Ashbury|retail|retail
+BP2023-0009|additions|4521|Judah St|issued|2023-02-15|2023-04-10|Sunset|1 family dwelling|2 family dwelling
+BP2023-0010|alterations|601|Montgomery St|issued|2023-02-18|2023-03-25|Financial District|office|office
+BP2023-0011|new construction|2100|Folsom St|expired|2023-02-20|2023-03-30|Mission|vacant lot|apartments
+BP2023-0012|alterations|789|Brannan St|complete|2023-02-22|2023-04-05|SoMa|warehouse|office
+BP2023-0013|demolition|1550|Howard St|complete|2023-02-25|2023-03-10|SoMa|industrial|vacant lot
+BP2023-0014|additions|3845|Noriega St|issued|2023-03-01|2023-05-01|Sunset|1 family dwelling|1 family dwelling
+BP2023-0015|new construction|425|Mission St|issued|2023-03-05|2023-06-15|Financial District|parking lot|office tower"""
+
+permits = pd.read_csv(io.StringIO(permits_csv), sep='|')
+
+print("Missing values by column:")
+print(permits.isna().sum())
+print(f"\\nTotal missing values: {permits.isna().sum().sum()}")`,
+      validateFn: `return output.includes("Issued Date") && output.includes("2") && output.includes("Missing")`,
+      hint: "Use permits.isna().sum() to count missing values in each column. The Issued Date column has 2 missing values.",
+      xpReward: 50,
+    },
   },
 ];

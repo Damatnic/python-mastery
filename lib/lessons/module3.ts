@@ -157,6 +157,65 @@ df = df.fillna("MISSING")
 print(df)`,
       },
     ],
+    projectChallenge: {
+      threadId: "survey",
+      threadTitle: "Survey Insights Report",
+      taskTitle: "Check for Missing Survey Data",
+      context: "You're a tech recruiter analyzing developer survey responses. Before building your insights report, you need to verify data quality by checking for any missing values in the dataset.",
+      starterCode: `import pandas as pd
+import io
+
+survey_csv = """RespondentID,Country,Age,YearsExperience,LanguageUsed,Salary,RemoteWork,Education,JobTitle
+1001,USA,28,5,Python,95000,Yes,Bachelor's,Data Scientist
+1002,India,24,2,Python,28000,Yes,Master's,Data Analyst
+1003,USA,35,12,Python,145000,No,Master's,Senior Data Engineer
+1004,Canada,29,6,R,82000,Yes,PhD,Research Scientist
+1005,UK,31,8,Python,78000,Hybrid,Master's,Machine Learning Engineer
+1006,Germany,27,4,SQL,65000,No,Bachelor's,Data Analyst
+1007,USA,42,18,Python,175000,Yes,PhD,Principal Data Scientist
+1008,India,26,3,Python,32000,Yes,Bachelor's,Data Analyst
+1009,USA,33,9,Java,125000,No,Master's,Data Engineer
+1010,Canada,38,14,Python,115000,Hybrid,Bachelor's,Senior Data Scientist
+1011,UK,25,2,R,45000,Yes,Master's,Junior Data Scientist
+1012,India,30,7,Python,48000,Yes,Master's,Data Scientist
+1013,USA,29,5,Python,98000,Hybrid,Bachelor's,Data Scientist
+1014,Australia,34,10,Python,105000,Yes,Master's,Machine Learning Engineer
+1015,Germany,28,4,SQL,58000,No,Bachelor's,Business Analyst"""
+
+survey = pd.read_csv(io.StringIO(survey_csv))
+
+# Check for missing values per column and print the counts
+`,
+      solution: `import pandas as pd
+import io
+
+survey_csv = """RespondentID,Country,Age,YearsExperience,LanguageUsed,Salary,RemoteWork,Education,JobTitle
+1001,USA,28,5,Python,95000,Yes,Bachelor's,Data Scientist
+1002,India,24,2,Python,28000,Yes,Master's,Data Analyst
+1003,USA,35,12,Python,145000,No,Master's,Senior Data Engineer
+1004,Canada,29,6,R,82000,Yes,PhD,Research Scientist
+1005,UK,31,8,Python,78000,Hybrid,Master's,Machine Learning Engineer
+1006,Germany,27,4,SQL,65000,No,Bachelor's,Data Analyst
+1007,USA,42,18,Python,175000,Yes,PhD,Principal Data Scientist
+1008,India,26,3,Python,32000,Yes,Bachelor's,Data Analyst
+1009,USA,33,9,Java,125000,No,Master's,Data Engineer
+1010,Canada,38,14,Python,115000,Hybrid,Bachelor's,Senior Data Scientist
+1011,UK,25,2,R,45000,Yes,Master's,Junior Data Scientist
+1012,India,30,7,Python,48000,Yes,Master's,Data Scientist
+1013,USA,29,5,Python,98000,Hybrid,Bachelor's,Data Scientist
+1014,Australia,34,10,Python,105000,Yes,Master's,Machine Learning Engineer
+1015,Germany,28,4,SQL,58000,No,Bachelor's,Business Analyst"""
+
+survey = pd.read_csv(io.StringIO(survey_csv))
+
+# Check for missing values per column and print the counts
+print("Missing values per column:")
+print(survey.isna().sum())
+print(f"\\nTotal missing values: {survey.isna().sum().sum()}")`,
+      validateFn: `return output.includes("Missing values") && output.includes("0")`,
+      hint: "Use survey.isna().sum() to count missing values per column",
+      xpReward: 50,
+    },
   },
   {
     module: "Data Cleaning",
@@ -307,6 +366,67 @@ print(sales.dtypes)`,
 print(f"Mean score: {students['score'].mean()}")`,
       },
     ],
+    projectChallenge: {
+      threadId: "survey",
+      threadTitle: "Survey Insights Report",
+      taskTitle: "Fix Salary and Age Data Types",
+      context: "The survey data was imported with some columns as generic types. You need to ensure Salary is an integer and Age is properly typed for accurate statistical analysis in your recruiter report.",
+      starterCode: `import pandas as pd
+import io
+
+survey_csv = """RespondentID,Country,Age,YearsExperience,LanguageUsed,Salary,RemoteWork,Education,JobTitle
+1001,USA,28,5,Python,95000,Yes,Bachelor's,Data Scientist
+1002,India,24,2,Python,28000,Yes,Master's,Data Analyst
+1003,USA,35,12,Python,145000,No,Master's,Senior Data Engineer
+1004,Canada,29,6,R,82000,Yes,PhD,Research Scientist
+1005,UK,31,8,Python,78000,Hybrid,Master's,Machine Learning Engineer
+1006,Germany,27,4,SQL,65000,No,Bachelor's,Data Analyst
+1007,USA,42,18,Python,175000,Yes,PhD,Principal Data Scientist
+1008,India,26,3,Python,32000,Yes,Bachelor's,Data Analyst
+1009,USA,33,9,Java,125000,No,Master's,Data Engineer
+1010,Canada,38,14,Python,115000,Hybrid,Bachelor's,Senior Data Scientist
+1011,UK,25,2,R,45000,Yes,Master's,Junior Data Scientist
+1012,India,30,7,Python,48000,Yes,Master's,Data Scientist
+1013,USA,29,5,Python,98000,Hybrid,Bachelor's,Data Scientist
+1014,Australia,34,10,Python,105000,Yes,Master's,Machine Learning Engineer
+1015,Germany,28,4,SQL,58000,No,Bachelor's,Business Analyst"""
+
+survey = pd.read_csv(io.StringIO(survey_csv))
+
+# Convert Salary to int and verify Age is int, then print dtypes
+`,
+      solution: `import pandas as pd
+import io
+
+survey_csv = """RespondentID,Country,Age,YearsExperience,LanguageUsed,Salary,RemoteWork,Education,JobTitle
+1001,USA,28,5,Python,95000,Yes,Bachelor's,Data Scientist
+1002,India,24,2,Python,28000,Yes,Master's,Data Analyst
+1003,USA,35,12,Python,145000,No,Master's,Senior Data Engineer
+1004,Canada,29,6,R,82000,Yes,PhD,Research Scientist
+1005,UK,31,8,Python,78000,Hybrid,Master's,Machine Learning Engineer
+1006,Germany,27,4,SQL,65000,No,Bachelor's,Data Analyst
+1007,USA,42,18,Python,175000,Yes,PhD,Principal Data Scientist
+1008,India,26,3,Python,32000,Yes,Bachelor's,Data Analyst
+1009,USA,33,9,Java,125000,No,Master's,Data Engineer
+1010,Canada,38,14,Python,115000,Hybrid,Bachelor's,Senior Data Scientist
+1011,UK,25,2,R,45000,Yes,Master's,Junior Data Scientist
+1012,India,30,7,Python,48000,Yes,Master's,Data Scientist
+1013,USA,29,5,Python,98000,Hybrid,Bachelor's,Data Scientist
+1014,Australia,34,10,Python,105000,Yes,Master's,Machine Learning Engineer
+1015,Germany,28,4,SQL,58000,No,Bachelor's,Business Analyst"""
+
+survey = pd.read_csv(io.StringIO(survey_csv))
+
+# Convert Salary to int and verify Age is int, then print dtypes
+survey["Salary"] = survey["Salary"].astype(int)
+survey["Age"] = survey["Age"].astype(int)
+print("Data types after conversion:")
+print(survey.dtypes)
+print(f"\\nAverage salary: \${survey['Salary'].mean():,.0f}")`,
+      validateFn: `return output.includes("int") && output.includes("Salary")`,
+      hint: "Use .astype(int) to convert columns to integer type",
+      xpReward: 50,
+    },
   },
   {
     module: "Data Cleaning",
@@ -467,6 +587,66 @@ print(students["name"])`,
 print(has_a)`,
       },
     ],
+    projectChallenge: {
+      threadId: "survey",
+      threadTitle: "Survey Insights Report",
+      taskTitle: "Standardize Job Titles",
+      context: "Job titles in the survey have inconsistent formatting. Clean the JobTitle column by stripping whitespace and converting to title case for consistent reporting in your recruiter dashboard.",
+      starterCode: `import pandas as pd
+import io
+
+survey_csv = """RespondentID,Country,Age,YearsExperience,LanguageUsed,Salary,RemoteWork,Education,JobTitle
+1001,USA,28,5,Python,95000,Yes,Bachelor's,Data Scientist
+1002,India,24,2,Python,28000,Yes,Master's,Data Analyst
+1003,USA,35,12,Python,145000,No,Master's,Senior Data Engineer
+1004,Canada,29,6,R,82000,Yes,PhD,Research Scientist
+1005,UK,31,8,Python,78000,Hybrid,Master's,Machine Learning Engineer
+1006,Germany,27,4,SQL,65000,No,Bachelor's,Data Analyst
+1007,USA,42,18,Python,175000,Yes,PhD,Principal Data Scientist
+1008,India,26,3,Python,32000,Yes,Bachelor's,Data Analyst
+1009,USA,33,9,Java,125000,No,Master's,Data Engineer
+1010,Canada,38,14,Python,115000,Hybrid,Bachelor's,Senior Data Scientist
+1011,UK,25,2,R,45000,Yes,Master's,Junior Data Scientist
+1012,India,30,7,Python,48000,Yes,Master's,Data Scientist
+1013,USA,29,5,Python,98000,Hybrid,Bachelor's,Data Scientist
+1014,Australia,34,10,Python,105000,Yes,Master's,Machine Learning Engineer
+1015,Germany,28,4,SQL,58000,No,Bachelor's,Business Analyst"""
+
+survey = pd.read_csv(io.StringIO(survey_csv))
+
+# Clean the JobTitle column: strip whitespace and convert to title case
+# Then print the unique job titles
+`,
+      solution: `import pandas as pd
+import io
+
+survey_csv = """RespondentID,Country,Age,YearsExperience,LanguageUsed,Salary,RemoteWork,Education,JobTitle
+1001,USA,28,5,Python,95000,Yes,Bachelor's,Data Scientist
+1002,India,24,2,Python,28000,Yes,Master's,Data Analyst
+1003,USA,35,12,Python,145000,No,Master's,Senior Data Engineer
+1004,Canada,29,6,R,82000,Yes,PhD,Research Scientist
+1005,UK,31,8,Python,78000,Hybrid,Master's,Machine Learning Engineer
+1006,Germany,27,4,SQL,65000,No,Bachelor's,Data Analyst
+1007,USA,42,18,Python,175000,Yes,PhD,Principal Data Scientist
+1008,India,26,3,Python,32000,Yes,Bachelor's,Data Analyst
+1009,USA,33,9,Java,125000,No,Master's,Data Engineer
+1010,Canada,38,14,Python,115000,Hybrid,Bachelor's,Senior Data Scientist
+1011,UK,25,2,R,45000,Yes,Master's,Junior Data Scientist
+1012,India,30,7,Python,48000,Yes,Master's,Data Scientist
+1013,USA,29,5,Python,98000,Hybrid,Bachelor's,Data Scientist
+1014,Australia,34,10,Python,105000,Yes,Master's,Machine Learning Engineer
+1015,Germany,28,4,SQL,58000,No,Bachelor's,Business Analyst"""
+
+survey = pd.read_csv(io.StringIO(survey_csv))
+
+# Clean the JobTitle column: strip whitespace and convert to title case
+survey["JobTitle"] = survey["JobTitle"].str.strip().str.title()
+print("Unique job titles after cleaning:")
+print(survey["JobTitle"].unique())`,
+      validateFn: `return output.includes("Data Scientist") && output.includes("Data Analyst")`,
+      hint: "Use .str.strip().str.title() to clean and standardize the text",
+      xpReward: 50,
+    },
   },
   {
     module: "Data Cleaning",
@@ -604,6 +784,75 @@ print(list(students.columns))`,
 print(list(sales_clean.columns))`,
       },
     ],
+    projectChallenge: {
+      threadId: "survey",
+      threadTitle: "Survey Insights Report",
+      taskTitle: "Rename Columns to Snake Case",
+      context: "Your data pipeline requires snake_case column names. Rename the survey columns from camelCase (like YearsExperience) to snake_case (years_experience) for consistency with your database schema.",
+      starterCode: `import pandas as pd
+import io
+
+survey_csv = """RespondentID,Country,Age,YearsExperience,LanguageUsed,Salary,RemoteWork,Education,JobTitle
+1001,USA,28,5,Python,95000,Yes,Bachelor's,Data Scientist
+1002,India,24,2,Python,28000,Yes,Master's,Data Analyst
+1003,USA,35,12,Python,145000,No,Master's,Senior Data Engineer
+1004,Canada,29,6,R,82000,Yes,PhD,Research Scientist
+1005,UK,31,8,Python,78000,Hybrid,Master's,Machine Learning Engineer
+1006,Germany,27,4,SQL,65000,No,Bachelor's,Data Analyst
+1007,USA,42,18,Python,175000,Yes,PhD,Principal Data Scientist
+1008,India,26,3,Python,32000,Yes,Bachelor's,Data Analyst
+1009,USA,33,9,Java,125000,No,Master's,Data Engineer
+1010,Canada,38,14,Python,115000,Hybrid,Bachelor's,Senior Data Scientist
+1011,UK,25,2,R,45000,Yes,Master's,Junior Data Scientist
+1012,India,30,7,Python,48000,Yes,Master's,Data Scientist
+1013,USA,29,5,Python,98000,Hybrid,Bachelor's,Data Scientist
+1014,Australia,34,10,Python,105000,Yes,Master's,Machine Learning Engineer
+1015,Germany,28,4,SQL,58000,No,Bachelor's,Business Analyst"""
+
+survey = pd.read_csv(io.StringIO(survey_csv))
+
+# Rename columns to snake_case and print the new column names
+`,
+      solution: `import pandas as pd
+import io
+
+survey_csv = """RespondentID,Country,Age,YearsExperience,LanguageUsed,Salary,RemoteWork,Education,JobTitle
+1001,USA,28,5,Python,95000,Yes,Bachelor's,Data Scientist
+1002,India,24,2,Python,28000,Yes,Master's,Data Analyst
+1003,USA,35,12,Python,145000,No,Master's,Senior Data Engineer
+1004,Canada,29,6,R,82000,Yes,PhD,Research Scientist
+1005,UK,31,8,Python,78000,Hybrid,Master's,Machine Learning Engineer
+1006,Germany,27,4,SQL,65000,No,Bachelor's,Data Analyst
+1007,USA,42,18,Python,175000,Yes,PhD,Principal Data Scientist
+1008,India,26,3,Python,32000,Yes,Bachelor's,Data Analyst
+1009,USA,33,9,Java,125000,No,Master's,Data Engineer
+1010,Canada,38,14,Python,115000,Hybrid,Bachelor's,Senior Data Scientist
+1011,UK,25,2,R,45000,Yes,Master's,Junior Data Scientist
+1012,India,30,7,Python,48000,Yes,Master's,Data Scientist
+1013,USA,29,5,Python,98000,Hybrid,Bachelor's,Data Scientist
+1014,Australia,34,10,Python,105000,Yes,Master's,Machine Learning Engineer
+1015,Germany,28,4,SQL,58000,No,Bachelor's,Business Analyst"""
+
+survey = pd.read_csv(io.StringIO(survey_csv))
+
+# Rename columns to snake_case and print the new column names
+survey = survey.rename(columns={
+    "RespondentID": "respondent_id",
+    "Country": "country",
+    "Age": "age",
+    "YearsExperience": "years_experience",
+    "LanguageUsed": "language_used",
+    "Salary": "salary",
+    "RemoteWork": "remote_work",
+    "Education": "education",
+    "JobTitle": "job_title"
+})
+print("Renamed columns:")
+print(list(survey.columns))`,
+      validateFn: `return output.includes("years_experience") && output.includes("job_title") && output.includes("remote_work")`,
+      hint: "Use .rename(columns={...}) with a dictionary mapping old names to new snake_case names",
+      xpReward: 50,
+    },
   },
   {
     module: "Data Cleaning",
@@ -750,5 +999,66 @@ a_students = a_students.reset_index(drop=True)
 print(a_students)`,
       },
     ],
+    projectChallenge: {
+      threadId: "survey",
+      threadTitle: "Survey Insights Report",
+      taskTitle: "Check for Duplicate Respondents",
+      context: "Before finalizing your report, verify there are no duplicate survey submissions. Check for duplicate RespondentIDs and reset the index after any filtering operations.",
+      starterCode: `import pandas as pd
+import io
+
+survey_csv = """RespondentID,Country,Age,YearsExperience,LanguageUsed,Salary,RemoteWork,Education,JobTitle
+1001,USA,28,5,Python,95000,Yes,Bachelor's,Data Scientist
+1002,India,24,2,Python,28000,Yes,Master's,Data Analyst
+1003,USA,35,12,Python,145000,No,Master's,Senior Data Engineer
+1004,Canada,29,6,R,82000,Yes,PhD,Research Scientist
+1005,UK,31,8,Python,78000,Hybrid,Master's,Machine Learning Engineer
+1006,Germany,27,4,SQL,65000,No,Bachelor's,Data Analyst
+1007,USA,42,18,Python,175000,Yes,PhD,Principal Data Scientist
+1008,India,26,3,Python,32000,Yes,Bachelor's,Data Analyst
+1009,USA,33,9,Java,125000,No,Master's,Data Engineer
+1010,Canada,38,14,Python,115000,Hybrid,Bachelor's,Senior Data Scientist
+1011,UK,25,2,R,45000,Yes,Master's,Junior Data Scientist
+1012,India,30,7,Python,48000,Yes,Master's,Data Scientist
+1013,USA,29,5,Python,98000,Hybrid,Bachelor's,Data Scientist
+1014,Australia,34,10,Python,105000,Yes,Master's,Machine Learning Engineer
+1015,Germany,28,4,SQL,58000,No,Bachelor's,Business Analyst"""
+
+survey = pd.read_csv(io.StringIO(survey_csv))
+
+# Check for duplicate RespondentIDs, remove any duplicates, and reset the index
+`,
+      solution: `import pandas as pd
+import io
+
+survey_csv = """RespondentID,Country,Age,YearsExperience,LanguageUsed,Salary,RemoteWork,Education,JobTitle
+1001,USA,28,5,Python,95000,Yes,Bachelor's,Data Scientist
+1002,India,24,2,Python,28000,Yes,Master's,Data Analyst
+1003,USA,35,12,Python,145000,No,Master's,Senior Data Engineer
+1004,Canada,29,6,R,82000,Yes,PhD,Research Scientist
+1005,UK,31,8,Python,78000,Hybrid,Master's,Machine Learning Engineer
+1006,Germany,27,4,SQL,65000,No,Bachelor's,Data Analyst
+1007,USA,42,18,Python,175000,Yes,PhD,Principal Data Scientist
+1008,India,26,3,Python,32000,Yes,Bachelor's,Data Analyst
+1009,USA,33,9,Java,125000,No,Master's,Data Engineer
+1010,Canada,38,14,Python,115000,Hybrid,Bachelor's,Senior Data Scientist
+1011,UK,25,2,R,45000,Yes,Master's,Junior Data Scientist
+1012,India,30,7,Python,48000,Yes,Master's,Data Scientist
+1013,USA,29,5,Python,98000,Hybrid,Bachelor's,Data Scientist
+1014,Australia,34,10,Python,105000,Yes,Master's,Machine Learning Engineer
+1015,Germany,28,4,SQL,58000,No,Bachelor's,Business Analyst"""
+
+survey = pd.read_csv(io.StringIO(survey_csv))
+
+# Check for duplicate RespondentIDs, remove any duplicates, and reset the index
+print(f"Duplicate respondents: {survey.duplicated(subset=['RespondentID']).sum()}")
+survey = survey.drop_duplicates(subset=["RespondentID"])
+survey = survey.reset_index(drop=True)
+print(f"Total respondents after cleanup: {len(survey)}")
+print(survey.head())`,
+      validateFn: `return output.includes("Duplicate") && output.includes("0") && output.includes("15")`,
+      hint: "Use .duplicated(subset=['RespondentID']).sum() to count duplicates and .drop_duplicates() to remove them",
+      xpReward: 50,
+    },
   },
 ];

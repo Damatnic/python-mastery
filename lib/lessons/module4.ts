@@ -122,6 +122,65 @@ print(by_cat)`,
 print(max_scores)`,
       },
     ],
+    projectChallenge: {
+      threadId: "survey",
+      threadTitle: "Survey Insights Report",
+      taskTitle: "Average Salary by Country",
+      context: "Your recruiter report needs a salary benchmark section. Calculate the average salary for each country to help set competitive compensation packages for international hiring.",
+      starterCode: `import pandas as pd
+import io
+
+survey_csv = """RespondentID,Country,Age,YearsExperience,LanguageUsed,Salary,RemoteWork,Education,JobTitle
+1001,USA,28,5,Python,95000,Yes,Bachelor's,Data Scientist
+1002,India,24,2,Python,28000,Yes,Master's,Data Analyst
+1003,USA,35,12,Python,145000,No,Master's,Senior Data Engineer
+1004,Canada,29,6,R,82000,Yes,PhD,Research Scientist
+1005,UK,31,8,Python,78000,Hybrid,Master's,Machine Learning Engineer
+1006,Germany,27,4,SQL,65000,No,Bachelor's,Data Analyst
+1007,USA,42,18,Python,175000,Yes,PhD,Principal Data Scientist
+1008,India,26,3,Python,32000,Yes,Bachelor's,Data Analyst
+1009,USA,33,9,Java,125000,No,Master's,Data Engineer
+1010,Canada,38,14,Python,115000,Hybrid,Bachelor's,Senior Data Scientist
+1011,UK,25,2,R,45000,Yes,Master's,Junior Data Scientist
+1012,India,30,7,Python,48000,Yes,Master's,Data Scientist
+1013,USA,29,5,Python,98000,Hybrid,Bachelor's,Data Scientist
+1014,Australia,34,10,Python,105000,Yes,Master's,Machine Learning Engineer
+1015,Germany,28,4,SQL,58000,No,Bachelor's,Business Analyst"""
+
+survey = pd.read_csv(io.StringIO(survey_csv))
+
+# Calculate and print the average salary by country
+`,
+      solution: `import pandas as pd
+import io
+
+survey_csv = """RespondentID,Country,Age,YearsExperience,LanguageUsed,Salary,RemoteWork,Education,JobTitle
+1001,USA,28,5,Python,95000,Yes,Bachelor's,Data Scientist
+1002,India,24,2,Python,28000,Yes,Master's,Data Analyst
+1003,USA,35,12,Python,145000,No,Master's,Senior Data Engineer
+1004,Canada,29,6,R,82000,Yes,PhD,Research Scientist
+1005,UK,31,8,Python,78000,Hybrid,Master's,Machine Learning Engineer
+1006,Germany,27,4,SQL,65000,No,Bachelor's,Data Analyst
+1007,USA,42,18,Python,175000,Yes,PhD,Principal Data Scientist
+1008,India,26,3,Python,32000,Yes,Bachelor's,Data Analyst
+1009,USA,33,9,Java,125000,No,Master's,Data Engineer
+1010,Canada,38,14,Python,115000,Hybrid,Bachelor's,Senior Data Scientist
+1011,UK,25,2,R,45000,Yes,Master's,Junior Data Scientist
+1012,India,30,7,Python,48000,Yes,Master's,Data Scientist
+1013,USA,29,5,Python,98000,Hybrid,Bachelor's,Data Scientist
+1014,Australia,34,10,Python,105000,Yes,Master's,Machine Learning Engineer
+1015,Germany,28,4,SQL,58000,No,Bachelor's,Business Analyst"""
+
+survey = pd.read_csv(io.StringIO(survey_csv))
+
+# Calculate and print the average salary by country
+avg_salary = survey.groupby("Country")["Salary"].mean()
+print("Average Salary by Country:")
+print(avg_salary.sort_values(ascending=False))`,
+      validateFn: `return output.includes("USA") && output.includes("India") && output.includes("Country")`,
+      hint: "Use survey.groupby('Country')['Salary'].mean() to get average salary per country",
+      xpReward: 50,
+    },
   },
   {
     module: "Grouping & Combining",
@@ -244,6 +303,65 @@ print(counts)`,
 print(result)`,
       },
     ],
+    projectChallenge: {
+      threadId: "survey",
+      threadTitle: "Survey Insights Report",
+      taskTitle: "Language Popularity by Country",
+      context: "You need to understand programming language trends across regions. Group the survey data by Country and LanguageUsed to count how many respondents use each language in each country.",
+      starterCode: `import pandas as pd
+import io
+
+survey_csv = """RespondentID,Country,Age,YearsExperience,LanguageUsed,Salary,RemoteWork,Education,JobTitle
+1001,USA,28,5,Python,95000,Yes,Bachelor's,Data Scientist
+1002,India,24,2,Python,28000,Yes,Master's,Data Analyst
+1003,USA,35,12,Python,145000,No,Master's,Senior Data Engineer
+1004,Canada,29,6,R,82000,Yes,PhD,Research Scientist
+1005,UK,31,8,Python,78000,Hybrid,Master's,Machine Learning Engineer
+1006,Germany,27,4,SQL,65000,No,Bachelor's,Data Analyst
+1007,USA,42,18,Python,175000,Yes,PhD,Principal Data Scientist
+1008,India,26,3,Python,32000,Yes,Bachelor's,Data Analyst
+1009,USA,33,9,Java,125000,No,Master's,Data Engineer
+1010,Canada,38,14,Python,115000,Hybrid,Bachelor's,Senior Data Scientist
+1011,UK,25,2,R,45000,Yes,Master's,Junior Data Scientist
+1012,India,30,7,Python,48000,Yes,Master's,Data Scientist
+1013,USA,29,5,Python,98000,Hybrid,Bachelor's,Data Scientist
+1014,Australia,34,10,Python,105000,Yes,Master's,Machine Learning Engineer
+1015,Germany,28,4,SQL,58000,No,Bachelor's,Business Analyst"""
+
+survey = pd.read_csv(io.StringIO(survey_csv))
+
+# Group by Country and LanguageUsed, count respondents in each group
+`,
+      solution: `import pandas as pd
+import io
+
+survey_csv = """RespondentID,Country,Age,YearsExperience,LanguageUsed,Salary,RemoteWork,Education,JobTitle
+1001,USA,28,5,Python,95000,Yes,Bachelor's,Data Scientist
+1002,India,24,2,Python,28000,Yes,Master's,Data Analyst
+1003,USA,35,12,Python,145000,No,Master's,Senior Data Engineer
+1004,Canada,29,6,R,82000,Yes,PhD,Research Scientist
+1005,UK,31,8,Python,78000,Hybrid,Master's,Machine Learning Engineer
+1006,Germany,27,4,SQL,65000,No,Bachelor's,Data Analyst
+1007,USA,42,18,Python,175000,Yes,PhD,Principal Data Scientist
+1008,India,26,3,Python,32000,Yes,Bachelor's,Data Analyst
+1009,USA,33,9,Java,125000,No,Master's,Data Engineer
+1010,Canada,38,14,Python,115000,Hybrid,Bachelor's,Senior Data Scientist
+1011,UK,25,2,R,45000,Yes,Master's,Junior Data Scientist
+1012,India,30,7,Python,48000,Yes,Master's,Data Scientist
+1013,USA,29,5,Python,98000,Hybrid,Bachelor's,Data Scientist
+1014,Australia,34,10,Python,105000,Yes,Master's,Machine Learning Engineer
+1015,Germany,28,4,SQL,58000,No,Bachelor's,Business Analyst"""
+
+survey = pd.read_csv(io.StringIO(survey_csv))
+
+# Group by Country and LanguageUsed, count respondents in each group
+language_counts = survey.groupby(["Country", "LanguageUsed"]).size().reset_index(name="count")
+print("Language Usage by Country:")
+print(language_counts)`,
+      validateFn: `return output.includes("Country") && output.includes("LanguageUsed") && output.includes("Python")`,
+      hint: "Use groupby(['Country', 'LanguageUsed']).size() to count respondents in each combination",
+      xpReward: 50,
+    },
   },
   {
     module: "Grouping & Combining",
@@ -413,6 +531,72 @@ result = pd.merge(sales, cat_info, on="category", how="left")
 print(result)`,
       },
     ],
+    projectChallenge: {
+      threadId: "survey",
+      threadTitle: "Survey Insights Report",
+      taskTitle: "Enrich Survey with Region Data",
+      context: "Your report needs regional context. Create a country_info table with regions (North America, Europe, Asia, Oceania) and merge it with the survey data to enable regional salary analysis.",
+      starterCode: `import pandas as pd
+import io
+
+survey_csv = """RespondentID,Country,Age,YearsExperience,LanguageUsed,Salary,RemoteWork,Education,JobTitle
+1001,USA,28,5,Python,95000,Yes,Bachelor's,Data Scientist
+1002,India,24,2,Python,28000,Yes,Master's,Data Analyst
+1003,USA,35,12,Python,145000,No,Master's,Senior Data Engineer
+1004,Canada,29,6,R,82000,Yes,PhD,Research Scientist
+1005,UK,31,8,Python,78000,Hybrid,Master's,Machine Learning Engineer
+1006,Germany,27,4,SQL,65000,No,Bachelor's,Data Analyst
+1007,USA,42,18,Python,175000,Yes,PhD,Principal Data Scientist
+1008,India,26,3,Python,32000,Yes,Bachelor's,Data Analyst
+1009,USA,33,9,Java,125000,No,Master's,Data Engineer
+1010,Canada,38,14,Python,115000,Hybrid,Bachelor's,Senior Data Scientist
+1011,UK,25,2,R,45000,Yes,Master's,Junior Data Scientist
+1012,India,30,7,Python,48000,Yes,Master's,Data Scientist
+1013,USA,29,5,Python,98000,Hybrid,Bachelor's,Data Scientist
+1014,Australia,34,10,Python,105000,Yes,Master's,Machine Learning Engineer
+1015,Germany,28,4,SQL,58000,No,Bachelor's,Business Analyst"""
+
+survey = pd.read_csv(io.StringIO(survey_csv))
+
+# Create a country_info DataFrame with Country and Region columns
+# Then merge it with the survey data
+`,
+      solution: `import pandas as pd
+import io
+
+survey_csv = """RespondentID,Country,Age,YearsExperience,LanguageUsed,Salary,RemoteWork,Education,JobTitle
+1001,USA,28,5,Python,95000,Yes,Bachelor's,Data Scientist
+1002,India,24,2,Python,28000,Yes,Master's,Data Analyst
+1003,USA,35,12,Python,145000,No,Master's,Senior Data Engineer
+1004,Canada,29,6,R,82000,Yes,PhD,Research Scientist
+1005,UK,31,8,Python,78000,Hybrid,Master's,Machine Learning Engineer
+1006,Germany,27,4,SQL,65000,No,Bachelor's,Data Analyst
+1007,USA,42,18,Python,175000,Yes,PhD,Principal Data Scientist
+1008,India,26,3,Python,32000,Yes,Bachelor's,Data Analyst
+1009,USA,33,9,Java,125000,No,Master's,Data Engineer
+1010,Canada,38,14,Python,115000,Hybrid,Bachelor's,Senior Data Scientist
+1011,UK,25,2,R,45000,Yes,Master's,Junior Data Scientist
+1012,India,30,7,Python,48000,Yes,Master's,Data Scientist
+1013,USA,29,5,Python,98000,Hybrid,Bachelor's,Data Scientist
+1014,Australia,34,10,Python,105000,Yes,Master's,Machine Learning Engineer
+1015,Germany,28,4,SQL,58000,No,Bachelor's,Business Analyst"""
+
+survey = pd.read_csv(io.StringIO(survey_csv))
+
+# Create a country_info DataFrame with Country and Region columns
+country_info = pd.DataFrame({
+    "Country": ["USA", "Canada", "UK", "Germany", "India", "Australia"],
+    "Region": ["North America", "North America", "Europe", "Europe", "Asia", "Oceania"]
+})
+
+# Merge with survey data
+enriched = pd.merge(survey, country_info, on="Country")
+print("Survey with Region data:")
+print(enriched[["RespondentID", "Country", "Region", "Salary"]].head(10))`,
+      validateFn: `return output.includes("Region") && output.includes("North America") && output.includes("Europe")`,
+      hint: "Create a DataFrame with Country and Region columns, then use pd.merge() to join on Country",
+      xpReward: 50,
+    },
   },
   {
     module: "Grouping & Combining",
@@ -564,6 +748,70 @@ combined = pd.concat([first3, last3], ignore_index=True)
 print(combined)`,
       },
     ],
+    projectChallenge: {
+      threadId: "survey",
+      threadTitle: "Survey Insights Report",
+      taskTitle: "Salary Pivot by Country and Education",
+      context: "Create a salary comparison matrix for your report. Build a pivot table showing average salary with Country as rows and Education level as columns to identify compensation patterns.",
+      starterCode: `import pandas as pd
+import io
+
+survey_csv = """RespondentID,Country,Age,YearsExperience,LanguageUsed,Salary,RemoteWork,Education,JobTitle
+1001,USA,28,5,Python,95000,Yes,Bachelor's,Data Scientist
+1002,India,24,2,Python,28000,Yes,Master's,Data Analyst
+1003,USA,35,12,Python,145000,No,Master's,Senior Data Engineer
+1004,Canada,29,6,R,82000,Yes,PhD,Research Scientist
+1005,UK,31,8,Python,78000,Hybrid,Master's,Machine Learning Engineer
+1006,Germany,27,4,SQL,65000,No,Bachelor's,Data Analyst
+1007,USA,42,18,Python,175000,Yes,PhD,Principal Data Scientist
+1008,India,26,3,Python,32000,Yes,Bachelor's,Data Analyst
+1009,USA,33,9,Java,125000,No,Master's,Data Engineer
+1010,Canada,38,14,Python,115000,Hybrid,Bachelor's,Senior Data Scientist
+1011,UK,25,2,R,45000,Yes,Master's,Junior Data Scientist
+1012,India,30,7,Python,48000,Yes,Master's,Data Scientist
+1013,USA,29,5,Python,98000,Hybrid,Bachelor's,Data Scientist
+1014,Australia,34,10,Python,105000,Yes,Master's,Machine Learning Engineer
+1015,Germany,28,4,SQL,58000,No,Bachelor's,Business Analyst"""
+
+survey = pd.read_csv(io.StringIO(survey_csv))
+
+# Create a pivot table: Country as rows, Education as columns, average Salary as values
+`,
+      solution: `import pandas as pd
+import io
+
+survey_csv = """RespondentID,Country,Age,YearsExperience,LanguageUsed,Salary,RemoteWork,Education,JobTitle
+1001,USA,28,5,Python,95000,Yes,Bachelor's,Data Scientist
+1002,India,24,2,Python,28000,Yes,Master's,Data Analyst
+1003,USA,35,12,Python,145000,No,Master's,Senior Data Engineer
+1004,Canada,29,6,R,82000,Yes,PhD,Research Scientist
+1005,UK,31,8,Python,78000,Hybrid,Master's,Machine Learning Engineer
+1006,Germany,27,4,SQL,65000,No,Bachelor's,Data Analyst
+1007,USA,42,18,Python,175000,Yes,PhD,Principal Data Scientist
+1008,India,26,3,Python,32000,Yes,Bachelor's,Data Analyst
+1009,USA,33,9,Java,125000,No,Master's,Data Engineer
+1010,Canada,38,14,Python,115000,Hybrid,Bachelor's,Senior Data Scientist
+1011,UK,25,2,R,45000,Yes,Master's,Junior Data Scientist
+1012,India,30,7,Python,48000,Yes,Master's,Data Scientist
+1013,USA,29,5,Python,98000,Hybrid,Bachelor's,Data Scientist
+1014,Australia,34,10,Python,105000,Yes,Master's,Machine Learning Engineer
+1015,Germany,28,4,SQL,58000,No,Bachelor's,Business Analyst"""
+
+survey = pd.read_csv(io.StringIO(survey_csv))
+
+# Create a pivot table: Country as rows, Education as columns, average Salary as values
+salary_pivot = survey.pivot_table(
+    values="Salary",
+    index="Country",
+    columns="Education",
+    aggfunc="mean"
+)
+print("Average Salary by Country and Education:")
+print(salary_pivot.round(0))`,
+      validateFn: `return output.includes("Country") && output.includes("Bachelor") && output.includes("Master") && output.includes("USA")`,
+      hint: "Use pivot_table(values='Salary', index='Country', columns='Education', aggfunc='mean')",
+      xpReward: 50,
+    },
   },
   {
     module: "Grouping & Combining",
@@ -738,5 +986,44 @@ df = pd.read_fwf(
 print(df)`,
       },
     ],
+    projectChallenge: {
+      threadId: "survey",
+      threadTitle: "Survey Insights Report",
+      taskTitle: "Parse Legacy HR System Export",
+      context: "Your company's legacy HR system exports employee data in fixed-width format. Parse this sample record to integrate historical employee data with your modern survey analysis.",
+      starterCode: `import pandas as pd
+import io
+
+# Legacy HR system export (fixed-width format)
+# EmpID: 6 chars, Name: 15 chars, Dept: 10 chars, Salary: 8 chars
+hr_data = """001001John Smith     Engineering 85000
+001002Jane Doe       DataScience 92000
+001003Bob Wilson     Analytics   78000   """
+
+# Parse this fixed-width data and print the result
+`,
+      solution: `import pandas as pd
+import io
+
+# Legacy HR system export (fixed-width format)
+# EmpID: 6 chars, Name: 15 chars, Dept: 10 chars, Salary: 8 chars
+hr_data = """001001John Smith     Engineering 85000
+001002Jane Doe       DataScience 92000
+001003Bob Wilson     Analytics   78000   """
+
+# Parse this fixed-width data and print the result
+hr_df = pd.read_fwf(
+    io.StringIO(hr_data),
+    colspecs=[(0, 6), (6, 21), (21, 33), (33, 41)],
+    names=["emp_id", "name", "department", "salary"]
+)
+hr_df["name"] = hr_df["name"].str.strip()
+hr_df["department"] = hr_df["department"].str.strip()
+print("Parsed HR Data:")
+print(hr_df)`,
+      validateFn: `return output.includes("emp_id") && output.includes("John") && output.includes("Engineering")`,
+      hint: "Use pd.read_fwf() with colspecs=[(0,6), (6,21), (21,33), (33,41)] to define column positions",
+      xpReward: 50,
+    },
   },
 ];

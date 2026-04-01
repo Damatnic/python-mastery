@@ -131,6 +131,73 @@ weekly_pay = hours * rate
 print(f"Weekly pay: \${weekly_pay:.2f}")`,
       },
     ],
+    projectChallenge: {
+      threadId: "permits",
+      threadTitle: "SF Permits Analysis",
+      taskTitle: "Format Permit Summary",
+      context: "You're building a permit lookup system. Given a permit number and its details, create a formatted summary line that displays the key information clearly.",
+      starterCode: `import pandas as pd
+import io
+
+permits_csv = """Permit Number|Permit Type|Street Number|Street Name|Status|Filed Date|Issued Date|Neighborhood|Existing Use|Proposed Use
+BP2023-0001|alterations|450|Market St|issued|2023-01-15|2023-02-10|Financial District|office|office
+BP2023-0002|new construction|1200|Mission St|complete|2023-01-18|2023-02-28|SoMa|vacant lot|apartments
+BP2023-0003|additions|2847|24th St|issued|2023-01-22|2023-03-05|Mission|1 family dwelling|1 family dwelling
+BP2023-0004|alterations|555|California St|cancelled|2023-01-25||Nob Hill|office|office
+BP2023-0005|demolition|890|Folsom St|complete|2023-02-01|2023-02-15|SoMa|warehouse|vacant lot
+BP2023-0006|new construction|3200|16th St|issued|2023-02-05|2023-04-01|Mission|parking lot|retail
+BP2023-0007|alterations|100|Van Ness Ave|withdrawn|2023-02-10||Civic Center|retail|restaurant
+BP2023-0008|sign erection|1800|Haight St|complete|2023-02-12|2023-02-20|Haight-Ashbury|retail|retail
+BP2023-0009|additions|4521|Judah St|issued|2023-02-15|2023-04-10|Sunset|1 family dwelling|2 family dwelling
+BP2023-0010|alterations|601|Montgomery St|issued|2023-02-18|2023-03-25|Financial District|office|office
+BP2023-0011|new construction|2100|Folsom St|expired|2023-02-20|2023-03-30|Mission|vacant lot|apartments
+BP2023-0012|alterations|789|Brannan St|complete|2023-02-22|2023-04-05|SoMa|warehouse|office
+BP2023-0013|demolition|1550|Howard St|complete|2023-02-25|2023-03-10|SoMa|industrial|vacant lot
+BP2023-0014|additions|3845|Noriega St|issued|2023-03-01|2023-05-01|Sunset|1 family dwelling|1 family dwelling
+BP2023-0015|new construction|425|Mission St|issued|2023-03-05|2023-06-15|Financial District|parking lot|office tower"""
+
+permits = pd.read_csv(io.StringIO(permits_csv), sep='|')
+
+# Get the first permit's data
+first_permit = permits.iloc[0]
+permit_number = first_permit["Permit Number"]
+street_name = first_permit["Street Name"]
+status = first_permit["Status"]
+
+# TODO: Print a summary line like: "Permit BP2023-0001 on Market St has status: issued"
+`,
+      solution: `import pandas as pd
+import io
+
+permits_csv = """Permit Number|Permit Type|Street Number|Street Name|Status|Filed Date|Issued Date|Neighborhood|Existing Use|Proposed Use
+BP2023-0001|alterations|450|Market St|issued|2023-01-15|2023-02-10|Financial District|office|office
+BP2023-0002|new construction|1200|Mission St|complete|2023-01-18|2023-02-28|SoMa|vacant lot|apartments
+BP2023-0003|additions|2847|24th St|issued|2023-01-22|2023-03-05|Mission|1 family dwelling|1 family dwelling
+BP2023-0004|alterations|555|California St|cancelled|2023-01-25||Nob Hill|office|office
+BP2023-0005|demolition|890|Folsom St|complete|2023-02-01|2023-02-15|SoMa|warehouse|vacant lot
+BP2023-0006|new construction|3200|16th St|issued|2023-02-05|2023-04-01|Mission|parking lot|retail
+BP2023-0007|alterations|100|Van Ness Ave|withdrawn|2023-02-10||Civic Center|retail|restaurant
+BP2023-0008|sign erection|1800|Haight St|complete|2023-02-12|2023-02-20|Haight-Ashbury|retail|retail
+BP2023-0009|additions|4521|Judah St|issued|2023-02-15|2023-04-10|Sunset|1 family dwelling|2 family dwelling
+BP2023-0010|alterations|601|Montgomery St|issued|2023-02-18|2023-03-25|Financial District|office|office
+BP2023-0011|new construction|2100|Folsom St|expired|2023-02-20|2023-03-30|Mission|vacant lot|apartments
+BP2023-0012|alterations|789|Brannan St|complete|2023-02-22|2023-04-05|SoMa|warehouse|office
+BP2023-0013|demolition|1550|Howard St|complete|2023-02-25|2023-03-10|SoMa|industrial|vacant lot
+BP2023-0014|additions|3845|Noriega St|issued|2023-03-01|2023-05-01|Sunset|1 family dwelling|1 family dwelling
+BP2023-0015|new construction|425|Mission St|issued|2023-03-05|2023-06-15|Financial District|parking lot|office tower"""
+
+permits = pd.read_csv(io.StringIO(permits_csv), sep='|')
+
+first_permit = permits.iloc[0]
+permit_number = first_permit["Permit Number"]
+street_name = first_permit["Street Name"]
+status = first_permit["Status"]
+
+print(f"Permit {permit_number} on {street_name} has status: {status}")`,
+      validateFn: `return output.includes("Permit BP2023-0001") && output.includes("Market St") && output.includes("status") && output.includes("issued")`,
+      hint: "Use an f-string with curly braces to embed the permit_number, street_name, and status variables.",
+      xpReward: 50,
+    },
   },
   {
     module: "Python Basics",
@@ -288,6 +355,65 @@ print(f"Lowest: {lowest}")
 print(f"Range: {range_val}")`,
       },
     ],
+    projectChallenge: {
+      threadId: "permits",
+      threadTitle: "SF Permits Analysis",
+      taskTitle: "Extract Unique Neighborhoods",
+      context: "Your city planning dashboard needs a dropdown of all neighborhoods with permits. Extract a list of unique neighborhood names from the permits data.",
+      starterCode: `import pandas as pd
+import io
+
+permits_csv = """Permit Number|Permit Type|Street Number|Street Name|Status|Filed Date|Issued Date|Neighborhood|Existing Use|Proposed Use
+BP2023-0001|alterations|450|Market St|issued|2023-01-15|2023-02-10|Financial District|office|office
+BP2023-0002|new construction|1200|Mission St|complete|2023-01-18|2023-02-28|SoMa|vacant lot|apartments
+BP2023-0003|additions|2847|24th St|issued|2023-01-22|2023-03-05|Mission|1 family dwelling|1 family dwelling
+BP2023-0004|alterations|555|California St|cancelled|2023-01-25||Nob Hill|office|office
+BP2023-0005|demolition|890|Folsom St|complete|2023-02-01|2023-02-15|SoMa|warehouse|vacant lot
+BP2023-0006|new construction|3200|16th St|issued|2023-02-05|2023-04-01|Mission|parking lot|retail
+BP2023-0007|alterations|100|Van Ness Ave|withdrawn|2023-02-10||Civic Center|retail|restaurant
+BP2023-0008|sign erection|1800|Haight St|complete|2023-02-12|2023-02-20|Haight-Ashbury|retail|retail
+BP2023-0009|additions|4521|Judah St|issued|2023-02-15|2023-04-10|Sunset|1 family dwelling|2 family dwelling
+BP2023-0010|alterations|601|Montgomery St|issued|2023-02-18|2023-03-25|Financial District|office|office
+BP2023-0011|new construction|2100|Folsom St|expired|2023-02-20|2023-03-30|Mission|vacant lot|apartments
+BP2023-0012|alterations|789|Brannan St|complete|2023-02-22|2023-04-05|SoMa|warehouse|office
+BP2023-0013|demolition|1550|Howard St|complete|2023-02-25|2023-03-10|SoMa|industrial|vacant lot
+BP2023-0014|additions|3845|Noriega St|issued|2023-03-01|2023-05-01|Sunset|1 family dwelling|1 family dwelling
+BP2023-0015|new construction|425|Mission St|issued|2023-03-05|2023-06-15|Financial District|parking lot|office tower"""
+
+permits = pd.read_csv(io.StringIO(permits_csv), sep='|')
+
+# TODO: Create a list of unique neighborhoods from the Neighborhood column
+# Hint: Get the column as a list, then use set() to remove duplicates, then convert back to list
+`,
+      solution: `import pandas as pd
+import io
+
+permits_csv = """Permit Number|Permit Type|Street Number|Street Name|Status|Filed Date|Issued Date|Neighborhood|Existing Use|Proposed Use
+BP2023-0001|alterations|450|Market St|issued|2023-01-15|2023-02-10|Financial District|office|office
+BP2023-0002|new construction|1200|Mission St|complete|2023-01-18|2023-02-28|SoMa|vacant lot|apartments
+BP2023-0003|additions|2847|24th St|issued|2023-01-22|2023-03-05|Mission|1 family dwelling|1 family dwelling
+BP2023-0004|alterations|555|California St|cancelled|2023-01-25||Nob Hill|office|office
+BP2023-0005|demolition|890|Folsom St|complete|2023-02-01|2023-02-15|SoMa|warehouse|vacant lot
+BP2023-0006|new construction|3200|16th St|issued|2023-02-05|2023-04-01|Mission|parking lot|retail
+BP2023-0007|alterations|100|Van Ness Ave|withdrawn|2023-02-10||Civic Center|retail|restaurant
+BP2023-0008|sign erection|1800|Haight St|complete|2023-02-12|2023-02-20|Haight-Ashbury|retail|retail
+BP2023-0009|additions|4521|Judah St|issued|2023-02-15|2023-04-10|Sunset|1 family dwelling|2 family dwelling
+BP2023-0010|alterations|601|Montgomery St|issued|2023-02-18|2023-03-25|Financial District|office|office
+BP2023-0011|new construction|2100|Folsom St|expired|2023-02-20|2023-03-30|Mission|vacant lot|apartments
+BP2023-0012|alterations|789|Brannan St|complete|2023-02-22|2023-04-05|SoMa|warehouse|office
+BP2023-0013|demolition|1550|Howard St|complete|2023-02-25|2023-03-10|SoMa|industrial|vacant lot
+BP2023-0014|additions|3845|Noriega St|issued|2023-03-01|2023-05-01|Sunset|1 family dwelling|1 family dwelling
+BP2023-0015|new construction|425|Mission St|issued|2023-03-05|2023-06-15|Financial District|parking lot|office tower"""
+
+permits = pd.read_csv(io.StringIO(permits_csv), sep='|')
+
+neighborhoods = list(set(permits["Neighborhood"].tolist()))
+print(f"Unique neighborhoods: {neighborhoods}")
+print(f"Total: {len(neighborhoods)}")`,
+      validateFn: `return output.includes("Financial District") && output.includes("SoMa") && output.includes("Mission") && output.includes("Sunset")`,
+      hint: "Use permits['Neighborhood'].tolist() to get all values, then set() to make them unique, then list() to convert back.",
+      xpReward: 50,
+    },
   },
   {
     module: "Python Basics",
@@ -445,6 +571,68 @@ average = sum(values) / len(values)
 print(f"Average grade: {average:.1f}")`,
       },
     ],
+    projectChallenge: {
+      threadId: "permits",
+      threadTitle: "SF Permits Analysis",
+      taskTitle: "Build Permit Status Lookup",
+      context: "Create a quick lookup dictionary that maps permit numbers to their current status. This will power the status check feature in the permit tracking app.",
+      starterCode: `import pandas as pd
+import io
+
+permits_csv = """Permit Number|Permit Type|Street Number|Street Name|Status|Filed Date|Issued Date|Neighborhood|Existing Use|Proposed Use
+BP2023-0001|alterations|450|Market St|issued|2023-01-15|2023-02-10|Financial District|office|office
+BP2023-0002|new construction|1200|Mission St|complete|2023-01-18|2023-02-28|SoMa|vacant lot|apartments
+BP2023-0003|additions|2847|24th St|issued|2023-01-22|2023-03-05|Mission|1 family dwelling|1 family dwelling
+BP2023-0004|alterations|555|California St|cancelled|2023-01-25||Nob Hill|office|office
+BP2023-0005|demolition|890|Folsom St|complete|2023-02-01|2023-02-15|SoMa|warehouse|vacant lot
+BP2023-0006|new construction|3200|16th St|issued|2023-02-05|2023-04-01|Mission|parking lot|retail
+BP2023-0007|alterations|100|Van Ness Ave|withdrawn|2023-02-10||Civic Center|retail|restaurant
+BP2023-0008|sign erection|1800|Haight St|complete|2023-02-12|2023-02-20|Haight-Ashbury|retail|retail
+BP2023-0009|additions|4521|Judah St|issued|2023-02-15|2023-04-10|Sunset|1 family dwelling|2 family dwelling
+BP2023-0010|alterations|601|Montgomery St|issued|2023-02-18|2023-03-25|Financial District|office|office
+BP2023-0011|new construction|2100|Folsom St|expired|2023-02-20|2023-03-30|Mission|vacant lot|apartments
+BP2023-0012|alterations|789|Brannan St|complete|2023-02-22|2023-04-05|SoMa|warehouse|office
+BP2023-0013|demolition|1550|Howard St|complete|2023-02-25|2023-03-10|SoMa|industrial|vacant lot
+BP2023-0014|additions|3845|Noriega St|issued|2023-03-01|2023-05-01|Sunset|1 family dwelling|1 family dwelling
+BP2023-0015|new construction|425|Mission St|issued|2023-03-05|2023-06-15|Financial District|parking lot|office tower"""
+
+permits = pd.read_csv(io.StringIO(permits_csv), sep='|')
+
+# TODO: Create a dictionary mapping permit numbers to their status
+# Example output: {"BP2023-0001": "issued", "BP2023-0002": "complete", ...}
+# Then print the status of permit BP2023-0004
+`,
+      solution: `import pandas as pd
+import io
+
+permits_csv = """Permit Number|Permit Type|Street Number|Street Name|Status|Filed Date|Issued Date|Neighborhood|Existing Use|Proposed Use
+BP2023-0001|alterations|450|Market St|issued|2023-01-15|2023-02-10|Financial District|office|office
+BP2023-0002|new construction|1200|Mission St|complete|2023-01-18|2023-02-28|SoMa|vacant lot|apartments
+BP2023-0003|additions|2847|24th St|issued|2023-01-22|2023-03-05|Mission|1 family dwelling|1 family dwelling
+BP2023-0004|alterations|555|California St|cancelled|2023-01-25||Nob Hill|office|office
+BP2023-0005|demolition|890|Folsom St|complete|2023-02-01|2023-02-15|SoMa|warehouse|vacant lot
+BP2023-0006|new construction|3200|16th St|issued|2023-02-05|2023-04-01|Mission|parking lot|retail
+BP2023-0007|alterations|100|Van Ness Ave|withdrawn|2023-02-10||Civic Center|retail|restaurant
+BP2023-0008|sign erection|1800|Haight St|complete|2023-02-12|2023-02-20|Haight-Ashbury|retail|retail
+BP2023-0009|additions|4521|Judah St|issued|2023-02-15|2023-04-10|Sunset|1 family dwelling|2 family dwelling
+BP2023-0010|alterations|601|Montgomery St|issued|2023-02-18|2023-03-25|Financial District|office|office
+BP2023-0011|new construction|2100|Folsom St|expired|2023-02-20|2023-03-30|Mission|vacant lot|apartments
+BP2023-0012|alterations|789|Brannan St|complete|2023-02-22|2023-04-05|SoMa|warehouse|office
+BP2023-0013|demolition|1550|Howard St|complete|2023-02-25|2023-03-10|SoMa|industrial|vacant lot
+BP2023-0014|additions|3845|Noriega St|issued|2023-03-01|2023-05-01|Sunset|1 family dwelling|1 family dwelling
+BP2023-0015|new construction|425|Mission St|issued|2023-03-05|2023-06-15|Financial District|parking lot|office tower"""
+
+permits = pd.read_csv(io.StringIO(permits_csv), sep='|')
+
+status_lookup = {}
+for i, row in permits.iterrows():
+    status_lookup[row["Permit Number"]] = row["Status"]
+
+print(f"Status of BP2023-0004: {status_lookup['BP2023-0004']}")`,
+      validateFn: `return output.includes("BP2023-0004") && output.includes("cancelled")`,
+      hint: "Loop through the DataFrame rows using iterrows() and add each permit number and status to a dictionary.",
+      xpReward: 50,
+    },
   },
   {
     module: "Python Basics",
@@ -602,6 +790,73 @@ for i, name in enumerate(names, start=1):
     print(f"{i}. {name}")`,
       },
     ],
+    projectChallenge: {
+      threadId: "permits",
+      threadTitle: "SF Permits Analysis",
+      taskTitle: "Count Permit Statuses",
+      context: "The planning department needs a quick count of active vs completed permits. Count how many permits are 'issued' versus 'complete' to generate a status report.",
+      starterCode: `import pandas as pd
+import io
+
+permits_csv = """Permit Number|Permit Type|Street Number|Street Name|Status|Filed Date|Issued Date|Neighborhood|Existing Use|Proposed Use
+BP2023-0001|alterations|450|Market St|issued|2023-01-15|2023-02-10|Financial District|office|office
+BP2023-0002|new construction|1200|Mission St|complete|2023-01-18|2023-02-28|SoMa|vacant lot|apartments
+BP2023-0003|additions|2847|24th St|issued|2023-01-22|2023-03-05|Mission|1 family dwelling|1 family dwelling
+BP2023-0004|alterations|555|California St|cancelled|2023-01-25||Nob Hill|office|office
+BP2023-0005|demolition|890|Folsom St|complete|2023-02-01|2023-02-15|SoMa|warehouse|vacant lot
+BP2023-0006|new construction|3200|16th St|issued|2023-02-05|2023-04-01|Mission|parking lot|retail
+BP2023-0007|alterations|100|Van Ness Ave|withdrawn|2023-02-10||Civic Center|retail|restaurant
+BP2023-0008|sign erection|1800|Haight St|complete|2023-02-12|2023-02-20|Haight-Ashbury|retail|retail
+BP2023-0009|additions|4521|Judah St|issued|2023-02-15|2023-04-10|Sunset|1 family dwelling|2 family dwelling
+BP2023-0010|alterations|601|Montgomery St|issued|2023-02-18|2023-03-25|Financial District|office|office
+BP2023-0011|new construction|2100|Folsom St|expired|2023-02-20|2023-03-30|Mission|vacant lot|apartments
+BP2023-0012|alterations|789|Brannan St|complete|2023-02-22|2023-04-05|SoMa|warehouse|office
+BP2023-0013|demolition|1550|Howard St|complete|2023-02-25|2023-03-10|SoMa|industrial|vacant lot
+BP2023-0014|additions|3845|Noriega St|issued|2023-03-01|2023-05-01|Sunset|1 family dwelling|1 family dwelling
+BP2023-0015|new construction|425|Mission St|issued|2023-03-05|2023-06-15|Financial District|parking lot|office tower"""
+
+permits = pd.read_csv(io.StringIO(permits_csv), sep='|')
+
+# TODO: Count how many permits have status "issued" vs "complete"
+# Loop through the permits and count each status type
+`,
+      solution: `import pandas as pd
+import io
+
+permits_csv = """Permit Number|Permit Type|Street Number|Street Name|Status|Filed Date|Issued Date|Neighborhood|Existing Use|Proposed Use
+BP2023-0001|alterations|450|Market St|issued|2023-01-15|2023-02-10|Financial District|office|office
+BP2023-0002|new construction|1200|Mission St|complete|2023-01-18|2023-02-28|SoMa|vacant lot|apartments
+BP2023-0003|additions|2847|24th St|issued|2023-01-22|2023-03-05|Mission|1 family dwelling|1 family dwelling
+BP2023-0004|alterations|555|California St|cancelled|2023-01-25||Nob Hill|office|office
+BP2023-0005|demolition|890|Folsom St|complete|2023-02-01|2023-02-15|SoMa|warehouse|vacant lot
+BP2023-0006|new construction|3200|16th St|issued|2023-02-05|2023-04-01|Mission|parking lot|retail
+BP2023-0007|alterations|100|Van Ness Ave|withdrawn|2023-02-10||Civic Center|retail|restaurant
+BP2023-0008|sign erection|1800|Haight St|complete|2023-02-12|2023-02-20|Haight-Ashbury|retail|retail
+BP2023-0009|additions|4521|Judah St|issued|2023-02-15|2023-04-10|Sunset|1 family dwelling|2 family dwelling
+BP2023-0010|alterations|601|Montgomery St|issued|2023-02-18|2023-03-25|Financial District|office|office
+BP2023-0011|new construction|2100|Folsom St|expired|2023-02-20|2023-03-30|Mission|vacant lot|apartments
+BP2023-0012|alterations|789|Brannan St|complete|2023-02-22|2023-04-05|SoMa|warehouse|office
+BP2023-0013|demolition|1550|Howard St|complete|2023-02-25|2023-03-10|SoMa|industrial|vacant lot
+BP2023-0014|additions|3845|Noriega St|issued|2023-03-01|2023-05-01|Sunset|1 family dwelling|1 family dwelling
+BP2023-0015|new construction|425|Mission St|issued|2023-03-05|2023-06-15|Financial District|parking lot|office tower"""
+
+permits = pd.read_csv(io.StringIO(permits_csv), sep='|')
+
+issued_count = 0
+complete_count = 0
+
+for i, row in permits.iterrows():
+    if row["Status"] == "issued":
+        issued_count += 1
+    elif row["Status"] == "complete":
+        complete_count += 1
+
+print(f"Issued permits: {issued_count}")
+print(f"Complete permits: {complete_count}")`,
+      validateFn: `return output.includes("Issued") && output.includes("7") && output.includes("Complete") && output.includes("5")`,
+      hint: "Initialize two counter variables, then loop through permits checking if each status equals 'issued' or 'complete'.",
+      xpReward: 50,
+    },
   },
   {
     module: "Python Basics",
@@ -770,5 +1025,67 @@ squares = [x ** 2 for x in numbers]
 print(squares)`,
       },
     ],
+    projectChallenge: {
+      threadId: "permits",
+      threadTitle: "SF Permits Analysis",
+      taskTitle: "Filter Permits by Status",
+      context: "Build a reusable function to filter permits by any status. The dashboard will call this function to show different views like 'active permits' or 'cancelled permits'.",
+      starterCode: `import pandas as pd
+import io
+
+permits_csv = """Permit Number|Permit Type|Street Number|Street Name|Status|Filed Date|Issued Date|Neighborhood|Existing Use|Proposed Use
+BP2023-0001|alterations|450|Market St|issued|2023-01-15|2023-02-10|Financial District|office|office
+BP2023-0002|new construction|1200|Mission St|complete|2023-01-18|2023-02-28|SoMa|vacant lot|apartments
+BP2023-0003|additions|2847|24th St|issued|2023-01-22|2023-03-05|Mission|1 family dwelling|1 family dwelling
+BP2023-0004|alterations|555|California St|cancelled|2023-01-25||Nob Hill|office|office
+BP2023-0005|demolition|890|Folsom St|complete|2023-02-01|2023-02-15|SoMa|warehouse|vacant lot
+BP2023-0006|new construction|3200|16th St|issued|2023-02-05|2023-04-01|Mission|parking lot|retail
+BP2023-0007|alterations|100|Van Ness Ave|withdrawn|2023-02-10||Civic Center|retail|restaurant
+BP2023-0008|sign erection|1800|Haight St|complete|2023-02-12|2023-02-20|Haight-Ashbury|retail|retail
+BP2023-0009|additions|4521|Judah St|issued|2023-02-15|2023-04-10|Sunset|1 family dwelling|2 family dwelling
+BP2023-0010|alterations|601|Montgomery St|issued|2023-02-18|2023-03-25|Financial District|office|office
+BP2023-0011|new construction|2100|Folsom St|expired|2023-02-20|2023-03-30|Mission|vacant lot|apartments
+BP2023-0012|alterations|789|Brannan St|complete|2023-02-22|2023-04-05|SoMa|warehouse|office
+BP2023-0013|demolition|1550|Howard St|complete|2023-02-25|2023-03-10|SoMa|industrial|vacant lot
+BP2023-0014|additions|3845|Noriega St|issued|2023-03-01|2023-05-01|Sunset|1 family dwelling|1 family dwelling
+BP2023-0015|new construction|425|Mission St|issued|2023-03-05|2023-06-15|Financial District|parking lot|office tower"""
+
+permits = pd.read_csv(io.StringIO(permits_csv), sep='|')
+
+# TODO: Write a function called filter_by_status that takes a status string
+# and returns a list of permit numbers with that status
+# Then test it by printing all "complete" permits
+`,
+      solution: `import pandas as pd
+import io
+
+permits_csv = """Permit Number|Permit Type|Street Number|Street Name|Status|Filed Date|Issued Date|Neighborhood|Existing Use|Proposed Use
+BP2023-0001|alterations|450|Market St|issued|2023-01-15|2023-02-10|Financial District|office|office
+BP2023-0002|new construction|1200|Mission St|complete|2023-01-18|2023-02-28|SoMa|vacant lot|apartments
+BP2023-0003|additions|2847|24th St|issued|2023-01-22|2023-03-05|Mission|1 family dwelling|1 family dwelling
+BP2023-0004|alterations|555|California St|cancelled|2023-01-25||Nob Hill|office|office
+BP2023-0005|demolition|890|Folsom St|complete|2023-02-01|2023-02-15|SoMa|warehouse|vacant lot
+BP2023-0006|new construction|3200|16th St|issued|2023-02-05|2023-04-01|Mission|parking lot|retail
+BP2023-0007|alterations|100|Van Ness Ave|withdrawn|2023-02-10||Civic Center|retail|restaurant
+BP2023-0008|sign erection|1800|Haight St|complete|2023-02-12|2023-02-20|Haight-Ashbury|retail|retail
+BP2023-0009|additions|4521|Judah St|issued|2023-02-15|2023-04-10|Sunset|1 family dwelling|2 family dwelling
+BP2023-0010|alterations|601|Montgomery St|issued|2023-02-18|2023-03-25|Financial District|office|office
+BP2023-0011|new construction|2100|Folsom St|expired|2023-02-20|2023-03-30|Mission|vacant lot|apartments
+BP2023-0012|alterations|789|Brannan St|complete|2023-02-22|2023-04-05|SoMa|warehouse|office
+BP2023-0013|demolition|1550|Howard St|complete|2023-02-25|2023-03-10|SoMa|industrial|vacant lot
+BP2023-0014|additions|3845|Noriega St|issued|2023-03-01|2023-05-01|Sunset|1 family dwelling|1 family dwelling
+BP2023-0015|new construction|425|Mission St|issued|2023-03-05|2023-06-15|Financial District|parking lot|office tower"""
+
+permits = pd.read_csv(io.StringIO(permits_csv), sep='|')
+
+def filter_by_status(status):
+    return [row["Permit Number"] for i, row in permits.iterrows() if row["Status"] == status]
+
+complete_permits = filter_by_status("complete")
+print(f"Complete permits: {complete_permits}")`,
+      validateFn: `return output.includes("BP2023-0002") && output.includes("BP2023-0005") && output.includes("BP2023-0008") && output.includes("BP2023-0012") && output.includes("BP2023-0013")`,
+      hint: "Define a function with 'def filter_by_status(status):' and use a list comprehension to filter rows where row['Status'] matches the status parameter.",
+      xpReward: 50,
+    },
   },
 ];
