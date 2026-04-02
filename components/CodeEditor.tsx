@@ -9,75 +9,149 @@ interface CodeEditorProps {
   disabled?: boolean;
 }
 
-// Python syntax highlighting - escapes HTML first for safety
-function highlightPythonCode(code: string): string {
-  // Escape HTML first to prevent XSS
-  let highlighted = code
+// Token types for syntax highlighting
+type TokenType = "keyword" | "builtin" | "string" | "comment" | "number" | "method" | "decorator" | "function-def" | "class-def" | "plain";
+
+interface Token {
+  type: TokenType;
+  value: string;
+}
+
+// Escape HTML special characters
+function escapeHtml(text: string): string {
+  return text
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
+}
 
-  // Multi-line strings (triple quotes)
-  highlighted = highlighted.replace(
-    /("""[\s\S]*?"""|'''[\s\S]*?''')/g,
-    '<span class="token-string">$1</span>'
-  );
+// Tokenize Python code without overlap issues (sequential processing)
+function tokenizePython(code: string): Token[] {
+  const tokens: Token[] = [];
+  let remaining = code;
 
-  // Single-line strings (double and single quoted)
-  highlighted = highlighted.replace(
-    /(["'])((?:\\.|(?!\1)[^\\])*?)\1/g,
-    '<span class="token-string">$1$2$1</span>'
-  );
+  const KEYWORDS = new Set([
+    "import", "from", "as", "def", "class", "return", "if", "else", "elif",
+    "for", "while", "in", "not", "and", "or", "is", "None", "True", "False",
+    "try", "except", "finally", "with", "lambda", "yield", "pass", "break",
+    "continue", "raise", "assert", "global", "nonlocal", "del", "await", "async"
+  ]);
 
-  // Comments
-  highlighted = highlighted.replace(
-    /(#[^\n]*)/g,
-    '<span class="token-comment">$1</span>'
-  );
+  const BUILTINS = new Set([
+    "print", "len", "range", "str", "int", "float", "list", "dict", "set",
+    "tuple", "type", "isinstance", "sorted", "enumerate", "zip", "map",
+    "filter", "sum", "min", "max", "abs", "round", "open", "input", "bool",
+    "bytes", "bytearray", "callable", "chr", "ord", "hex", "bin", "oct",
+    "repr", "hash", "id", "dir", "vars", "getattr", "setattr", "hasattr",
+    "iter", "next", "reversed", "slice", "any", "all", "format", "super",
+    "object", "property", "staticmethod", "classmethod", "memoryview",
+    "delattr", "locals", "globals"
+  ]);
 
-  // Keywords
-  highlighted = highlighted.replace(
-    /\b(import|from|as|def|class|return|if|else|elif|for|while|in|not|and|or|is|None|True|False|try|except|finally|with|lambda|yield|pass|break|continue|raise|assert|global|nonlocal|del|async|await)\b/g,
-    '<span class="token-keyword">$1</span>'
-  );
+  while (remaining.length > 0) {
+    // Match comments first (highest priority)
+    const commentMatch = remaining.match(/^#.*/);
+    if (commentMatch) {
+      tokens.push({ type: "comment", value: commentMatch[0] });
+      remaining = remaining.slice(commentMatch[0].length);
+      continue;
+    }
 
-  // Built-in functions
-  highlighted = highlighted.replace(
-    /\b(print|len|range|str|int|float|list|dict|set|tuple|type|isinstance|sorted|enumerate|zip|map|filter|sum|min|max|abs|round|open|input|any|all|next|iter|format|repr|hash|id|dir|vars|locals|globals|hasattr|getattr|setattr|delattr|callable|super|object|bool|bytes|bytearray|memoryview|slice|property|staticmethod|classmethod)\b(?=\s*\()/g,
-    '<span class="token-builtin">$1</span>'
-  );
+    // Match triple-quoted strings
+    const tripleDoubleMatch = remaining.match(/^"""[\s\S]*?"""/);
+    if (tripleDoubleMatch) {
+      tokens.push({ type: "string", value: tripleDoubleMatch[0] });
+      remaining = remaining.slice(tripleDoubleMatch[0].length);
+      continue;
+    }
+    const tripleSingleMatch = remaining.match(/^'''[\s\S]*?'''/);
+    if (tripleSingleMatch) {
+      tokens.push({ type: "string", value: tripleSingleMatch[0] });
+      remaining = remaining.slice(tripleSingleMatch[0].length);
+      continue;
+    }
 
-  // Methods after dot
-  highlighted = highlighted.replace(
-    /\.([a-zA-Z_][a-zA-Z0-9_]*)(?=\s*\()/g,
-    '.<span class="token-method">$1</span>'
-  );
+    // Match single/double quoted strings
+    const stringMatch = remaining.match(/^(["'])((?:\\.|(?!\1)[^\\])*?)\1/);
+    if (stringMatch) {
+      tokens.push({ type: "string", value: stringMatch[0] });
+      remaining = remaining.slice(stringMatch[0].length);
+      continue;
+    }
 
-  // Numbers
-  highlighted = highlighted.replace(
-    /\b(\d+\.?\d*(?:e[+-]?\d+)?)\b/gi,
-    '<span class="token-number">$1</span>'
-  );
+    // Match decorators
+    const decoratorMatch = remaining.match(/^@[a-zA-Z_][a-zA-Z0-9_]*/);
+    if (decoratorMatch) {
+      tokens.push({ type: "decorator", value: decoratorMatch[0] });
+      remaining = remaining.slice(decoratorMatch[0].length);
+      continue;
+    }
 
-  // Decorators
-  highlighted = highlighted.replace(
-    /(@[a-zA-Z_][a-zA-Z0-9_]*)/g,
-    '<span class="token-decorator">$1</span>'
-  );
+    // Match numbers
+    const numberMatch = remaining.match(/^\d+\.?\d*(?:[eE][+-]?\d+)?/);
+    if (numberMatch) {
+      tokens.push({ type: "number", value: numberMatch[0] });
+      remaining = remaining.slice(numberMatch[0].length);
+      continue;
+    }
 
-  // Function definitions
-  highlighted = highlighted.replace(
-    /\b(def)\s+([a-zA-Z_][a-zA-Z0-9_]*)/g,
-    '<span class="token-keyword">$1</span> <span class="token-function-def">$2</span>'
-  );
+    // Match method calls after dot
+    const methodMatch = remaining.match(/^\.([a-zA-Z_][a-zA-Z0-9_]*)(?=\s*\()/);
+    if (methodMatch) {
+      tokens.push({ type: "plain", value: "." });
+      tokens.push({ type: "method", value: methodMatch[1] });
+      remaining = remaining.slice(methodMatch[0].length);
+      continue;
+    }
 
-  // Class definitions
-  highlighted = highlighted.replace(
-    /\b(class)\s+([a-zA-Z_][a-zA-Z0-9_]*)/g,
-    '<span class="token-keyword">$1</span> <span class="token-class-def">$2</span>'
-  );
+    // Match identifiers (keywords, builtins, function/class defs, or plain)
+    const identMatch = remaining.match(/^[a-zA-Z_][a-zA-Z0-9_]*/);
+    if (identMatch) {
+      const word = identMatch[0];
+      let type: TokenType = "plain";
 
-  return highlighted;
+      // Check if this is a function or class definition
+      if (tokens.length > 0) {
+        const lastToken = tokens[tokens.length - 1];
+        if (lastToken.type === "keyword" && lastToken.value === "def") {
+          type = "function-def";
+        } else if (lastToken.type === "keyword" && lastToken.value === "class") {
+          type = "class-def";
+        }
+      }
+
+      if (type === "plain") {
+        if (KEYWORDS.has(word)) {
+          type = "keyword";
+        } else if (BUILTINS.has(word)) {
+          // Check if followed by opening paren for builtin
+          const afterIdent = remaining.slice(word.length);
+          if (afterIdent.match(/^\s*\(/)) {
+            type = "builtin";
+          }
+        }
+      }
+
+      tokens.push({ type, value: word });
+      remaining = remaining.slice(word.length);
+      continue;
+    }
+
+    // Match any other single character
+    tokens.push({ type: "plain", value: remaining[0] });
+    remaining = remaining.slice(1);
+  }
+
+  return tokens;
+}
+
+// Render tokens to HTML string
+function renderTokensToHtml(tokens: Token[]): string {
+  return tokens.map(token => {
+    const escaped = escapeHtml(token.value);
+    if (token.type === "plain") return escaped;
+    return `<span class="token-${token.type}">${escaped}</span>`;
+  }).join("");
 }
 
 export function CodeEditor({
@@ -213,7 +287,10 @@ export function CodeEditor({
     return Array.from({ length: count }, (_, i) => i + 1);
   }, [code]);
 
-  const highlightedCode = useMemo(() => highlightPythonCode(code), [code]);
+  const highlightedCode = useMemo(() => {
+    const tokens = tokenizePython(code);
+    return renderTokensToHtml(tokens);
+  }, [code]);
 
   return (
     <div className="code-editor relative h-full rounded-lg overflow-hidden border border-border bg-[#1e1e1e]">

@@ -24,13 +24,13 @@ export default function LearnDashboard() {
 
     const savedXP = localStorage.getItem("python-mastery-xp");
     if (savedXP) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrating from localStorage
+       
       setTotalXP(parseInt(savedXP, 10));
     }
 
     const savedProjects = localStorage.getItem("python-mastery-project-completed");
     if (savedProjects) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrating from localStorage
+       
       setProjectCompletions(new Set(JSON.parse(savedProjects)));
     }
   }, []);
@@ -43,10 +43,6 @@ export default function LearnDashboard() {
   ).length;
 
   // Project challenge stats
-  const totalProjectChallenges = modules.reduce(
-    (sum, m) => sum + m.lessons.filter((l) => l.projectChallenge).length,
-    0
-  );
   const completedProjectChallenges = projectCompletions.size;
 
   return (

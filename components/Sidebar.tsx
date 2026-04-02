@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Module } from "@/lib/types";
@@ -9,11 +10,71 @@ interface SidebarProps {
   completedLessons: Set<string>;
 }
 
-export function Sidebar({ modules, completedLessons }: SidebarProps) {
+export function Sidebar({ modules, completedLessons: initialCompleted }: SidebarProps) {
   const pathname = usePathname();
+  const [xp, setXp] = useState(0);
+  const [localCompleted, setLocalCompleted] = useState<Set<string>>(initialCompleted);
+
+  // Sync with prop changes
+  useEffect(() => {
+    setLocalCompleted(initialCompleted);
+  }, [initialCompleted]);
+
+  // Calculate total lessons
+  const totalLessons = modules.reduce((sum, m) => sum + m.lessons.length, 0);
+  const completedCount = localCompleted.size;
+  const progressPercent = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+
+  // Load XP and completed lessons from localStorage
+  useEffect(() => {
+    const savedXp = localStorage.getItem("python-mastery-xp");
+    if (savedXp) {
+      setXp(parseInt(savedXp, 10) || 0);
+    }
+
+    const savedLessons = localStorage.getItem("python-mastery-completed");
+    if (savedLessons) {
+      setLocalCompleted(new Set(JSON.parse(savedLessons)));
+    }
+
+    // Listen for storage changes (cross-tab sync)
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === "python-mastery-xp" && e.newValue) {
+        setXp(parseInt(e.newValue, 10) || 0);
+      }
+      if (e.key === "python-mastery-completed" && e.newValue) {
+        setLocalCompleted(new Set(JSON.parse(e.newValue)));
+      }
+    };
+
+    // Listen for custom events for same-tab updates
+    const handleXpUpdate = () => {
+      const currentXp = localStorage.getItem("python-mastery-xp");
+      if (currentXp) {
+        setXp(parseInt(currentXp, 10) || 0);
+      }
+    };
+
+    const handleLessonsUpdate = () => {
+      const savedLessons = localStorage.getItem("python-mastery-completed");
+      if (savedLessons) {
+        setLocalCompleted(new Set(JSON.parse(savedLessons)));
+      }
+    };
+
+    window.addEventListener("storage", handleStorage);
+    window.addEventListener("xp-updated", handleXpUpdate);
+    window.addEventListener("lessons-updated", handleLessonsUpdate);
+
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("xp-updated", handleXpUpdate);
+      window.removeEventListener("lessons-updated", handleLessonsUpdate);
+    };
+  }, []);
 
   return (
-    <aside className="w-72 h-full overflow-y-auto border-r border-border bg-card">
+    <aside className="w-72 h-full overflow-y-auto border-r border-border bg-card flex flex-col">
       <div className="p-4 border-b border-border">
         <Link href="/" className="flex items-center gap-2">
           <span className="text-2xl">🐍</span>
@@ -23,7 +84,25 @@ export function Sidebar({ modules, completedLessons }: SidebarProps) {
         </Link>
       </div>
 
-      <nav className="p-2">
+      {/* Progress Section */}
+      <div className="px-4 py-3 border-b border-border bg-card/50">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-medium text-muted-foreground">Progress</span>
+          <span className="text-xs font-semibold text-accent">{completedCount}/{totalLessons}</span>
+        </div>
+        <div className="h-2 bg-border rounded-full overflow-hidden mb-3">
+          <div
+            className="h-full bg-gradient-to-r from-accent to-purple-400 rounded-full transition-all duration-500"
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
+        <div className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20">
+          <span className="text-amber-400">⚡</span>
+          <span className="text-sm font-semibold text-amber-400">{xp} XP</span>
+        </div>
+      </div>
+
+      <nav className="p-2 flex-1 overflow-y-auto">
         {modules.map((module, moduleIndex) => (
           <div key={module.slug} className="mb-4">
             <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
@@ -33,7 +112,7 @@ export function Sidebar({ modules, completedLessons }: SidebarProps) {
               {module.lessons.map((lesson) => {
                 const lessonPath = `/learn/${module.slug}/${lesson.slug}`;
                 const isActive = pathname === lessonPath;
-                const isCompleted = completedLessons.has(
+                const isCompleted = localCompleted.has(
                   `${module.slug}/${lesson.slug}`
                 );
 

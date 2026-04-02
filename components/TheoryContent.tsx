@@ -7,7 +7,6 @@ import type { Components } from "react-markdown";
 
 interface TheoryContentProps {
   content: string;
-  lessonTitle: string;
 }
 
 // Parse special markers in theory content
@@ -81,28 +80,145 @@ function extractSyntaxFromContent(content: string): Array<{ syntax: string; desc
   return syntaxItems.slice(0, 4); // Max 4 syntax items
 }
 
+// Token types for syntax highlighting
+type TokenType = "keyword" | "builtin" | "string" | "comment" | "number" | "method" | "plain";
+
+interface Token {
+  type: TokenType;
+  value: string;
+}
+
+// Tokenize Python code without overlap issues
+function tokenizePython(code: string): Token[] {
+  const tokens: Token[] = [];
+  let remaining = code;
+
+  const KEYWORDS = new Set([
+    "import", "from", "as", "def", "class", "return", "if", "else", "elif",
+    "for", "while", "in", "not", "and", "or", "is", "None", "True", "False",
+    "try", "except", "finally", "with", "lambda", "yield", "pass", "break",
+    "continue", "raise", "assert", "global", "nonlocal", "del", "await", "async"
+  ]);
+
+  const BUILTINS = new Set([
+    "print", "len", "range", "str", "int", "float", "list", "dict", "set",
+    "tuple", "type", "isinstance", "sorted", "enumerate", "zip", "map",
+    "filter", "sum", "min", "max", "abs", "round", "open", "input", "bool",
+    "bytes", "bytearray", "callable", "chr", "ord", "hex", "bin", "oct",
+    "repr", "hash", "id", "dir", "vars", "getattr", "setattr", "hasattr",
+    "iter", "next", "reversed", "slice", "any", "all", "format"
+  ]);
+
+  while (remaining.length > 0) {
+    let matched = false;
+
+    // Match comments first (highest priority)
+    const commentMatch = remaining.match(/^#.*/);
+    if (commentMatch) {
+      tokens.push({ type: "comment", value: commentMatch[0] });
+      remaining = remaining.slice(commentMatch[0].length);
+      matched = true;
+      continue;
+    }
+
+    // Match triple-quoted strings
+    const tripleDoubleMatch = remaining.match(/^"""[\s\S]*?"""/);
+    if (tripleDoubleMatch) {
+      tokens.push({ type: "string", value: tripleDoubleMatch[0] });
+      remaining = remaining.slice(tripleDoubleMatch[0].length);
+      matched = true;
+      continue;
+    }
+    const tripleSingleMatch = remaining.match(/^'''[\s\S]*?'''/);
+    if (tripleSingleMatch) {
+      tokens.push({ type: "string", value: tripleSingleMatch[0] });
+      remaining = remaining.slice(tripleSingleMatch[0].length);
+      matched = true;
+      continue;
+    }
+
+    // Match single/double quoted strings
+    const stringMatch = remaining.match(/^(["'])((?:\\.|(?!\1)[^\\])*?)\1/);
+    if (stringMatch) {
+      tokens.push({ type: "string", value: stringMatch[0] });
+      remaining = remaining.slice(stringMatch[0].length);
+      matched = true;
+      continue;
+    }
+
+    // Match numbers
+    const numberMatch = remaining.match(/^\d+\.?\d*(?:[eE][+-]?\d+)?/);
+    if (numberMatch) {
+      tokens.push({ type: "number", value: numberMatch[0] });
+      remaining = remaining.slice(numberMatch[0].length);
+      matched = true;
+      continue;
+    }
+
+    // Match method calls after dot
+    const methodMatch = remaining.match(/^\.([a-zA-Z_][a-zA-Z0-9_]*)(?=\()/);
+    if (methodMatch) {
+      tokens.push({ type: "plain", value: "." });
+      tokens.push({ type: "method", value: methodMatch[1] });
+      remaining = remaining.slice(methodMatch[0].length);
+      matched = true;
+      continue;
+    }
+
+    // Match identifiers (keywords, builtins, or plain)
+    const identMatch = remaining.match(/^[a-zA-Z_][a-zA-Z0-9_]*/);
+    if (identMatch) {
+      const word = identMatch[0];
+      let type: TokenType = "plain";
+
+      if (KEYWORDS.has(word)) {
+        type = "keyword";
+      } else if (BUILTINS.has(word)) {
+        // Check if followed by opening paren for builtin
+        const afterIdent = remaining.slice(word.length);
+        if (afterIdent.match(/^\s*\(/)) {
+          type = "builtin";
+        }
+      }
+
+      tokens.push({ type, value: word });
+      remaining = remaining.slice(word.length);
+      matched = true;
+      continue;
+    }
+
+    // Match any other single character
+    if (!matched) {
+      tokens.push({ type: "plain", value: remaining[0] });
+      remaining = remaining.slice(1);
+    }
+  }
+
+  return tokens;
+}
+
+// Escape HTML special characters
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
 // Custom code block component with syntax highlighting
 function CodeBlock({ children, className }: { children: React.ReactNode; className?: string }) {
   const code = String(children).replace(/\n$/, "");
   const language = className?.replace(/language-/, "") || "python";
 
-  // Simple syntax highlighting for Python
   const highlightedCode = useMemo(() => {
-    if (language !== "python") return code;
+    if (language !== "python") return escapeHtml(code);
 
-    return code
-      // Keywords
-      .replace(/\b(import|from|as|def|class|return|if|else|elif|for|while|in|not|and|or|is|None|True|False|try|except|finally|with|lambda|yield|pass|break|continue|raise|assert)\b/g, '<span class="token-keyword">$1</span>')
-      // Built-in functions
-      .replace(/\b(print|len|range|str|int|float|list|dict|set|tuple|type|isinstance|sorted|enumerate|zip|map|filter|sum|min|max|abs|round|open|input)\b(?=\()/g, '<span class="token-builtin">$1</span>')
-      // Strings (double and single quoted)
-      .replace(/(["'])((?:\\.|(?!\1)[^\\])*?)\1/g, '<span class="token-string">$1$2$1</span>')
-      // Comments
-      .replace(/(#.*)$/gm, '<span class="token-comment">$1</span>')
-      // Numbers
-      .replace(/\b(\d+\.?\d*)\b/g, '<span class="token-number">$1</span>')
-      // Pandas/numpy methods after dot
-      .replace(/\.([a-zA-Z_][a-zA-Z0-9_]*)\(/g, '.<span class="token-method">$1</span>(');
+    const tokens = tokenizePython(code);
+    return tokens.map(token => {
+      const escaped = escapeHtml(token.value);
+      if (token.type === "plain") return escaped;
+      return `<span class="token-${token.type}">${escaped}</span>`;
+    }).join("");
   }, [code, language]);
 
   return (
@@ -226,7 +342,7 @@ export function WhatYouLearned({ points }: { points: string[] }) {
   );
 }
 
-export function TheoryContent({ content, lessonTitle }: TheoryContentProps) {
+export function TheoryContent({ content }: TheoryContentProps) {
   const { mainContent, keyConceptCards, syntaxCards, whyMatters } = useMemo(
     () => parseTheoryContent(content),
     [content]

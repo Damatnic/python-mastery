@@ -2,11 +2,17 @@
 
 import { useMemo } from "react";
 
+interface ChallengeContext {
+  hint: string;
+  prompt: string;
+}
+
 interface OutputPanelProps {
   output: string;
   error: string | null;
   isRunning: boolean;
   executionTime?: number;
+  activeChallenge?: ChallengeContext | null;
 }
 
 interface DataFrameInfo {
@@ -176,16 +182,30 @@ function parseError(error: string): { type: string; message: string; details: st
   };
 }
 
-function EmptyState() {
+function EmptyState({ activeChallenge }: { activeChallenge?: ChallengeContext | null }) {
   return (
     <div className="flex flex-col items-center justify-center h-full text-center p-4">
       <div className="w-12 h-12 rounded-xl bg-card-hover flex items-center justify-center mb-3">
         <span className="text-2xl opacity-50">▶</span>
       </div>
       <p className="text-muted-foreground text-sm mb-1">No output yet</p>
-      <p className="text-muted text-xs">
+      <p className="text-muted text-xs mb-3">
         Press <kbd className="px-1.5 py-0.5 rounded bg-card border border-border text-xs">Cmd/Ctrl+Enter</kbd> or click <span className="text-accent">Run</span> to execute
       </p>
+
+      {activeChallenge && (
+        <div className="w-full max-w-md mt-2 p-3 rounded-lg bg-accent/5 border border-accent/20 text-left">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-accent">🎯</span>
+            <span className="text-xs font-medium text-accent">Active Challenge</span>
+          </div>
+          <p className="text-xs text-muted-foreground mb-2">{activeChallenge.prompt}</p>
+          <div className="flex items-start gap-1.5 pt-2 border-t border-accent/10">
+            <span className="text-amber-400 text-xs">💡</span>
+            <p className="text-xs text-muted-foreground">{activeChallenge.hint}</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -231,8 +251,74 @@ function DataFrameDisplay({ info }: { info: DataFrameInfo }) {
   );
 }
 
+// Generate a friendly explanation for common errors
+function getFriendlyExplanation(errorType: string, message: string): string | null {
+  const messageLower = message.toLowerCase();
+
+  if (errorType === "NameError") {
+    const match = message.match(/name '([^']+)' is not defined/);
+    if (match) {
+      const name = match[1];
+      if (name === "pd") return "You need to import pandas first. Add: import pandas as pd";
+      if (name === "np") return "You need to import numpy first. Add: import numpy as np";
+      return `Python doesn't recognize '${name}'. Check spelling or make sure it's defined before use.`;
+    }
+  }
+
+  if (errorType === "SyntaxError") {
+    if (messageLower.includes("unterminated string")) {
+      return "You have an unclosed quote. Make sure every string starts and ends with matching quotes.";
+    }
+    if (messageLower.includes("invalid syntax")) {
+      return "Something's wrong with your code structure. Check for missing colons, parentheses, or brackets.";
+    }
+    if (messageLower.includes("expected ':'")) {
+      return "You're missing a colon. if/for/def/class statements need a colon at the end.";
+    }
+  }
+
+  if (errorType === "TypeError") {
+    if (messageLower.includes("unsupported operand")) {
+      return "You're trying to use an operator (like + or -) with incompatible types.";
+    }
+    if (messageLower.includes("not callable")) {
+      return "You're trying to call something that isn't a function. Check for accidental parentheses.";
+    }
+    if (messageLower.includes("missing") && messageLower.includes("argument")) {
+      return "A function is missing a required argument. Check the function's expected parameters.";
+    }
+  }
+
+  if (errorType === "KeyError") {
+    const match = message.match(/'([^']+)'/);
+    if (match) {
+      return `Column or key '${match[1]}' doesn't exist. Check for typos or use df.columns to see available columns.`;
+    }
+  }
+
+  if (errorType === "IndexError") {
+    if (messageLower.includes("out of range")) {
+      return "You're trying to access an item that doesn't exist. Remember, Python counts from 0.";
+    }
+  }
+
+  if (errorType === "IndentationError") {
+    return "Your code indentation is inconsistent. Use 4 spaces (or consistent tabs) for each level.";
+  }
+
+  if (errorType === "AttributeError") {
+    const match = message.match(/'([^']+)' object has no attribute '([^']+)'/);
+    if (match) {
+      return `${match[1]} objects don't have a '${match[2]}' method. Check the object type and available methods.`;
+    }
+  }
+
+  return null;
+}
+
 function ErrorDisplay({ parsedError }: { parsedError: { type: string; message: string; details: string[]; lineInfo: string | null } }) {
   const commonCauses = ERROR_CAUSES[parsedError.type] || [];
+  const friendlyExplanation = getFriendlyExplanation(parsedError.type, parsedError.message);
 
   return (
     <div className="error-display rounded-lg border border-error/30 bg-error/5 overflow-hidden">
@@ -248,12 +334,25 @@ function ErrorDisplay({ parsedError }: { parsedError: { type: string; message: s
       </div>
 
       <div className="p-4">
+        {/* Friendly explanation at the top */}
+        {friendlyExplanation && (
+          <div className="flex items-start gap-2 p-3 mb-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+            <span className="text-amber-400 mt-0.5">💡</span>
+            <p className="text-sm text-foreground">{friendlyExplanation}</p>
+          </div>
+        )}
+
         <p className="text-error font-medium mb-2">{parsedError.message}</p>
 
         {parsedError.details.length > 0 && (
-          <pre className="text-xs text-error/70 whitespace-pre-wrap mb-3 p-2 rounded bg-error/5 border border-error/10">
-            {parsedError.details.join("\n")}
-          </pre>
+          <details className="group">
+            <summary className="text-xs text-error/60 cursor-pointer hover:text-error/80 mb-2">
+              Show traceback
+            </summary>
+            <pre className="text-xs text-error/70 whitespace-pre-wrap mb-3 p-2 rounded bg-error/5 border border-error/10">
+              {parsedError.details.join("\n")}
+            </pre>
+          </details>
         )}
 
         {commonCauses.length > 0 && (
@@ -274,7 +373,7 @@ function ErrorDisplay({ parsedError }: { parsedError: { type: string; message: s
   );
 }
 
-export function OutputPanel({ output, error, isRunning, executionTime }: OutputPanelProps) {
+export function OutputPanel({ output, error, isRunning, executionTime, activeChallenge }: OutputPanelProps) {
   const outputParts = useMemo(() => parseOutput(output), [output]);
   const parsedError = useMemo(() => (error ? parseError(error) : null), [error]);
 
@@ -308,7 +407,7 @@ export function OutputPanel({ output, error, isRunning, executionTime }: OutputP
       </div>
 
       <div className="flex-1 overflow-auto p-4 font-mono text-sm output-content">
-        {!output && !error && !isRunning && <EmptyState />}
+        {!output && !error && !isRunning && <EmptyState activeChallenge={activeChallenge} />}
 
         {outputParts.map((part, index) => (
           <div key={index} className={index > 0 ? "mt-4" : ""}>

@@ -43,6 +43,8 @@ export default function LessonPage({ params }: LessonPageProps) {
         "python-mastery-completed",
         JSON.stringify([...next])
       );
+      // Notify sidebar to update in same-tab
+      window.dispatchEvent(new Event("lessons-updated"));
       return next;
     });
 

@@ -30,6 +30,7 @@ export function ModuleCard({
   useEffect(() => {
     const saved = localStorage.getItem("python-mastery-project-completed");
     if (saved) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrating from localStorage
       setProjectCompletions(new Set(JSON.parse(saved)));
     }
   }, []);

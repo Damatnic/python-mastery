@@ -463,7 +463,9 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
 
   const cheatSheetItems = useMemo(() => generateCheatSheet(lesson.moduleSlug), [lesson.moduleSlug]);
 
+  // Reset state when lesson changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- resetting state when lesson changes
     setCode(lesson.starterCode);
     setOutput("");
     setError(null);
@@ -585,6 +587,7 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
           const newXP = totalXP + xpGained;
           setTotalXP(newXP);
           localStorage.setItem("python-mastery-xp", String(newXP));
+          window.dispatchEvent(new Event("xp-updated"));
 
           const savedCompletions = localStorage.getItem("python-mastery-project-completed");
           const completed = savedCompletions ? new Set(JSON.parse(savedCompletions)) : new Set();
@@ -647,7 +650,7 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
               <span className={`inline-block px-2.5 py-1 text-xs rounded-full mb-6 badge-${lesson.badge}`}>
                 {lesson.badge}
               </span>
-              <TheoryContent content={lesson.theory} lessonTitle={lesson.title} />
+              <TheoryContent content={lesson.theory} />
               <LessonNavigation prevLesson={prevLesson} nextLesson={nextLesson} />
             </div>
           )}
@@ -835,7 +838,13 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
         </div>
 
         <div className="h-48 p-4 pt-2">
-          <OutputPanel output={output} error={error} isRunning={isRunning} executionTime={executionTime} />
+          <OutputPanel
+            output={output}
+            error={error}
+            isRunning={isRunning}
+            executionTime={executionTime}
+            activeChallenge={activeChallenge ? { hint: activeChallenge.hint, prompt: activeChallenge.prompt } : null}
+          />
         </div>
       </div>
     </div>
