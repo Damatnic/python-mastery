@@ -7,6 +7,7 @@ import { lessonsModule4 } from "./lessons/module4";
 import { lessonsModule5 } from "./lessons/module5";
 import { lessonsModule6 } from "./lessons/module6";
 import { lessonsModule7 } from "./lessons/module7";
+import { lessonsModule8 } from "./lessons/module8";
 
 const ALL_LESSONS: Lesson[] = [
   ...lessonsModule1,
@@ -16,6 +17,7 @@ const ALL_LESSONS: Lesson[] = [
   ...lessonsModule5,
   ...lessonsModule6,
   ...lessonsModule7,
+  ...lessonsModule8,
 ];
 
 export function getAllModules(): Module[] {

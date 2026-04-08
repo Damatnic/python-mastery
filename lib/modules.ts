@@ -43,4 +43,10 @@ export const MODULE_METADATA: Omit<Module, "lessons">[] = [
     description:
       "Write lambda functions, use apply and map, and master vectorized operations for performance.",
   },
+  {
+    slug: "game-dev-pygame",
+    title: "Game Dev with Pygame",
+    description:
+      "Build real games with Python. Learn the game loop, movement physics, sprites, collision detection, and complete a Brick Breakaway clone from scratch.",
+  },
 ];
