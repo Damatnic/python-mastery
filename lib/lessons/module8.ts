@@ -1278,4 +1278,1262 @@ def validate(answer):
       },
     ],
   },
+
+  {
+    module: "Game Development with Pygame",
+    moduleSlug: "game-dev-pygame",
+    lessonNumber: 41,
+    slug: "pygame-project-tower-defense",
+    title: "Project: Tower Defense",
+    badge: "challenge",
+    theory: `
+## What You're Building
+
+Tower Defense is that genre where enemies walk down a path and you place towers to shoot them. It's more complex than Brick Breakaway because you need multiple enemy types, targeting logic, and projectiles that actually track things. This one took me a while to wrap my head around but once the pieces clicked it made sense.
+
+## Core Components
+
+\`\`\`
+TowerDefense/
+├── main.py          # game loop, spawning, main()
+├── settings.py      # constants and game balance
+├── level.py         # Level class with map data and path
+├── enemy.py         # Enemy class with movement along path
+├── tower.py         # Tower class with targeting and firing
+├── projectile.py    # Projectile class that flies toward target
+└── assets/          # images and cursors
+\`\`\`
+
+## Settings / Constants
+
+I always start with settings. It's easier to balance the game later when all the numbers are in one file:
+
+\`\`\`python
+# settings.py
+WIDTH, HEIGHT = 800, 600
+FPS = 60
+
+# Tower settings
+TOWER_COST = 50
+TOWER_RANGE = 150
+TOWER_FIRE_RATE = 45    # frames between shots
+TOWER_DAMAGE = 25
+
+# Enemy settings
+ENEMY_SPEED = 2
+ENEMY_HP = 100
+
+# Projectile
+PROJECTILE_SPEED = 8
+
+# Player
+START_GOLD = 200
+START_LIVES = 10
+
+# Colors
+GRASS_COLOR = (34, 139, 34)
+PATH_COLOR = (139, 119, 101)
+\`\`\`
+
+## The Level Class
+
+This was confusing at first. The level stores the map layout AND the path that enemies follow:
+
+\`\`\`python
+# level.py
+import pygame
+from settings import *
+
+class Level:
+    def __init__(self, map_data, waypoints):
+        self.map_data = map_data      # 2D grid: 0=grass, 1=path
+        self.waypoints = waypoints    # list of (x,y) points enemies walk through
+        self.tile_size = 40
+
+    def draw(self, screen):
+        for row_idx, row in enumerate(self.map_data):
+            for col_idx, tile in enumerate(row):
+                x = col_idx * self.tile_size
+                y = row_idx * self.tile_size
+                color = PATH_COLOR if tile == 1 else GRASS_COLOR
+                pygame.draw.rect(screen, color, (x, y, self.tile_size, self.tile_size))
+
+    def can_build_tower(self, x, y):
+        # can only build on grass, not on path
+        col = x // self.tile_size
+        row = y // self.tile_size
+        if 0 <= row < len(self.map_data) and 0 <= col < len(self.map_data[0]):
+            return self.map_data[row][col] == 0
+        return False
+\`\`\`
+
+## Level Data and Waypoints
+
+The map is just a 2D list. The waypoints tell enemies where to walk:
+
+\`\`\`python
+# level data — 0=grass (buildable), 1=path
+MAP_DATA = [
+    [0,0,0,1,0,0,0,0,0,0],
+    [0,0,0,1,0,0,0,0,0,0],
+    [0,0,0,1,1,1,1,0,0,0],
+    [0,0,0,0,0,0,1,0,0,0],
+    [0,0,0,0,0,0,1,1,1,0],
+    [0,0,0,0,0,0,0,0,1,0],
+]
+
+# waypoints: corners where path turns
+WAYPOINTS = [
+    (140, 0),    # start off-screen top
+    (140, 100),
+    (280, 100),
+    (280, 180),
+    (360, 180),  # had to fiddle with these numbers
+    (360, 220),
+]
+\`\`\`
+
+## Enemy Class
+
+Enemies follow the waypoints. This part took me a bit because you need to track which waypoint they're heading toward:
+
+\`\`\`python
+# enemy.py
+import pygame
+import math
+from settings import *
+
+class Enemy(pygame.sprite.Sprite):
+    def __init__(self, waypoints):
+        super().__init__()
+        self.image = pygame.Surface((30, 30))
+        self.image.fill((255, 50, 50))  # red square for now
+        self.rect = self.image.get_rect()
+
+        self.waypoints = waypoints
+        self.waypoint_index = 0
+        self.pos = pygame.math.Vector2(waypoints[0])
+        self.rect.center = self.pos
+
+        self.hp = ENEMY_HP
+        self.speed = ENEMY_SPEED
+
+    def update(self):
+        if self.waypoint_index < len(self.waypoints):
+            target = pygame.math.Vector2(self.waypoints[self.waypoint_index])
+            direction = target - self.pos
+            dist = direction.length()
+
+            if dist < self.speed:
+                # reached waypoint, go to next
+                self.pos = target
+                self.waypoint_index += 1
+            else:
+                # move toward waypoint
+                direction = direction.normalize()
+                self.pos += direction * self.speed
+
+            self.rect.center = self.pos
+        else:
+            # reached end — deal damage to player
+            self.kill()
+            return True  # signal that enemy got through
+        return False
+
+    def take_damage(self, dmg):
+        self.hp -= dmg
+        if self.hp <= 0:
+            self.kill()
+            return True  # died
+        return False
+\`\`\`
+
+## Tower Class
+
+Towers need to find the closest enemy in range and shoot at it:
+
+\`\`\`python
+# tower.py
+import pygame
+import math
+from settings import *
+from projectile import Projectile
+
+class Tower(pygame.sprite.Sprite):
+    def __init__(self, x, y, projectiles_group):
+        super().__init__()
+        self.image = pygame.Surface((40, 40), pygame.SRCALPHA)
+        pygame.draw.polygon(self.image, (100, 100, 200), [(20,0), (40,40), (0,40)])
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+
+        self.projectiles = projectiles_group
+        self.fire_cooldown = 0
+        self.target = None
+
+    def find_target(self, enemies):
+        # find closest enemy in range
+        closest = None
+        closest_dist = TOWER_RANGE + 1
+
+        for enemy in enemies:
+            dist = math.dist(self.rect.center, enemy.rect.center)
+            if dist < TOWER_RANGE and dist < closest_dist:
+                closest = enemy
+                closest_dist = dist
+
+        self.target = closest
+
+    def update(self, enemies):
+        if self.fire_cooldown > 0:
+            self.fire_cooldown -= 1
+
+        self.find_target(enemies)
+
+        if self.target and self.fire_cooldown <= 0:
+            # shoot!
+            proj = Projectile(self.rect.center, self.target)
+            self.projectiles.add(proj)
+            self.fire_cooldown = TOWER_FIRE_RATE
+\`\`\`
+
+## Projectile Class
+
+Projectiles fly toward their target. The tricky bit is they need to track a moving target:
+
+\`\`\`python
+# projectile.py
+import pygame
+from settings import *
+
+class Projectile(pygame.sprite.Sprite):
+    def __init__(self, start_pos, target):
+        super().__init__()
+        self.image = pygame.Surface((8, 8))
+        self.image.fill((255, 255, 0))  # yellow dot
+        self.rect = self.image.get_rect()
+        self.rect.center = start_pos
+
+        self.pos = pygame.math.Vector2(start_pos)
+        self.target = target  # reference to enemy sprite
+        self.speed = PROJECTILE_SPEED
+        self.damage = TOWER_DAMAGE
+
+    def update(self):
+        if self.target and self.target.alive():
+            # fly toward target's current position
+            target_pos = pygame.math.Vector2(self.target.rect.center)
+            direction = target_pos - self.pos
+            dist = direction.length()
+
+            if dist < self.speed:
+                # hit!
+                self.target.take_damage(self.damage)
+                self.kill()
+            else:
+                direction = direction.normalize()
+                self.pos += direction * self.speed
+                self.rect.center = self.pos
+        else:
+            # target died or doesn't exist
+            self.kill()
+\`\`\`
+
+## Main Game Loop
+
+Putting it all together. This is where spawning enemies and handling collisions happens:
+
+\`\`\`python
+# main.py
+import pygame
+from settings import *
+from level import Level
+from enemy import Enemy
+from tower import Tower
+
+MAP_DATA = [
+    [0,0,0,1,0,0,0,0,0,0],
+    [0,0,0,1,0,0,0,0,0,0],
+    [0,0,0,1,1,1,1,0,0,0],
+    [0,0,0,0,0,0,1,0,0,0],
+    [0,0,0,0,0,0,1,1,1,0],
+    [0,0,0,0,0,0,0,0,1,0],
+]
+
+WAYPOINTS = [(140,-30), (140,60), (260,60), (260,140), (340,140), (340,220)]
+
+def main():
+    pygame.init()
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption("Tower Defense")
+    clock = pygame.time.Clock()
+    font = pygame.font.Font(None, 32)
+
+    level = Level(MAP_DATA, WAYPOINTS)
+
+    enemies = pygame.sprite.Group()
+    towers = pygame.sprite.Group()
+    projectiles = pygame.sprite.Group()
+
+    gold = START_GOLD
+    lives = START_LIVES
+    spawn_timer = 0
+    wave = 1
+    enemies_per_wave = 5
+    enemies_spawned = 0
+
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                mx, my = pygame.mouse.get_pos()
+                if gold >= TOWER_COST and level.can_build_tower(mx, my):
+                    tower = Tower(mx, my, projectiles)
+                    towers.add(tower)
+                    gold -= TOWER_COST
+
+        # spawn enemies
+        spawn_timer += 1
+        if spawn_timer >= 60 and enemies_spawned < enemies_per_wave:
+            enemy = Enemy(WAYPOINTS)
+            enemies.add(enemy)
+            enemies_spawned += 1
+            spawn_timer = 0
+
+        # update everything
+        for enemy in enemies:
+            if enemy.update():  # returns True if reached end
+                lives -= 1
+
+        for tower in towers:
+            tower.update(enemies)
+
+        projectiles.update()
+
+        # check if wave complete
+        if enemies_spawned >= enemies_per_wave and len(enemies) == 0:
+            wave += 1
+            enemies_per_wave += 2
+            enemies_spawned = 0
+            gold += 50  # bonus gold between waves
+
+        # draw
+        screen.fill(GRASS_COLOR)
+        level.draw(screen)
+        enemies.draw(screen)
+        towers.draw(screen)
+        projectiles.draw(screen)
+
+        # UI
+        gold_text = font.render(f"Gold: {gold}", True, (255, 215, 0))
+        lives_text = font.render(f"Lives: {lives}", True, (255, 255, 255))
+        wave_text = font.render(f"Wave: {wave}", True, (255, 255, 255))
+        screen.blit(gold_text, (10, 10))
+        screen.blit(lives_text, (10, 40))
+        screen.blit(wave_text, (10, 70))
+
+        if lives <= 0:
+            over_text = font.render("GAME OVER", True, (255, 0, 0))
+            screen.blit(over_text, (WIDTH//2 - 60, HEIGHT//2))
+
+        pygame.display.flip()
+        clock.tick(FPS)
+
+    pygame.quit()
+
+if __name__ == "__main__":
+    main()
+\`\`\`
+
+## Step 2 — Improvement Ideas
+
+Pick options worth at least 20 points total:
+
+- **Tower Sprite (5pts)** — load an actual image for towers instead of drawing a triangle
+- **Projectile Sprite with rotation (5pts)** — sprite that rotates to face its target using \`pygame.transform.rotate()\`
+- **Balance: Waves (5pts)** — enemies get faster/tougher each wave, tune spawn rates
+- **Informative Text (5pts)** — show how to build towers + display game over screen
+- **Enemy Sprites 3 directions (10pts)** — sprite sheet with up/down/left-right facing frames, switch based on movement direction
+- **Enemy HP Bar (10pts)** — draw a small health bar above each enemy showing remaining HP
+- **Player Life (10pts)** — visual lives display, maybe small heart icons
+- **Additional Levels (10pts)** — load a new map/waypoints after clearing a certain number of waves
+- **New Tower Type inheriting Tower class (15pts)** — create a subclass with different mechanics like splash damage, rapid fire, or slow effect
+`,
+    starterCode: `# Tower Defense starter — minimal working version
+# Run locally, then add Step 2 improvements
+
+import pygame
+import math
+pygame.init()
+
+WIDTH, HEIGHT = 800, 600
+FPS = 60
+TOWER_RANGE = 120
+TOWER_COST = 50
+TOWER_FIRE_RATE = 40
+
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Tower Defense")
+clock = pygame.time.Clock()
+font = pygame.font.Font(None, 32)
+
+# map: 0=grass, 1=path
+MAP = [
+    [0,0,0,1,0,0,0,0,0,0],
+    [0,0,0,1,0,0,0,0,0,0],
+    [0,0,0,1,1,1,1,0,0,0],
+    [0,0,0,0,0,0,1,0,0,0],
+    [0,0,0,0,0,0,1,1,1,1],
+]
+TILE_SIZE = 80
+WAYPOINTS = [(3*80+40, -20), (3*80+40, 1*80+40), (6*80+40, 2*80+40), (6*80+40, 3*80+40), (9*80+40, 4*80+40), (9*80+40, HEIGHT+20)]
+
+# game state
+gold = 200
+lives = 10
+wave = 1
+spawn_timer = 0
+enemies_this_wave = 5
+spawned = 0
+
+# lists instead of sprite groups for simplicity
+enemies = []
+towers = []
+projectiles = []
+
+class Enemy:
+    def __init__(self):
+        self.x, self.y = WAYPOINTS[0]
+        self.wp_idx = 0
+        self.speed = 1.5
+        self.hp = 80
+        self.alive = True
+
+    def update(self):
+        if self.wp_idx < len(WAYPOINTS):
+            tx, ty = WAYPOINTS[self.wp_idx]
+            dx, dy = tx - self.x, ty - self.y
+            dist = math.sqrt(dx*dx + dy*dy)
+            if dist < self.speed:
+                self.x, self.y = tx, ty
+                self.wp_idx += 1
+            else:
+                self.x += (dx/dist) * self.speed
+                self.y += (dy/dist) * self.speed
+        else:
+            self.alive = False
+            return True  # got through
+        return False
+
+class Tower:
+    def __init__(self, x, y):
+        self.x, self.y = x, y
+        self.cooldown = 0
+
+    def update(self, enemies):
+        if self.cooldown > 0:
+            self.cooldown -= 1
+
+        # find closest enemy in range
+        closest = None
+        closest_dist = TOWER_RANGE + 1
+        for e in enemies:
+            if not e.alive: continue
+            d = math.dist((self.x, self.y), (e.x, e.y))
+            if d < TOWER_RANGE and d < closest_dist:
+                closest = e
+                closest_dist = d
+
+        if closest and self.cooldown <= 0:
+            projectiles.append(Projectile(self.x, self.y, closest))
+            self.cooldown = TOWER_FIRE_RATE
+
+class Projectile:
+    def __init__(self, x, y, target):
+        self.x, self.y = x, y
+        self.target = target
+        self.speed = 6
+        self.alive = True
+
+    def update(self):
+        if not self.target.alive:
+            self.alive = False
+            return
+        dx = self.target.x - self.x
+        dy = self.target.y - self.y
+        dist = math.sqrt(dx*dx + dy*dy)
+        if dist < self.speed:
+            self.target.hp -= 30
+            if self.target.hp <= 0:
+                self.target.alive = False
+            self.alive = False
+        else:
+            self.x += (dx/dist) * self.speed
+            self.y += (dy/dist) * self.speed
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            mx, my = pygame.mouse.get_pos()
+            col, row = mx // TILE_SIZE, my // TILE_SIZE
+            if row < len(MAP) and col < len(MAP[0]) and MAP[row][col] == 0:
+                if gold >= TOWER_COST:
+                    towers.append(Tower(mx, my))
+                    gold -= TOWER_COST
+
+    # spawn
+    spawn_timer += 1
+    if spawn_timer >= 80 and spawned < enemies_this_wave:
+        enemies.append(Enemy())
+        spawned += 1
+        spawn_timer = 0
+
+    # update enemies
+    for e in enemies[:]:
+        if e.update():  # got through
+            lives -= 1
+        if not e.alive:
+            enemies.remove(e)
+
+    # update towers
+    for t in towers:
+        t.update(enemies)
+
+    # update projectiles
+    for p in projectiles[:]:
+        p.update()
+        if not p.alive:
+            projectiles.remove(p)
+
+    # next wave check
+    if spawned >= enemies_this_wave and len(enemies) == 0:
+        wave += 1
+        enemies_this_wave += 2
+        spawned = 0
+        gold += 40
+
+    # draw map
+    screen.fill((34, 100, 34))
+    for r, row in enumerate(MAP):
+        for c, tile in enumerate(row):
+            color = (139, 119, 101) if tile == 1 else (34, 139, 34)
+            pygame.draw.rect(screen, color, (c*TILE_SIZE, r*TILE_SIZE, TILE_SIZE, TILE_SIZE))
+
+    # draw enemies
+    for e in enemies:
+        pygame.draw.circle(screen, (255, 50, 50), (int(e.x), int(e.y)), 15)
+
+    # draw towers
+    for t in towers:
+        pygame.draw.circle(screen, (100, 100, 200), (t.x, t.y), 20)
+
+    # draw projectiles
+    for p in projectiles:
+        pygame.draw.circle(screen, (255, 255, 0), (int(p.x), int(p.y)), 5)
+
+    # UI
+    screen.blit(font.render(f"Gold: {gold}", True, (255,215,0)), (10,10))
+    screen.blit(font.render(f"Lives: {lives}", True, (255,255,255)), (10,40))
+    screen.blit(font.render(f"Wave: {wave}", True, (255,255,255)), (10,70))
+    screen.blit(font.render("Click grass to build tower", True, (200,200,200)), (10, HEIGHT-30))
+
+    if lives <= 0:
+        screen.blit(font.render("GAME OVER", True, (255,0,0)), (WIDTH//2-60, HEIGHT//2))
+
+    pygame.display.flip()
+    clock.tick(FPS)
+
+pygame.quit()
+`,
+    examples: [
+      {
+        title: "Enemy HP Bar",
+        explanation: "Step 2 option — draw a health bar above each enemy showing remaining HP",
+        code: `def draw_enemy_hp_bar(screen, enemy):
+    bar_width = 40
+    bar_height = 6
+    bar_x = int(enemy.x) - bar_width // 2
+    bar_y = int(enemy.y) - 25  # above the enemy
+
+    # background (red)
+    pygame.draw.rect(screen, (100, 0, 0), (bar_x, bar_y, bar_width, bar_height))
+
+    # health (green) — scales with remaining HP
+    hp_ratio = max(0, enemy.hp / 80)  # 80 is max HP
+    pygame.draw.rect(screen, (0, 200, 0), (bar_x, bar_y, int(bar_width * hp_ratio), bar_height))
+
+    # border
+    pygame.draw.rect(screen, (0, 0, 0), (bar_x, bar_y, bar_width, bar_height), 1)
+
+# in the draw loop:
+for e in enemies:
+    pygame.draw.circle(screen, (255, 50, 50), (int(e.x), int(e.y)), 15)
+    draw_enemy_hp_bar(screen, e)`,
+      },
+      {
+        title: "New Tower Type — Splash Damage",
+        explanation: "Step 2 option (15pts) — tower subclass that damages all enemies in an area",
+        code: `class SplashTower(Tower):
+    def __init__(self, x, y):
+        super().__init__(x, y)
+        self.splash_radius = 60
+        self.damage = 20  # less damage but hits multiple
+
+    def update(self, enemies):
+        if self.cooldown > 0:
+            self.cooldown -= 1
+            return
+
+        # find closest enemy
+        closest = None
+        closest_dist = TOWER_RANGE + 1
+        for e in enemies:
+            if not e.alive: continue
+            d = math.dist((self.x, self.y), (e.x, e.y))
+            if d < TOWER_RANGE and d < closest_dist:
+                closest = e
+                closest_dist = d
+
+        if closest and self.cooldown <= 0:
+            # damage ALL enemies near the target
+            for e in enemies:
+                if not e.alive: continue
+                d = math.dist((closest.x, closest.y), (e.x, e.y))
+                if d <= self.splash_radius:
+                    e.hp -= self.damage
+                    if e.hp <= 0:
+                        e.alive = False
+            self.cooldown = TOWER_FIRE_RATE * 1.5  # slower fire rate
+
+# could make it cost more: SPLASH_TOWER_COST = 80`,
+      },
+    ],
+    challenges: [
+      {
+        id: "tower-defense-1",
+        prompt: "In Tower Defense, why do projectiles keep a reference to the target enemy instead of just storing the target's position?",
+        hint: "Think about what happens when the enemy moves",
+        validateFn: `
+def validate(answer):
+    answer = answer.lower()
+    return ("move" in answer or "moving" in answer or "track" in answer or "follow" in answer or "update" in answer or "position" in answer)
+`,
+        solution: "Enemies move while the projectile is flying. If we only stored the position at fire time, the projectile would miss. Keeping a reference lets us track the enemy's current position each frame.",
+      },
+      {
+        id: "tower-defense-2",
+        prompt: "What's the formula to move an object toward a target at a constant speed?",
+        hint: "You need direction (normalized) multiplied by speed",
+        validateFn: `
+def validate(answer):
+    answer = answer.lower()
+    return ("normalize" in answer or "direction" in answer or "unit" in answer) and ("speed" in answer or "multiply" in answer or "*" in answer)
+`,
+        solution: "direction = (target_pos - current_pos).normalize(); new_pos = current_pos + direction * speed. Normalizing gives a unit vector (length 1), then multiplying by speed gives consistent movement regardless of distance.",
+      },
+    ],
+  },
+
+  {
+    module: "Game Development with Pygame",
+    moduleSlug: "game-dev-pygame",
+    lessonNumber: 42,
+    slug: "pygame-project-sprite-game",
+    title: "Project: Sprite Game",
+    badge: "challenge",
+    theory: `
+## What You're Building
+
+A character-based game with animated sprites, NPCs that move around, and collision interactions. This is the foundation for RPGs, platformers, or action games. The big new thing here is sprite sheets — loading multiple animation frames from a single image.
+
+## Core Components
+
+\`\`\`
+SpriteGame/
+├── main.py           # game loop, spawning NPCs
+├── settings.py       # constants
+├── character.py      # base Character class (shared code)
+├── surface_handler.py # loading and cutting sprite sheets
+├── user.py           # User class (player-controlled)
+├── runner.py         # Runner class (NPC that moves around)
+└── assets/           # sprite sheets and backgrounds
+\`\`\`
+
+## The Character Module
+
+I made a base class that both the player and NPCs inherit from. Keeps things DRY:
+
+\`\`\`python
+# character.py
+import pygame
+from settings import *
+
+class Character(pygame.sprite.Sprite):
+    def __init__(self, x, y, frames):
+        super().__init__()
+        self.frames = frames  # list of animation frames
+        self.frame_index = 0
+        self.animation_timer = 0
+        self.image = self.frames[0] if self.frames else pygame.Surface((40, 40))
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+
+        self.vx = 0
+        self.vy = 0
+        self.facing_right = True
+
+    def animate(self, speed=8):
+        # cycle through frames
+        self.animation_timer += 1
+        if self.animation_timer >= speed:
+            self.animation_timer = 0
+            self.frame_index = (self.frame_index + 1) % len(self.frames)
+            self.image = self.frames[self.frame_index]
+
+            # flip if facing left
+            if not self.facing_right:
+                self.image = pygame.transform.flip(self.image, True, False)
+\`\`\`
+
+## Surface Handler — Loading Sprite Sheets
+
+This part confused me at first. A sprite sheet is one big image with all the frames. You have to cut it up:
+
+\`\`\`python
+# surface_handler.py
+import pygame
+
+class SurfaceHandler:
+    def __init__(self, sheet_path, frame_width, frame_height):
+        self.sheet = pygame.image.load(sheet_path).convert_alpha()
+        self.frame_width = frame_width
+        self.frame_height = frame_height
+
+    def get_frame(self, col, row=0):
+        # cut a single frame from the sheet
+        x = col * self.frame_width
+        y = row * self.frame_height
+        frame = pygame.Surface((self.frame_width, self.frame_height), pygame.SRCALPHA)
+        frame.blit(self.sheet, (0, 0), (x, y, self.frame_width, self.frame_height))
+        return frame
+
+    def get_animation(self, row, num_frames):
+        # get a row of frames for animation
+        return [self.get_frame(col, row) for col in range(num_frames)]
+\`\`\`
+
+## The User Class
+
+Player-controlled character with keyboard movement and animations:
+
+\`\`\`python
+# user.py
+import pygame
+from settings import *
+from character import Character
+
+class User(Character):
+    def __init__(self, x, y, frames, action_frames=None):
+        super().__init__(x, y, frames)
+        self.action_frames = action_frames or []
+        self.doing_action = False
+        self.action_timer = 0
+        self.speed = 4
+
+    def update(self):
+        # handle action first (locks out movement)
+        if self.doing_action:
+            self.action_timer += 1
+            if self.action_timer >= len(self.action_frames) * 6:
+                self.doing_action = False
+                self.action_timer = 0
+            else:
+                frame_idx = self.action_timer // 6
+                self.image = self.action_frames[min(frame_idx, len(self.action_frames)-1)]
+                if not self.facing_right:
+                    self.image = pygame.transform.flip(self.image, True, False)
+            return
+
+        keys = pygame.key.get_pressed()
+        self.vx = 0
+        self.vy = 0
+
+        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+            self.vx = -self.speed
+            self.facing_right = False
+        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+            self.vx = self.speed
+            self.facing_right = True
+        if keys[pygame.K_UP] or keys[pygame.K_w]:
+            self.vy = -self.speed
+        if keys[pygame.K_DOWN] or keys[pygame.K_s]:
+            self.vy = self.speed
+
+        self.rect.x += self.vx
+        self.rect.y += self.vy
+
+        # keep on screen
+        self.rect.clamp_ip(pygame.Rect(0, 0, WIDTH, HEIGHT))
+
+        # animate when moving
+        if self.vx != 0 or self.vy != 0:
+            self.animate(6)
+        else:
+            self.frame_index = 0
+            self.image = self.frames[0]
+            if not self.facing_right:
+                self.image = pygame.transform.flip(self.image, True, False)
+
+    def do_action(self):
+        if self.action_frames and not self.doing_action:
+            self.doing_action = True
+            self.action_timer = 0
+\`\`\`
+
+## The Runner Class (NPC)
+
+NPCs that wander around and can be "caught" or interacted with:
+
+\`\`\`python
+# runner.py
+import pygame
+import random
+from settings import *
+from character import Character
+
+class Runner(Character):
+    def __init__(self, x, y, frames):
+        super().__init__(x, y, frames)
+        self.vx = random.choice([-2, 2])
+        self.vy = random.choice([-2, 2])
+        self.direction_timer = 0
+        self.direction_change_interval = random.randint(60, 180)
+
+    def update(self):
+        # random direction changes
+        self.direction_timer += 1
+        if self.direction_timer >= self.direction_change_interval:
+            self.direction_timer = 0
+            self.direction_change_interval = random.randint(60, 180)
+            self.vx = random.choice([-2, -1, 0, 1, 2])
+            self.vy = random.choice([-2, -1, 0, 1, 2])
+
+        # update facing direction
+        if self.vx > 0:
+            self.facing_right = True
+        elif self.vx < 0:
+            self.facing_right = False
+
+        self.rect.x += self.vx
+        self.rect.y += self.vy
+
+        # bounce off edges
+        if self.rect.left < 0 or self.rect.right > WIDTH:
+            self.vx *= -1
+            self.rect.clamp_ip(pygame.Rect(0, 0, WIDTH, HEIGHT))
+        if self.rect.top < 0 or self.rect.bottom > HEIGHT:
+            self.vy *= -1
+            self.rect.clamp_ip(pygame.Rect(0, 0, WIDTH, HEIGHT))
+
+        # animate
+        if self.vx != 0 or self.vy != 0:
+            self.animate(8)
+
+    def teleport_random(self):
+        # used when caught — reappear somewhere else
+        self.rect.centerx = random.randint(50, WIDTH - 50)
+        self.rect.centery = random.randint(50, HEIGHT - 50)
+        self.vx = random.choice([-2, 2])
+        self.vy = random.choice([-2, 2])
+\`\`\`
+
+## Main Game Loop
+
+\`\`\`python
+# main.py
+import pygame
+import random
+from settings import *
+from surface_handler import SurfaceHandler
+from user import User
+from runner import Runner
+
+def main():
+    pygame.init()
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption("Sprite Game")
+    clock = pygame.time.Clock()
+    font = pygame.font.Font(None, 36)
+
+    # load background
+    # background = pygame.image.load("assets/background.png").convert()
+    background = pygame.Surface((WIDTH, HEIGHT))
+    background.fill((50, 100, 50))  # green grass placeholder
+
+    # load sprite sheets (replace with actual paths)
+    # player_handler = SurfaceHandler("assets/player.png", 64, 64)
+    # player_frames = player_handler.get_animation(0, 4)
+
+    # placeholder frames (colored squares)
+    player_frames = []
+    for i in range(4):
+        s = pygame.Surface((40, 50))
+        s.fill((100 + i*30, 150, 200))
+        player_frames.append(s)
+
+    runner_frames = []
+    for i in range(4):
+        s = pygame.Surface((35, 45))
+        s.fill((200, 100 + i*30, 100))
+        runner_frames.append(s)
+
+    # create player
+    player = User(WIDTH // 2, HEIGHT // 2, player_frames)
+
+    # create NPCs
+    runners = pygame.sprite.Group()
+    for _ in range(5):
+        x = random.randint(50, WIDTH - 50)
+        y = random.randint(50, HEIGHT - 50)
+        runner = Runner(x, y, runner_frames[:])  # copy frames
+        runners.add(runner)
+
+    all_sprites = pygame.sprite.Group(player, *runners.sprites())
+
+    score = 0
+
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    player.do_action()
+
+        all_sprites.update()
+
+        # collision detection
+        hits = pygame.sprite.spritecollide(player, runners, False)
+        for runner in hits:
+            score += 10
+            runner.teleport_random()
+
+        # draw
+        screen.blit(background, (0, 0))
+        all_sprites.draw(screen)
+
+        # UI
+        score_text = font.render(f"Score: {score}", True, (255, 255, 255))
+        screen.blit(score_text, (10, 10))
+
+        pygame.display.flip()
+        clock.tick(FPS)
+
+    pygame.quit()
+
+if __name__ == "__main__":
+    main()
+\`\`\`
+
+## Step 2 — Improvement Ideas
+
+Pick options worth at least 20 points total:
+
+- **Background Change on trigger (5pts)** — swap the background image when score reaches a threshold or some other metric
+- **Additional Sprite Sheets 5+ NPCs random (5pts)** — load multiple different sprite sheets and randomly assign them to NPCs
+- **Balance: Win/Lose mechanic (5pts)** — add a timer or goal that ends the game (catch X runners in Y seconds)
+- **Informative Text (5pts)** — display controls and current objective on screen
+- **Additional Action: jump/taunt (10pts)** — add another animation triggered by a different key (like jumping or a taunt)
+- **Choose Your Character at startup (20pts)** — show a selection screen with 2-3 different character options before the game starts
+- **Acceleration/Deceleration/Friction for player + NPCs (20pts)** — smooth physics instead of instant start/stop, affects both player and NPC movement
+`,
+    starterCode: `# Sprite Game starter — minimal working version
+# Run locally, then add Step 2 improvements
+
+import pygame
+import random
+pygame.init()
+
+WIDTH, HEIGHT = 800, 600
+FPS = 60
+
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Sprite Game")
+clock = pygame.time.Clock()
+font = pygame.font.Font(None, 36)
+
+# placeholder "sprites" — just colored rectangles for now
+# replace with actual sprite sheet loading for better visuals
+
+class Character:
+    def __init__(self, x, y, color, speed):
+        self.x = x
+        self.y = y
+        self.color = color
+        self.speed = speed
+        self.vx = 0
+        self.vy = 0
+        self.width = 40
+        self.height = 50
+        self.facing_right = True
+        self.frame = 0
+        self.timer = 0
+
+    def get_rect(self):
+        return pygame.Rect(self.x, self.y, self.width, self.height)
+
+class Player(Character):
+    def __init__(self, x, y):
+        super().__init__(x, y, (100, 150, 200), 4)
+
+    def update(self):
+        keys = pygame.key.get_pressed()
+        self.vx = 0
+        self.vy = 0
+
+        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+            self.vx = -self.speed
+            self.facing_right = False
+        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+            self.vx = self.speed
+            self.facing_right = True
+        if keys[pygame.K_UP] or keys[pygame.K_w]:
+            self.vy = -self.speed
+        if keys[pygame.K_DOWN] or keys[pygame.K_s]:
+            self.vy = self.speed
+
+        self.x += self.vx
+        self.y += self.vy
+
+        # clamp to screen
+        self.x = max(0, min(WIDTH - self.width, self.x))
+        self.y = max(0, min(HEIGHT - self.height, self.y))
+
+        # simple animation cycling
+        if self.vx != 0 or self.vy != 0:
+            self.timer += 1
+            if self.timer >= 8:
+                self.timer = 0
+                self.frame = (self.frame + 1) % 4
+
+    def draw(self, screen):
+        # change color slightly based on frame for "animation"
+        shade = self.frame * 20
+        color = (self.color[0] + shade, self.color[1], self.color[2])
+        pygame.draw.rect(screen, color, self.get_rect())
+
+class Runner(Character):
+    def __init__(self, x, y):
+        super().__init__(x, y, (200, 100, 100), 2)
+        self.vx = random.choice([-2, 2])
+        self.vy = random.choice([-2, 2])
+        self.change_timer = random.randint(60, 180)
+
+    def update(self):
+        self.change_timer -= 1
+        if self.change_timer <= 0:
+            self.change_timer = random.randint(60, 180)
+            self.vx = random.choice([-2, -1, 0, 1, 2])
+            self.vy = random.choice([-2, -1, 0, 1, 2])
+
+        self.x += self.vx
+        self.y += self.vy
+
+        # bounce off walls
+        if self.x < 0 or self.x > WIDTH - self.width:
+            self.vx *= -1
+            self.x = max(0, min(WIDTH - self.width, self.x))
+        if self.y < 0 or self.y > HEIGHT - self.height:
+            self.vy *= -1
+            self.y = max(0, min(HEIGHT - self.height, self.y))
+
+        # animate
+        if self.vx != 0 or self.vy != 0:
+            self.timer += 1
+            if self.timer >= 10:
+                self.timer = 0
+                self.frame = (self.frame + 1) % 4
+
+    def draw(self, screen):
+        shade = self.frame * 20
+        color = (self.color[0], self.color[1] + shade, self.color[2])
+        pygame.draw.rect(screen, color, self.get_rect())
+
+    def teleport(self):
+        self.x = random.randint(50, WIDTH - 100)
+        self.y = random.randint(50, HEIGHT - 100)
+        self.vx = random.choice([-2, 2])
+        self.vy = random.choice([-2, 2])
+
+# create entities
+player = Player(WIDTH // 2, HEIGHT // 2)
+runners = [Runner(random.randint(50, WIDTH-100), random.randint(50, HEIGHT-100)) for _ in range(5)]
+
+score = 0
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    player.update()
+    for r in runners:
+        r.update()
+
+    # collision: player catches runner
+    player_rect = player.get_rect()
+    for r in runners:
+        if player_rect.colliderect(r.get_rect()):
+            score += 10
+            r.teleport()
+
+    # draw
+    screen.fill((50, 100, 50))  # grass background
+
+    for r in runners:
+        r.draw(screen)
+    player.draw(screen)
+
+    # UI
+    screen.blit(font.render(f"Score: {score}", True, (255,255,255)), (10, 10))
+    screen.blit(font.render("WASD or arrows to move, catch the runners!", True, (200,200,200)), (10, HEIGHT-30))
+
+    pygame.display.flip()
+    clock.tick(FPS)
+
+pygame.quit()
+`,
+    examples: [
+      {
+        title: "Acceleration & Friction",
+        explanation: "Step 2 option (20pts) — smooth physics for player movement",
+        code: `class PlayerWithPhysics(Character):
+    def __init__(self, x, y):
+        super().__init__(x, y, (100, 150, 200), 4)
+        self.max_speed = 5
+        self.acceleration = 0.4
+        self.friction = 0.88  # must be < 1.0
+
+    def update(self):
+        keys = pygame.key.get_pressed()
+
+        # apply acceleration based on input
+        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+            self.vx -= self.acceleration
+            self.facing_right = False
+        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+            self.vx += self.acceleration
+            self.facing_right = True
+        if keys[pygame.K_UP] or keys[pygame.K_w]:
+            self.vy -= self.acceleration
+        if keys[pygame.K_DOWN] or keys[pygame.K_s]:
+            self.vy += self.acceleration
+
+        # apply friction (slows down when not pressing)
+        self.vx *= self.friction
+        self.vy *= self.friction
+
+        # clamp to max speed
+        self.vx = max(-self.max_speed, min(self.max_speed, self.vx))
+        self.vy = max(-self.max_speed, min(self.max_speed, self.vy))
+
+        # update position
+        self.x += self.vx
+        self.y += self.vy
+
+        # clamp to screen
+        self.x = max(0, min(WIDTH - self.width, self.x))
+        self.y = max(0, min(HEIGHT - self.height, self.y))
+
+        # stop completely at very low speeds (prevents drift)
+        if abs(self.vx) < 0.1: self.vx = 0
+        if abs(self.vy) < 0.1: self.vy = 0`,
+      },
+      {
+        title: "Character Selection Screen",
+        explanation: "Step 2 option (20pts) — let player choose their character before the game starts",
+        code: `def character_select(screen, clock, font):
+    characters = [
+        {"name": "Blue Knight", "color": (100, 150, 200)},
+        {"name": "Red Warrior", "color": (200, 100, 100)},
+        {"name": "Green Ranger", "color": (100, 200, 100)},
+    ]
+    selected = 0
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return None
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    selected = (selected - 1) % len(characters)
+                if event.key == pygame.K_RIGHT:
+                    selected = (selected + 1) % len(characters)
+                if event.key == pygame.K_RETURN:
+                    return characters[selected]
+
+        screen.fill((30, 30, 50))
+
+        # title
+        title = font.render("Choose Your Character", True, (255, 255, 255))
+        screen.blit(title, (WIDTH//2 - title.get_width()//2, 100))
+
+        # draw character options
+        for i, char in enumerate(characters):
+            x = 200 + i * 200
+            y = 300
+            color = char["color"]
+            # highlight selected
+            if i == selected:
+                pygame.draw.rect(screen, (255, 255, 0), (x-5, y-5, 60, 70), 3)
+            pygame.draw.rect(screen, color, (x, y, 50, 60))
+            name_text = font.render(char["name"], True, (255,255,255))
+            screen.blit(name_text, (x - name_text.get_width()//2 + 25, y + 80))
+
+        # instructions
+        instr = font.render("Left/Right to choose, Enter to confirm", True, (150,150,150))
+        screen.blit(instr, (WIDTH//2 - instr.get_width()//2, 500))
+
+        pygame.display.flip()
+        clock.tick(60)
+
+# usage in main:
+# choice = character_select(screen, clock, font)
+# player = Player(WIDTH//2, HEIGHT//2, choice["color"])`,
+      },
+    ],
+    challenges: [
+      {
+        id: "sprite-game-1",
+        prompt: "When loading a sprite sheet, what does the blit method do when you pass a source rect like (x, y, width, height)?",
+        hint: "It doesn't copy the whole source image",
+        validateFn: `
+def validate(answer):
+    answer = answer.lower()
+    return ("copy" in answer or "cut" in answer or "portion" in answer or "section" in answer or "area" in answer or "part" in answer or "region" in answer)
+`,
+        solution: "The source rect tells blit to only copy that specific rectangular portion of the source image. So (x, y, width, height) cuts out a single frame from the sprite sheet at that position and size.",
+      },
+      {
+        id: "sprite-game-2",
+        prompt: "Why use pygame.transform.flip(image, True, False) when a character faces left?",
+        hint: "Sprite sheets usually only have one direction",
+        validateFn: `
+def validate(answer):
+    answer = answer.lower()
+    return ("mirror" in answer or "horizontal" in answer or "flip" in answer or "direction" in answer or "facing" in answer or "left" in answer or "right" in answer or "one" in answer)
+`,
+        solution: "Most sprite sheets only draw the character facing one direction (usually right). Instead of making separate left-facing sprites, you flip the image horizontally at runtime. The True, False means flip horizontally but not vertically.",
+      },
+    ],
+  },
 ];
