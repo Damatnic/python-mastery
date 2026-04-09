@@ -5,25 +5,31 @@ import Link from "next/link";
 import type { Module } from "@/lib/types";
 
 const MODULE_ICONS = [
-  "🎯", // Python Basics
-  "📊", // Pandas Fundamentals
+  "🐍", // Python Basics
+  "🐼", // Pandas Fundamentals
   "🧹", // Data Cleaning
   "🔗", // Grouping & Combining
   "📝", // String & File Ops
   "🌐", // Web & APIs
-  "⚡", // Functions & Apply
+  "λ",  // Functions & Apply (lambda symbol)
+  "🎮", // Game Dev with Pygame
+  "📊", // Data Manipulation (WCTC)
 ];
 
 interface ModuleCardProps {
   module: Module;
   moduleIndex: number;
   completedLessons: Set<string>;
+  previousModuleCompletedCount?: number;
+  previousModuleTotalLessons?: number;
 }
 
 export function ModuleCard({
   module,
   moduleIndex,
   completedLessons,
+  previousModuleCompletedCount = 0,
+  previousModuleTotalLessons = 0,
 }: ModuleCardProps) {
   const [projectCompletions, setProjectCompletions] = useState<Set<string>>(new Set());
 
@@ -41,6 +47,11 @@ export function ModuleCard({
   const totalLessons = module.lessons.length;
   const progressPercent = Math.round((completedCount / totalLessons) * 100);
   const isComplete = completedCount === totalLessons;
+
+  // Module 1 is always unlocked, others need 3+ lessons from previous module
+  const requiredFromPrevious = Math.min(3, previousModuleTotalLessons);
+  const isLocked = moduleIndex > 0 && previousModuleCompletedCount < requiredFromPrevious;
+  const previousModuleName = moduleIndex > 0 ? `Module ${moduleIndex}` : "";
 
   // Project challenge tracking
   const lessonsWithProjects = module.lessons.filter((l) => l.projectChallenge);
@@ -60,19 +71,32 @@ export function ModuleCard({
       className={`group relative block p-6 rounded-2xl border transition-all duration-300 hover:shadow-xl ${
         isComplete
           ? "border-success/30 bg-success/5 hover:border-success/50 hover:shadow-success/10"
+          : isLocked
+          ? "border-border/50 bg-card/50 hover:bg-card hover:border-border"
           : "border-border bg-card hover:bg-card-hover hover:border-accent/50 hover:shadow-accent/10"
       }`}
+      title={isLocked ? `Complete ${requiredFromPrevious}+ lessons in ${previousModuleName} first` : undefined}
     >
       {/* Gradient overlay on hover */}
-      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+      <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity ${isLocked ? "hidden" : ""}`} />
 
-      <div className="relative">
+      {/* Locked overlay */}
+      {isLocked && (
+        <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2 py-1 rounded-full bg-muted/20 border border-border text-xs text-muted-foreground">
+          <span>🔒</span>
+          <span>Complete {previousModuleName}</span>
+        </div>
+      )}
+
+      <div className={`relative ${isLocked ? "opacity-60" : ""}`}>
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-4">
             <div className={`flex items-center justify-center w-14 h-14 rounded-xl text-2xl ${
               isComplete
                 ? "bg-success/20"
+                : isLocked
+                ? "bg-muted/20"
                 : "bg-gradient-to-br from-accent/20 to-purple-500/20"
             }`}>
               {isComplete ? "✓" : MODULE_ICONS[moduleIndex] || "📚"}

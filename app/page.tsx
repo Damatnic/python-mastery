@@ -163,6 +163,36 @@ max     99.99      15.00`}
         </div>
       </main>
 
+      {/* Why Python Mastery */}
+      <section className="py-20 border-t border-border">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">Why Python Mastery?</h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              A different kind of learning platform built for real results
+            </p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            {[
+              { icon: "🐍", text: "Run real Python in your browser (no install)" },
+              { icon: "🎓", text: "Built for WCTC coursework" },
+              { icon: "🎮", text: "Game development with Pygame" },
+              { icon: "💾", text: "Track progress across sessions" },
+              { icon: "🔥", text: "Streak tracking keeps you motivated" },
+              { icon: "💯", text: "Free forever, no signup required" },
+            ].map((feature, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-3 p-4 rounded-xl border border-success/30 bg-success/5"
+              >
+                <span className="text-2xl">{feature.icon}</span>
+                <span className="text-foreground font-medium">{feature.text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Features */}
       <section id="features" className="py-24 border-t border-border bg-card/50">
         <div className="max-w-7xl mx-auto px-6">
@@ -178,14 +208,18 @@ max     99.99      15.00`}
             {[
               {
                 num: "01",
-                icon: "🎯",
+                icon: "🐍",
+                slug: "python-basics",
+                firstLesson: "variables-fstrings",
                 title: "Python Basics",
                 desc: "Variables, lists, dicts, loops, functions",
                 lessons: 5,
               },
               {
                 num: "02",
-                icon: "📊",
+                icon: "🐼",
+                slug: "pandas-fundamentals",
+                firstLesson: "dataframes-series",
                 title: "Pandas Fundamentals",
                 desc: "DataFrames, selecting, filtering, sorting",
                 lessons: 5,
@@ -193,6 +227,8 @@ max     99.99      15.00`}
               {
                 num: "03",
                 icon: "🧹",
+                slug: "data-cleaning",
+                firstLesson: "missing-data",
                 title: "Data Cleaning",
                 desc: "Missing data, type conversion, duplicates",
                 lessons: 5,
@@ -200,6 +236,8 @@ max     99.99      15.00`}
               {
                 num: "04",
                 icon: "🔗",
+                slug: "grouping-combining",
+                firstLesson: "groupby-basics",
                 title: "Grouping & Combining",
                 desc: "GroupBy, merging, pivot tables",
                 lessons: 5,
@@ -207,6 +245,8 @@ max     99.99      15.00`}
               {
                 num: "05",
                 icon: "📝",
+                slug: "string-file-ops",
+                firstLesson: "string-methods-deep",
                 title: "String & File Ops",
                 desc: "String methods, regex, file I/O, JSON",
                 lessons: 5,
@@ -214,13 +254,17 @@ max     99.99      15.00`}
               {
                 num: "06",
                 icon: "🌐",
+                slug: "web-apis",
+                firstLesson: "requests-basics",
                 title: "Web & APIs",
                 desc: "HTTP requests, JSON parsing, pipelines",
                 lessons: 5,
               },
               {
                 num: "07",
-                icon: "⚡",
+                icon: "λ",
+                slug: "functions-apply",
+                firstLesson: "lambda-functions",
                 title: "Functions & Apply",
                 desc: "Lambda, apply/map, vectorization",
                 lessons: 5,
@@ -228,30 +272,40 @@ max     99.99      15.00`}
               {
                 num: "08",
                 icon: "🎮",
+                slug: "game-dev-pygame",
+                firstLesson: "pygame-basics",
                 title: "Game Dev with Pygame",
                 desc: "Game loops, sprites, collision, physics",
                 lessons: 7,
               },
               {
                 num: "09",
-                icon: "🎓",
+                icon: "📊",
+                slug: "data-manipulation-school",
+                firstLesson: "string-methods",
                 title: "Data Manipulation (WCTC)",
                 desc: "Strings, dates, combining, pivots",
                 lessons: 5,
               },
             ].map((feature) => (
-              <div
+              <Link
                 key={feature.title}
+                href={`/learn/${feature.slug}/${feature.firstLesson}`}
                 className="group p-6 rounded-2xl border border-border bg-background hover:border-accent/50 hover:shadow-lg hover:shadow-accent/5 transition-all duration-300"
               >
                 <div className="flex items-center gap-3 mb-4">
-                  <span className="text-2xl">{feature.icon}</span>
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent/20 to-purple-500/20 flex items-center justify-center text-xl">
+                    {feature.icon}
+                  </div>
                   <span className="text-xs font-mono text-accent">Module {feature.num}</span>
                 </div>
                 <h3 className="font-semibold text-lg mb-2 group-hover:text-accent transition-colors">{feature.title}</h3>
                 <p className="text-sm text-muted-foreground mb-4">{feature.desc}</p>
-                <div className="text-xs text-muted">{feature.lessons} lessons</div>
-              </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">{feature.lessons} lessons</span>
+                  <span className="text-xs text-accent opacity-0 group-hover:opacity-100 transition-opacity">Start →</span>
+                </div>
+              </Link>
             ))}
             {/* Projects Card */}
             <div className="p-6 rounded-2xl border-2 border-dashed border-accent/30 bg-accent/5 flex flex-col items-center justify-center text-center">

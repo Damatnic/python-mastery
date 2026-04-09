@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Sidebar } from "@/components/Sidebar";
 import { LessonView } from "@/components/LessonView";
 import { getAllModules, getLessonBySlug, getNextLesson, getPreviousLesson } from "@/lib/lessons";
+import { updateStreak } from "@/lib/streak";
 
 interface LessonPageProps {
   params: Promise<{
@@ -47,6 +48,9 @@ export default function LessonPage({ params }: LessonPageProps) {
       window.dispatchEvent(new Event("lessons-updated"));
       return next;
     });
+
+    // Update streak tracking
+    updateStreak();
 
     // Auto-advance to next lesson after a short delay
     if (nextLesson) {

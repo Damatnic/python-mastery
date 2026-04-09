@@ -352,39 +352,50 @@ function LessonNavigation({
   if (!prevLesson && !nextLesson) return null;
 
   return (
-    <div className="flex items-center justify-between mt-8 pt-6 border-t border-border">
-      {prevLesson ? (
-        <Link
-          href={`/learn/${prevLesson.moduleSlug}/${prevLesson.slug}`}
-          className="group flex items-center gap-3 p-3 rounded-lg hover:bg-card-hover transition-colors"
-        >
-          <span className="text-muted-foreground group-hover:text-foreground transition-colors">←</span>
-          <div className="text-left">
-            <div className="text-xs text-muted-foreground">Previous</div>
-            <div className="text-sm font-medium text-foreground truncate max-w-[180px]">
-              {prevLesson.title}
+    <div className="mt-8 pt-6 border-t border-border">
+      <div className="flex items-center justify-between gap-4">
+        {prevLesson ? (
+          <Link
+            href={`/learn/${prevLesson.moduleSlug}/${prevLesson.slug}`}
+            className="group flex items-center gap-3 p-3 rounded-lg border border-border hover:border-border-hover hover:bg-card-hover transition-colors"
+          >
+            <span className="text-muted-foreground group-hover:text-foreground transition-colors">←</span>
+            <div className="text-left">
+              <div className="text-xs text-muted-foreground">Previous</div>
+              <div className="text-sm font-medium text-foreground truncate max-w-[150px]">
+                {prevLesson.title}
+              </div>
             </div>
-          </div>
-        </Link>
-      ) : (
-        <div />
-      )}
-      {nextLesson ? (
-        <Link
-          href={`/learn/${nextLesson.moduleSlug}/${nextLesson.slug}`}
-          className="group flex items-center gap-3 p-3 rounded-lg hover:bg-card-hover transition-colors text-right"
-        >
-          <div>
-            <div className="text-xs text-muted-foreground">Next</div>
-            <div className="text-sm font-medium text-foreground truncate max-w-[180px]">
-              {nextLesson.title}
+          </Link>
+        ) : (
+          <div />
+        )}
+        {nextLesson ? (
+          <Link
+            href={`/learn/${nextLesson.moduleSlug}/${nextLesson.slug}`}
+            className="group flex items-center gap-3 px-5 py-3 rounded-xl bg-accent hover:bg-accent-hover text-white transition-all shadow-lg shadow-accent/25 hover:shadow-accent/40"
+          >
+            <div className="text-right">
+              <div className="text-xs text-white/80">Next Lesson</div>
+              <div className="text-sm font-semibold truncate max-w-[180px]">
+                {nextLesson.title}
+              </div>
             </div>
-          </div>
-          <span className="text-muted-foreground group-hover:text-foreground transition-colors">→</span>
-        </Link>
-      ) : (
-        <div />
-      )}
+            <span className="text-xl">→</span>
+          </Link>
+        ) : (
+          <Link
+            href="/learn"
+            className="group flex items-center gap-3 px-5 py-3 rounded-xl bg-success hover:bg-success/90 text-white transition-all shadow-lg shadow-success/25"
+          >
+            <div className="text-right">
+              <div className="text-xs text-white/80">Congratulations!</div>
+              <div className="text-sm font-semibold">Back to Dashboard</div>
+            </div>
+            <span className="text-xl">🎉</span>
+          </Link>
+        )}
+      </div>
     </div>
   );
 }
@@ -460,6 +471,7 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
   const [showProjectSolution, setShowProjectSolution] = useState(false);
   const [showProjectHint, setShowProjectHint] = useState(false);
   const [totalXP, setTotalXP] = useState(0);
+  const [showCompletionToast, setShowCompletionToast] = useState(false);
 
   const cheatSheetItems = useMemo(() => generateCheatSheet(lesson.moduleSlug), [lesson.moduleSlug]);
 
@@ -528,6 +540,9 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
               (c) => completedChallenges.has(c.id) || c.id === activeChallenge.id
             )
           ) {
+            // Show completion toast
+            setShowCompletionToast(true);
+            setTimeout(() => setShowCompletionToast(false), 3000);
             onComplete();
           }
         }
@@ -619,7 +634,20 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
   }, [lesson.projectChallenge]);
 
   return (
-    <div className="flex flex-1 h-full overflow-hidden">
+    <div className="flex flex-1 h-full overflow-hidden relative">
+      {/* Completion Toast */}
+      {showCompletionToast && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 animate-slide-down">
+          <div className="flex items-center gap-3 px-6 py-4 rounded-xl bg-success text-white shadow-2xl shadow-success/30">
+            <span className="text-2xl">✓</span>
+            <div>
+              <div className="font-bold text-lg">Lesson Complete!</div>
+              <div className="text-sm text-white/90">+10 XP earned</div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="w-1/2 flex flex-col border-r border-border overflow-hidden">
         <div className="flex border-b border-border bg-card">
           {(["theory", "examples", "challenges", "cheatsheet"] as const).map((tab) => (
@@ -647,9 +675,14 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
             <div>
               <Breadcrumbs module={lesson.module} lessonTitle={lesson.title} />
               <h1 className="text-2xl font-bold text-foreground mb-2">{lesson.title}</h1>
-              <span className={`inline-block px-2.5 py-1 text-xs rounded-full mb-6 badge-${lesson.badge}`}>
-                {lesson.badge}
-              </span>
+              <div className="flex items-center gap-2 mb-6">
+                <span className={`inline-block px-2.5 py-1 text-xs rounded-full badge-${lesson.badge}`}>
+                  {lesson.badge}
+                </span>
+                <span className="inline-block px-2.5 py-1 text-xs rounded-full bg-muted/30 text-muted-foreground border border-border">
+                  ~{lesson.badge === "concept" ? "10" : lesson.badge === "practice" ? "12" : "18"} min
+                </span>
+              </div>
               <TheoryContent content={lesson.theory} />
               <LessonNavigation prevLesson={prevLesson} nextLesson={nextLesson} />
             </div>
