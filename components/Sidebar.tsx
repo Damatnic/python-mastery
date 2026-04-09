@@ -105,8 +105,13 @@ export function Sidebar({ modules, completedLessons: initialCompleted }: Sidebar
       <nav className="p-2 flex-1 overflow-y-auto">
         {modules.map((module, moduleIndex) => (
           <div key={module.slug} className="mb-4">
-            <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              {moduleIndex + 1}. {module.title}
+            <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+              <span>{moduleIndex + 1}. {module.title}</span>
+              {moduleIndex === 0 && localCompleted.size === 0 && (
+                <span className="px-1.5 py-0.5 text-[10px] font-bold bg-accent text-white rounded">
+                  START HERE
+                </span>
+              )}
             </div>
             <ul className="space-y-0.5">
               {module.lessons.map((lesson) => {
@@ -154,6 +159,13 @@ export function Sidebar({ modules, completedLessons: initialCompleted }: Sidebar
         >
           <span>🚀</span>
           <span>Projects</span>
+        </Link>
+        <Link
+          href="/gameplan"
+          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <span>🎮</span>
+          <span>Game Plan</span>
         </Link>
         <Link
           href="/learn"

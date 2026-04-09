@@ -64,6 +64,12 @@ export default function LearnDashboard() {
             >
               Projects
             </Link>
+            <Link
+              href="/gameplan"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              🎮 Game Plan
+            </Link>
           </nav>
         </div>
       </header>
@@ -144,6 +150,39 @@ export default function LearnDashboard() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Recommended Learning Path */}
+        <div className="mb-12 p-6 rounded-2xl border border-accent/30 bg-gradient-to-r from-accent/5 via-purple-500/5 to-accent/5">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-xl">🗺️</span>
+            <h2 className="text-lg font-semibold">Recommended Learning Path</h2>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 text-sm">
+            {[
+              { name: "Python Basics", slug: "python-basics" },
+              { name: "Pandas", slug: "pandas-fundamentals" },
+              { name: "Data Cleaning", slug: "data-cleaning" },
+              { name: "Grouping & Combining", slug: "grouping-combining" },
+              { name: "String & File Ops", slug: "string-file-ops" },
+              { name: "Web & APIs", slug: "web-apis" },
+              { name: "Functions & Apply", slug: "functions-apply" },
+              { name: "Game Dev", slug: "game-dev-pygame" },
+              { name: "WCTC Data", slug: "data-manipulation-school" },
+            ].map((step, i, arr) => (
+              <span key={step.slug} className="flex items-center gap-2">
+                <Link
+                  href={`/learn/${step.slug}`}
+                  className="px-3 py-1.5 rounded-lg bg-card border border-border hover:border-accent hover:text-accent transition-colors"
+                >
+                  {step.name}
+                </Link>
+                {i < arr.length - 1 && (
+                  <span className="text-muted-foreground">→</span>
+                )}
+              </span>
+            ))}
           </div>
         </div>
 

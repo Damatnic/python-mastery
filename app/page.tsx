@@ -23,6 +23,12 @@ export default function Home() {
             >
               Projects
             </Link>
+            <Link
+              href="/gameplan"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              🎮 Game Plan
+            </Link>
             <Link href="/learn" className="btn-primary">
               Start Learning
             </Link>
@@ -59,8 +65,8 @@ export default function Home() {
 
             <p className="text-xl text-muted-foreground max-w-lg">
               Write real Python and pandas code directly in your browser.
-              35 interactive lessons, 3 guided projects, and instant feedback
-              to take you from basics to data analysis.
+              47 interactive lessons across 9 modules, 3 guided projects, and instant feedback
+              to take you from basics to data analysis and game development.
             </p>
 
             <div className="flex flex-wrap gap-4">
@@ -81,12 +87,12 @@ export default function Home() {
             {/* Stats */}
             <div className="flex items-center gap-8 pt-4">
               <div>
-                <div className="text-3xl font-bold text-foreground">35</div>
+                <div className="text-3xl font-bold text-foreground">47</div>
                 <div className="text-sm text-muted-foreground">Lessons</div>
               </div>
               <div className="w-px h-10 bg-border" />
               <div>
-                <div className="text-3xl font-bold text-foreground">7</div>
+                <div className="text-3xl font-bold text-foreground">9</div>
                 <div className="text-sm text-muted-foreground">Modules</div>
               </div>
               <div className="w-px h-10 bg-border" />
@@ -165,7 +171,7 @@ max     99.99      15.00`}
               Complete Learning Path
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              7 modules covering everything from Python basics to building data pipelines
+              9 modules covering everything from Python basics to game development
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -217,6 +223,20 @@ max     99.99      15.00`}
                 icon: "⚡",
                 title: "Functions & Apply",
                 desc: "Lambda, apply/map, vectorization",
+                lessons: 5,
+              },
+              {
+                num: "08",
+                icon: "🎮",
+                title: "Game Dev with Pygame",
+                desc: "Game loops, sprites, collision, physics",
+                lessons: 7,
+              },
+              {
+                num: "09",
+                icon: "🎓",
+                title: "Data Manipulation (WCTC)",
+                desc: "Strings, dates, combining, pivots",
                 lessons: 5,
               },
             ].map((feature) => (
@@ -320,6 +340,9 @@ max     99.99      15.00`}
               </Link>
               <Link href="/projects" className="hover:text-foreground transition-colors">
                 Projects
+              </Link>
+              <Link href="/gameplan" className="hover:text-foreground transition-colors">
+                🎮 Game Plan
               </Link>
             </div>
             <p className="text-sm text-muted-foreground">
