@@ -49,4 +49,10 @@ export const MODULE_METADATA: Omit<Module, "lessons">[] = [
     description:
       "Build real games with Python. Learn the game loop, movement physics, sprites, collision detection, and complete a Brick Breakaway clone from scratch.",
   },
+  {
+    slug: "data-manipulation-school",
+    title: "Data Manipulation (WCTC)",
+    description:
+      "String cleaning, number formatting, date parsing, combining DataFrames, and pivot tables — exactly what the WCTC Python Data Manipulation course covers.",
+  },
 ];
