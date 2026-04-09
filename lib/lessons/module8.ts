@@ -20,6 +20,29 @@ pygame.init()
 
 That's all you need to get started. Everything else builds on top.
 
+---
+
+## 🎬 What Gerber Covers in the Videos
+
+**Pygame Install (2:09)**
+- \`pip install pygame\` in terminal
+- \`import pygame\` at the top of your file
+- \`pygame.init()\` to initialize all modules
+- Testing with a simple window to confirm it works
+
+**Rectangles vs Vectors (5:39)** — this is important!
+- When to use \`pygame.Rect\` vs \`pygame.math.Vector2\`
+- Rects are great for collision detection and positioning
+- Vectors are better for physics and smooth movement
+- Gerber's advice: use Rect for position/collision, Vector2 for velocity/direction
+
+**Delta Time (3:48)**
+- Frame-rate independent movement
+- Why 60fps on your machine != 60fps on another machine
+- The \`dt\` pattern that makes movement consistent everywhere
+
+---
+
 ## The Game Loop
 
 Every game runs in a loop. It keeps going until the player quits. Each time through the loop is one "frame."
@@ -51,6 +74,62 @@ pygame.quit()
 \`\`\`
 
 Those three steps — **handle events → update → draw** — repeat every frame. That's the whole pattern.
+
+## Delta Time — Frame-Rate Independence
+
+This tripped me up at first. If you just do \`x += 5\` every frame, your game runs at different speeds on different computers. A faster computer runs more frames per second, so things move faster. That's bad.
+
+The fix is **delta time** (dt). It measures how long the last frame took:
+
+\`\`\`python
+clock = pygame.time.Clock()
+
+while running:
+    dt = clock.tick(60) / 1000.0  # dt in seconds (e.g., 0.016 for 60fps)
+
+    # Now multiply ALL movement by dt
+    x += velocity * dt  # consistent speed regardless of frame rate
+\`\`\`
+
+**Gerber tip:** Always multiply velocity by dt. It's the difference between "5 pixels per frame" (inconsistent) and "300 pixels per second" (consistent on every machine).
+
+\`\`\`python
+# BAD — frame-dependent
+x += 5
+
+# GOOD — frame-independent
+SPEED = 300  # pixels per second
+x += SPEED * dt
+\`\`\`
+
+## Rect vs Vector2 — When to Use Each
+
+Gerber makes an entire video about this because students get confused:
+
+**Use pygame.Rect when:**
+- You need collision detection (\`colliderect()\`, \`collidepoint()\`)
+- You want to use handy properties like \`.center\`, \`.topleft\`, \`.clamp_ip()\`
+- You're positioning sprites on screen
+
+**Use pygame.math.Vector2 when:**
+- You need smooth movement with floats (Rects use integers!)
+- You want to normalize directions
+- You need distance calculations
+- You're doing physics with velocity/acceleration
+
+**Common pattern — use both:**
+\`\`\`python
+class Ball(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.pos = pygame.math.Vector2(400, 300)  # float position
+        self.vel = pygame.math.Vector2(3, -2)     # float velocity
+        self.rect = pygame.Rect(0, 0, 20, 20)     # for collision
+
+    def update(self, dt):
+        self.pos += self.vel * dt * 60
+        self.rect.center = self.pos  # sync rect to float pos
+\`\`\`
 
 ## Screen Coordinates
 
@@ -87,6 +166,37 @@ pygame.draw.line(screen, WHITE, (0, 0), (800, 600), 2)
 \`\`\`
 
 The order matters — things drawn later appear on top.
+
+## 🎨 Asset Creation Tips
+
+Where to find free sprites and tilesets:
+- **Kenney.nl** — amazing free assets, super polished, great for prototyping
+- **itch.io** — search "free sprites" or "free tileset", tons of options
+- **OpenGameArt.org** — community-contributed art, check licenses
+
+Tools for making your own:
+- **Aseprite** (paid but worth it) — pixel art and animation
+- **Piskel** (free, browser-based) — simple pixel art
+- **Tiled** — tilemap editor, exports JSON your game can load
+
+---
+
+## 💡 Tips & Tricks
+
+- **Gerber tip:** Keep all constants in a \`settings.py\` file — way easier to tune the game later
+- **Gerber tip:** Always call \`pygame.quit()\` at the end — prevents the window from hanging
+- **Tip:** Use \`pygame.display.set_caption("Game Title")\` to set the window title
+- **Tip:** \`clock.tick(60)\` returns milliseconds since last call — divide by 1000 for seconds
+
+---
+
+## ⚠️ Common Mistakes
+
+- **Forgetting pygame.quit()** — the window hangs when you close it
+- **Not calling pygame.display.flip()** — nothing shows up, you just stare at a black screen wondering why
+- **Using pygame.QUIT instead of pygame.quit()** — QUIT is an event type, quit() is a function
+- **Hardcoding frame rate assumptions** — use delta time instead of assuming 60fps
+- **Putting draw calls before update** — you'll draw the old state, not the new one
 `,
     starterCode: `# This runs in a real Pygame environment, not the browser
 # Use this as a reference — copy it into your local Python setup
@@ -108,6 +218,9 @@ clock = pygame.time.Clock()
 running = True
 
 while running:
+    # Delta time for frame-rate independence
+    dt = clock.tick(60) / 1000.0
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -119,14 +232,13 @@ while running:
     pygame.draw.circle(screen, BLUE, (400, 300), 50)
 
     pygame.display.flip()
-    clock.tick(60)
 
 pygame.quit()
 `,
     examples: [
       {
-        title: "Minimal Game Loop",
-        explanation: "The simplest possible Pygame setup — just a window that closes when you quit",
+        title: "Minimal Game Loop with Delta Time",
+        explanation: "The simplest Pygame setup with proper delta time handling",
         code: `import pygame
 pygame.init()
 
@@ -135,51 +247,37 @@ clock = pygame.time.Clock()
 
 running = True
 while running:
+    dt = clock.tick(60) / 1000.0  # delta time in seconds
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
-    screen.fill((30, 30, 30))  # dark gray background
+    screen.fill((30, 30, 30))
     pygame.display.flip()
-    clock.tick(60)
 
 pygame.quit()`,
       },
       {
-        title: "Drawing Shapes",
-        explanation: "Draw rectangles, circles, and lines on the screen",
-        code: `import pygame
-pygame.init()
+        title: "Settings File Pattern",
+        explanation: "Gerber's recommended structure — all constants in one place",
+        code: `# settings.py
+WIDTH, HEIGHT = 800, 600
+FPS = 60
 
-screen = pygame.display.set_mode((800, 600))
-clock = pygame.time.Clock()
+# Player settings
+PLAYER_SPEED = 300  # pixels per second (multiply by dt!)
+PLAYER_SIZE = 40
 
+# Colors
 WHITE = (255, 255, 255)
-RED   = (255, 0, 0)
-BLUE  = (0, 100, 255)
 BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
 
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-
-    screen.fill(BLACK)
-
-    # rectangle at (50, 50), size 100x60
-    pygame.draw.rect(screen, RED, (50, 50, 100, 60))
-
-    # circle at center (400, 300), radius 40
-    pygame.draw.circle(screen, BLUE, (400, 300), 40)
-
-    # diagonal line
-    pygame.draw.line(screen, WHITE, (0, 0), (800, 600), 3)
-
-    pygame.display.flip()
-    clock.tick(60)
-
-pygame.quit()`,
+# In main.py:
+# from settings import *`,
       },
     ],
     challenges: [
@@ -196,14 +294,14 @@ def validate(answer):
       },
       {
         id: "pygame-basics-2",
-        prompt: "In Pygame, what color does (255, 0, 0) represent? And where is coordinate (0, 0) on the screen?",
-        hint: "RGB = Red, Green, Blue. Think about where Pygame starts counting.",
+        prompt: "Why do you multiply velocity by delta time (dt)? What problem does it solve?",
+        hint: "Think about what happens on faster vs slower computers",
         validateFn: `
 def validate(answer):
     answer = answer.lower()
-    return "red" in answer and ("top" in answer or "left" in answer or "corner" in answer)
+    return ("frame" in answer or "fps" in answer or "rate" in answer or "speed" in answer or "consistent" in answer or "independent" in answer)
 `,
-        solution: "(255, 0, 0) is red (max red, no green, no blue). (0, 0) is the top-left corner of the screen.",
+        solution: "Delta time makes movement frame-rate independent. Without it, the game runs faster on faster computers (more frames per second = more movement). Multiplying by dt ensures consistent speed regardless of frame rate.",
       },
     ],
   },
@@ -216,21 +314,82 @@ def validate(answer):
     title: "Movement, Velocity & Physics",
     badge: "concept",
     theory: `
-## Moving Things Around
+## 🎬 What Gerber Covers in the Videos
 
-The basic idea: every game object has a position (x, y) and a velocity (vx, vy). Each frame, you add velocity to position.
+**Basic Platform Movement (Brick Breakaway Video 3)**
+- \`keys = pygame.key.get_pressed()\` for continuous input
+- Moving the paddle with \`rect.x += speed\`
+- Boundary clamping so paddle doesn't leave the screen
+
+**Delta Time and Smooth Movements (Brick Breakaway Video 4)**
+- \`clock.tick(60)\` returns milliseconds
+- \`dt = clock.tick(60) / 1000.0\` converts to seconds
+- Multiplying velocity by dt for frame-rate independence
+
+**Vector Normalization (General Concepts)**
+- Why diagonal movement is faster without normalization
+- Using \`.normalize()\` to get consistent speed at any angle
+- Essential for anything with 8-directional movement
+
+---
+
+## Delta Time Movement — The Right Way
+
+Gerber teaches this early because it's foundational. Here's the pattern:
 
 \`\`\`python
-# Object starts at (100, 100) moving right and down
-x, y = 100, 100
-vx, vy = 3, 2   # pixels per frame
+clock = pygame.time.Clock()
 
-# In the game loop:
-x += vx
-y += vy
+# Define speed in pixels PER SECOND, not per frame
+SPEED = 300
+
+while running:
+    dt = clock.tick(60) / 1000.0  # dt in seconds
+
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_RIGHT]:
+        x += SPEED * dt  # moves 300 pixels per second, regardless of FPS
 \`\`\`
 
-After one frame: (103, 102). After two frames: (106, 104). That's it — movement is just addition every frame.
+**Why this matters:** If you just do \`x += 5\` every frame, your game runs at different speeds on different computers. Delta time fixes that.
+
+## Keyboard Input
+
+\`\`\`python
+keys = pygame.key.get_pressed()  # snapshot of current key state
+
+if keys[pygame.K_LEFT]:
+    x -= SPEED * dt
+if keys[pygame.K_RIGHT]:
+    x += SPEED * dt
+if keys[pygame.K_UP]:
+    y -= SPEED * dt
+if keys[pygame.K_DOWN]:
+    y += SPEED * dt
+\`\`\`
+
+Common keys: \`pygame.K_LEFT\`, \`pygame.K_RIGHT\`, \`pygame.K_UP\`, \`pygame.K_DOWN\`, \`pygame.K_SPACE\`, \`pygame.K_RETURN\`, \`pygame.K_a\`, \`pygame.K_w\`, etc.
+
+## Boundary Clamping
+
+Keep the player on screen. Gerber shows two ways:
+
+**Manual clamping:**
+\`\`\`python
+# After moving
+if player_rect.left < 0:
+    player_rect.left = 0
+if player_rect.right > WIDTH:
+    player_rect.right = WIDTH
+\`\`\`
+
+**Using clamp_ip() — cleaner:**
+\`\`\`python
+# Clamp rect to stay within screen bounds
+player_rect.clamp_ip(screen.get_rect())
+\`\`\`
+
+The \`_ip\` suffix means "in place" — it modifies the rect directly instead of returning a new one.
 
 ## Bouncing Off Walls
 
@@ -249,75 +408,126 @@ if y - BALL_RADIUS <= 0 or y + BALL_RADIUS >= HEIGHT:
     vy = -vy
 \`\`\`
 
-The radius check makes sure we're using the edge of the ball, not its center.
+**Better bouncing with abs():**
+\`\`\`python
+# Using abs() prevents "stuck in wall" bugs
+if x - BALL_RADIUS <= 0:
+    x = BALL_RADIUS
+    vx = abs(vx)  # force positive (moving right)
+elif x + BALL_RADIUS >= WIDTH:
+    x = WIDTH - BALL_RADIUS
+    vx = -abs(vx)  # force negative (moving left)
+\`\`\`
 
 ## Acceleration and Friction
 
-Real games don't have instant max speed — things speed up and slow down. That's acceleration and friction.
+This is what makes movement feel good instead of robotic:
 
 \`\`\`python
-# Player movement with acceleration
-acceleration = 0.5
-friction = 0.85   # multiply each frame to slow down (must be < 1.0)
-max_speed = 6
+# Physics constants
+ACCELERATION = 500    # pixels per second squared
+FRICTION = 0.85       # multiplier each frame (must be < 1.0)
+MAX_SPEED = 400       # pixels per second
 
-keys = pygame.key.get_pressed()
-if keys[pygame.K_RIGHT]:
-    vx += acceleration
-if keys[pygame.K_LEFT]:
-    vx -= acceleration
+vx = 0  # velocity starts at 0
 
-# Apply friction (drag)
-vx *= friction
+while running:
+    dt = clock.tick(60) / 1000.0
 
-# Clamp to max speed
-vx = max(-max_speed, min(max_speed, vx))
+    keys = pygame.key.get_pressed()
 
-x += vx
+    # Apply acceleration when key pressed
+    if keys[pygame.K_RIGHT]:
+        vx += ACCELERATION * dt
+    if keys[pygame.K_LEFT]:
+        vx -= ACCELERATION * dt
+
+    # Apply friction (slows you down when not pressing)
+    vx *= FRICTION
+
+    # Clamp to max speed
+    vx = max(-MAX_SPEED, min(MAX_SPEED, vx))
+
+    # Stop completely at very low speeds (prevents drift)
+    if abs(vx) < 0.5:
+        vx = 0
+
+    x += vx * dt
 \`\`\`
 
-Friction below 1.0 means velocity shrinks each frame when you're not pressing anything — that's the "sliding to a stop" feel.
+**Gerber tip:** Friction below 1.0 means velocity shrinks each frame when you're not pressing anything — that's the "sliding to a stop" feel.
 
-## Keyboard Input
+## Vector Normalization — Diagonal Movement Fix
+
+Without normalization, diagonal movement is ~41% faster than horizontal/vertical. That's because you're adding two velocities together:
 
 \`\`\`python
-keys = pygame.key.get_pressed()  # snapshot of current key state
-
-if keys[pygame.K_LEFT]:  # holding left arrow
-    x -= 5
-if keys[pygame.K_RIGHT]:
-    x += 5
-if keys[pygame.K_UP]:
-    y -= 5
-if keys[pygame.K_DOWN]:
-    y += 5
+# BAD — diagonal is faster
+if keys[pygame.K_RIGHT]: vx = SPEED
+if keys[pygame.K_DOWN]:  vy = SPEED
+# Moving right+down = sqrt(SPEED^2 + SPEED^2) = SPEED * 1.414
 \`\`\`
 
-Common keys: \`pygame.K_LEFT\`, \`pygame.K_RIGHT\`, \`pygame.K_UP\`, \`pygame.K_DOWN\`, \`pygame.K_SPACE\`, \`pygame.K_RETURN\`
-
-## Vectors (pygame.math.Vector2)
-
-For more complex movement, use Pygame's built-in Vector2:
-
+**The fix — normalize the direction:**
 \`\`\`python
 from pygame.math import Vector2
 
-pos = Vector2(400, 300)
-vel = Vector2(3, -2)
+direction = Vector2(0, 0)
+if keys[pygame.K_LEFT]:  direction.x -= 1
+if keys[pygame.K_RIGHT]: direction.x += 1
+if keys[pygame.K_UP]:    direction.y -= 1
+if keys[pygame.K_DOWN]:  direction.y += 1
 
-# In game loop:
-pos += vel  # same as pos.x += vel.x, pos.y += vel.y
-
-# Get distance between two points
-dist = pos.distance_to(other_pos)
-
-# Normalize (get direction without speed)
-direction = vel.normalize()
+if direction.length() > 0:
+    direction = direction.normalize()  # length becomes 1
+    pos += direction * SPEED * dt
 \`\`\`
 
-Vectors make the math cleaner, especially for angles and distances.
+## Storing Float Position Separately
+
+**Gerber tip:** Rects use integers, which causes jitter with small movements. Store a float position separately:
+
+\`\`\`python
+class Player(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.Surface((40, 40))
+        self.rect = self.image.get_rect()
+
+        # Float position for smooth movement
+        self.float_x = float(self.rect.x)
+        self.float_y = float(self.rect.y)
+
+    def update(self, dt):
+        self.float_x += self.vx * dt
+        self.float_y += self.vy * dt
+
+        # Sync rect to float position
+        self.rect.x = int(self.float_x)
+        self.rect.y = int(self.float_y)
+\`\`\`
+
+---
+
+## 💡 Tips & Tricks
+
+- **Gerber tip:** Always multiply velocity by dt for frame-rate independence
+- **Tip:** Store float positions separately from the rect for smooth sub-pixel movement
+- **Tip:** Use \`rect.clamp_ip(screen.get_rect())\` for easy boundary clamping
+- **Tip:** Friction values around 0.85-0.92 feel natural for most games
+- **Tip:** Normalize direction vectors when allowing 8-directional movement
+
+---
+
+## ⚠️ Common Mistakes
+
+- **Not using delta time** — game runs at different speeds on different machines
+- **Using integer division** on rect positions — causes visible jitter
+- **Forgetting to check direction.length() > 0** before normalizing — divides by zero
+- **Just flipping velocity on wall bounce** — ball can get stuck, use abs() instead
+- **Diagonal movement 41% faster** — forgot to normalize the direction vector
 `,
-    starterCode: `# Ball bouncing example — run this locally with Pygame installed
+    starterCode: `# Ball bouncing with delta time — run this locally
 
 import pygame
 pygame.init()
@@ -328,68 +538,48 @@ clock = pygame.time.Clock()
 
 BALL_RADIUS = 20
 BALL_COLOR = (255, 100, 0)
+SPEED = 300  # pixels per second
 
-# starting position and velocity
-x, y = 400, 300
-vx, vy = 4, 3
+# Float position for smooth movement
+x, y = 400.0, 300.0
+vx, vy = SPEED, SPEED * 0.75
 
 running = True
 while running:
+    dt = clock.tick(60) / 1000.0
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
-    # move the ball
-    x += vx
-    y += vy
+    # Move the ball (using dt!)
+    x += vx * dt
+    y += vy * dt
 
-    # bounce off walls
-    if x - BALL_RADIUS <= 0 or x + BALL_RADIUS >= WIDTH:
-        vx = -vx
-    if y - BALL_RADIUS <= 0 or y + BALL_RADIUS >= HEIGHT:
-        vy = -vy
+    # Bounce off walls (with abs to prevent sticking)
+    if x - BALL_RADIUS <= 0:
+        x = BALL_RADIUS
+        vx = abs(vx)
+    elif x + BALL_RADIUS >= WIDTH:
+        x = WIDTH - BALL_RADIUS
+        vx = -abs(vx)
+
+    if y - BALL_RADIUS <= 0:
+        y = BALL_RADIUS
+        vy = abs(vy)
+    elif y + BALL_RADIUS >= HEIGHT:
+        y = HEIGHT - BALL_RADIUS
+        vy = -abs(vy)
 
     screen.fill((20, 20, 20))
     pygame.draw.circle(screen, BALL_COLOR, (int(x), int(y)), BALL_RADIUS)
     pygame.display.flip()
-    clock.tick(60)
 
 pygame.quit()
 `,
     examples: [
       {
-        title: "Simple Keyboard Movement",
-        explanation: "Move a rectangle with arrow keys at constant speed",
-        code: `import pygame
-pygame.init()
-
-screen = pygame.display.set_mode((800, 600))
-clock = pygame.time.Clock()
-
-SPEED = 5
-x, y = 400, 300
-
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT]:  x -= SPEED
-    if keys[pygame.K_RIGHT]: x += SPEED
-    if keys[pygame.K_UP]:    y -= SPEED
-    if keys[pygame.K_DOWN]:  y += SPEED
-
-    screen.fill((0, 0, 0))
-    pygame.draw.rect(screen, (0, 200, 100), (x - 20, y - 20, 40, 40))
-    pygame.display.flip()
-    clock.tick(60)
-
-pygame.quit()`,
-      },
-      {
-        title: "Acceleration & Friction",
+        title: "Acceleration & Friction Movement",
         explanation: "Smooth movement that builds up speed and slides to a stop",
         code: `import pygame
 pygame.init()
@@ -397,64 +587,101 @@ pygame.init()
 screen = pygame.display.set_mode((800, 600))
 clock = pygame.time.Clock()
 
-x, y = 400, 300
-vx, vy = 0, 0
-ACCEL = 0.5
-FRICTION = 0.88
-MAX_SPEED = 7
+# Float position
+x, y = 400.0, 300.0
+vx, vy = 0.0, 0.0
+
+ACCEL = 600       # pixels per second squared
+FRICTION = 0.88   # multiplier per frame
+MAX_SPEED = 400   # pixels per second
 
 running = True
 while running:
+    dt = clock.tick(60) / 1000.0
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT]:  vx -= ACCEL
-    if keys[pygame.K_RIGHT]: vx += ACCEL
-    if keys[pygame.K_UP]:    vy -= ACCEL
-    if keys[pygame.K_DOWN]:  vy += ACCEL
+    if keys[pygame.K_LEFT]:  vx -= ACCEL * dt
+    if keys[pygame.K_RIGHT]: vx += ACCEL * dt
+    if keys[pygame.K_UP]:    vy -= ACCEL * dt
+    if keys[pygame.K_DOWN]:  vy += ACCEL * dt
 
-    # friction slows you down when not pressing
+    # Apply friction
     vx *= FRICTION
     vy *= FRICTION
 
-    # clamp speed
+    # Clamp speed
     vx = max(-MAX_SPEED, min(MAX_SPEED, vx))
     vy = max(-MAX_SPEED, min(MAX_SPEED, vy))
 
-    x += vx
-    y += vy
+    # Stop at low speeds
+    if abs(vx) < 0.5: vx = 0
+    if abs(vy) < 0.5: vy = 0
+
+    x += vx * dt
+    y += vy * dt
 
     screen.fill((0, 0, 0))
     pygame.draw.rect(screen, (100, 200, 255), (int(x)-20, int(y)-20, 40, 40))
     pygame.display.flip()
-    clock.tick(60)
 
 pygame.quit()`,
+      },
+      {
+        title: "Normalized 8-Directional Movement",
+        explanation: "Same speed in all directions, including diagonals",
+        code: `from pygame.math import Vector2
+
+SPEED = 300  # pixels per second
+
+def get_movement_vector(keys, dt):
+    direction = Vector2(0, 0)
+
+    if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+        direction.x -= 1
+    if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+        direction.x += 1
+    if keys[pygame.K_UP] or keys[pygame.K_w]:
+        direction.y -= 1
+    if keys[pygame.K_DOWN] or keys[pygame.K_s]:
+        direction.y += 1
+
+    # Normalize to prevent faster diagonal movement
+    if direction.length() > 0:
+        direction = direction.normalize()
+
+    return direction * SPEED * dt
+
+# In game loop:
+# movement = get_movement_vector(keys, dt)
+# pos += movement`,
       },
     ],
     challenges: [
       {
         id: "movement-1",
-        prompt: "A ball is at position x=100, velocity vx=5. After 3 frames, what is x?",
-        hint: "Each frame: x += vx",
+        prompt: "A ball moves at 300 pixels per second. If dt = 0.016 (60fps), how many pixels does it move in one frame?",
+        hint: "pixels = speed * dt",
         validateFn: `
 def validate(answer):
-    return answer.strip() in ["115", "x=115", "115.0"]
+    # 300 * 0.016 = 4.8
+    return "4.8" in answer or "4.80" in answer or "5" in answer.split()[0]
 `,
-        solution: "x = 100 + (5 × 3) = 115",
+        solution: "300 * 0.016 = 4.8 pixels per frame",
       },
       {
         id: "movement-2",
-        prompt: "Why do you multiply velocity by a friction value (like 0.85) instead of subtracting a fixed amount?",
-        hint: "Think about what happens when velocity gets very small with subtraction vs multiplication",
+        prompt: "Why do you multiply velocity by a friction value (like 0.88) instead of subtracting a fixed amount?",
+        hint: "Think about what happens when velocity gets very small",
         validateFn: `
 def validate(answer):
     answer = answer.lower()
-    return ("proportion" in answer or "percent" in answer or "smaller" in answer or "zero" in answer or "smooth" in answer or "multiply" in answer or "relative" in answer)
+    return ("proportion" in answer or "percent" in answer or "smaller" in answer or "zero" in answer or "smooth" in answer or "relative" in answer)
 `,
-        solution: "Multiplying by friction (< 1.0) slows proportionally — it naturally approaches zero smoothly. Subtracting a fixed amount can cause jitter or overshoot (go negative when it should stop at zero).",
+        solution: "Multiplying by friction (< 1.0) slows proportionally — it naturally approaches zero smoothly. Subtracting a fixed amount can cause jitter or overshoot past zero.",
       },
     ],
   },
@@ -467,6 +694,30 @@ def validate(answer):
     title: "Sprites & Sprite Groups",
     badge: "concept",
     theory: `
+## 🎬 What Gerber Covers in the Videos
+
+**User Platform Class and Attributes (Brick Breakaway Video 2)**
+- Creating a class that extends \`pygame.sprite.Sprite\`
+- \`self.image\` — the Surface to draw
+- \`self.rect\` — position and collision bounds
+- Speed as an attribute
+
+**Surface Handler (Sprite Game Video 4)**
+- Extracting frames from a sprite sheet by pixel offset
+- The \`get_frame(col, row)\` pattern
+- Using \`pygame.SRCALPHA\` for transparency
+
+**Animating the User (Sprite Game Video 6)**
+- \`frame_index\` to track current animation frame
+- \`animation_timer\` to control speed
+- Cycling through frames with modulo
+
+**Character Resize (Sprite Game Video 9)**
+- \`pygame.transform.scale()\` for resizing sprites
+- Keeping aspect ratio when scaling
+
+---
+
 ## What's a Sprite?
 
 In Pygame, a sprite is an object that has an image and a position. It inherits from \`pygame.sprite.Sprite\` and you put sprites into groups that handle updating and drawing automatically.
@@ -480,12 +731,10 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = (400, 300)
 
-    def update(self):
+    def update(self, dt):
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT]:  self.rect.x -= 5
-        if keys[pygame.K_RIGHT]: self.rect.x += 5
-        if keys[pygame.K_UP]:    self.rect.y -= 5
-        if keys[pygame.K_DOWN]:  self.rect.y += 5
+        if keys[pygame.K_LEFT]:  self.rect.x -= 300 * dt
+        if keys[pygame.K_RIGHT]: self.rect.x += 300 * dt
 \`\`\`
 
 The key things every sprite needs:
@@ -503,11 +752,11 @@ player = Player()
 all_sprites.add(player)
 
 # In the game loop:
-all_sprites.update()          # calls update() on every sprite
+all_sprites.update(dt)        # calls update(dt) on every sprite
 all_sprites.draw(screen)      # draws every sprite to the screen
 \`\`\`
 
-Way cleaner than manually looping through every object.
+**Gerber tip:** Use sprite groups — \`all_sprites.update()\` and \`all_sprites.draw()\` handle everything. Way cleaner than manually looping through every object.
 
 ## Loading Real Images
 
@@ -522,51 +771,153 @@ class Player(pygame.sprite.Sprite):
 
 \`convert_alpha()\` optimizes the image for faster drawing and preserves transparency.
 
-## Sprite Animation (Sheet)
-
-Most game characters use a sprite sheet — one image with multiple frames:
+## Resizing Sprites
 
 \`\`\`python
-class AnimatedPlayer(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        self.sheet = pygame.image.load("player_sheet.png").convert_alpha()
-        self.frame_width = 64
-        self.frame_height = 64
-        self.frame_index = 0
-        self.animation_timer = 0
-        self.image = self.get_frame(0)
-        self.rect = self.image.get_rect()
+# Load and scale in one step
+original = pygame.image.load("player.png").convert_alpha()
+self.image = pygame.transform.scale(original, (64, 64))  # new size
 
-    def get_frame(self, index):
-        # cut a single frame from the sheet
-        x = index * self.frame_width
-        frame = pygame.Surface((self.frame_width, self.frame_height), pygame.SRCALPHA)
-        frame.blit(self.sheet, (0, 0), (x, 0, self.frame_width, self.frame_height))
-        return frame
-
-    def update(self):
-        self.animation_timer += 1
-        if self.animation_timer >= 8:  # change frame every 8 ticks (~7.5fps)
-            self.animation_timer = 0
-            self.frame_index = (self.frame_index + 1) % 4  # 4 frames
-            self.image = self.get_frame(self.frame_index)
+# Scale by factor (2x bigger, or 0.5x smaller)
+self.image = pygame.transform.scale(original, (original.get_width() * 2, original.get_height() * 2))
 \`\`\`
 
-## Rect is Your Best Friend
+**Tip:** Use \`pygame.transform.scale()\` with 2x or 0.5x for quick sizing. Pixel art looks best at integer multiples.
 
-The \`rect\` object has tons of useful properties:
+## The Surface Handler Pattern
+
+Gerber's pattern for extracting frames from a sprite sheet. This is super useful:
+
+\`\`\`python
+class SurfaceHandler:
+    def __init__(self, sheet_path, frame_width, frame_height):
+        self.sheet = pygame.image.load(sheet_path).convert_alpha()
+        self.frame_width = frame_width
+        self.frame_height = frame_height
+
+    def get_frame(self, col, row=0):
+        """Cut a single frame from the sheet at (col, row)"""
+        x = col * self.frame_width
+        y = row * self.frame_height
+
+        # Create transparent surface
+        frame = pygame.Surface((self.frame_width, self.frame_height), pygame.SRCALPHA)
+
+        # Copy just this frame from the sheet
+        frame.blit(self.sheet, (0, 0), (x, y, self.frame_width, self.frame_height))
+        return frame
+
+    def get_animation(self, row, num_frames):
+        """Get a list of frames for animation"""
+        return [self.get_frame(col, row) for col in range(num_frames)]
+\`\`\`
+
+**Usage:**
+\`\`\`python
+handler = SurfaceHandler("character.png", 64, 64)
+walk_frames = handler.get_animation(row=0, num_frames=4)  # frames 0-3 on row 0
+attack_frames = handler.get_animation(row=1, num_frames=3)  # frames 0-2 on row 1
+\`\`\`
+
+## Sprite Sheet Frame Extraction — The Math
+
+If your sprite sheet has 64x64 pixel frames arranged in a grid:
+
+\`\`\`
+Frame positions on a 256x128 sheet (4 cols x 2 rows):
+(0,0)   (64,0)   (128,0)  (192,0)    <- row 0
+(0,64)  (64,64)  (128,64) (192,64)   <- row 1
+\`\`\`
+
+\`\`\`python
+# Get frame at column 2, row 1
+col, row = 2, 1
+frame_width, frame_height = 64, 64
+
+x = col * frame_width   # 2 * 64 = 128
+y = row * frame_height  # 1 * 64 = 64
+
+# The source rect for blit is (128, 64, 64, 64)
+frame.blit(sheet, (0, 0), (x, y, frame_width, frame_height))
+\`\`\`
+
+## Animation System
+
+\`\`\`python
+class AnimatedSprite(pygame.sprite.Sprite):
+    def __init__(self, frames):
+        super().__init__()
+        self.frames = frames
+        self.frame_index = 0
+        self.animation_timer = 0
+        self.animation_speed = 8  # frames between changes
+        self.image = self.frames[0]
+        self.rect = self.image.get_rect()
+
+    def animate(self):
+        self.animation_timer += 1
+        if self.animation_timer >= self.animation_speed:
+            self.animation_timer = 0
+            self.frame_index = (self.frame_index + 1) % len(self.frames)
+            self.image = self.frames[self.frame_index]
+
+    def update(self, dt):
+        self.animate()
+        # ... movement code
+\`\`\`
+
+## Flipping Sprites for Direction
+
+Most sprite sheets only have one direction. Flip at runtime:
+
+\`\`\`python
+# Flip horizontally (True, False = horizontal flip, no vertical flip)
+flipped = pygame.transform.flip(self.image, True, False)
+
+# In update:
+if self.vx < 0:  # moving left
+    self.facing_right = False
+elif self.vx > 0:
+    self.facing_right = True
+
+# Apply flip when needed
+if not self.facing_right:
+    self.image = pygame.transform.flip(self.frames[self.frame_index], True, False)
+\`\`\`
+
+## Rect Properties — Your Best Friends
 
 \`\`\`python
 rect.x, rect.y         # top-left corner
-rect.center            # (center_x, center_y)
+rect.center            # (center_x, center_y) — set position by center!
 rect.centerx, rect.centery
 rect.top, rect.bottom, rect.left, rect.right
 rect.width, rect.height
-rect.midleft, rect.midright  # midpoints of sides
+rect.topleft, rect.topright, rect.bottomleft, rect.bottomright
+rect.midleft, rect.midright, rect.midtop, rect.midbottom
 \`\`\`
 
-Use these instead of calculating positions manually.
+**Tip:** Setting \`rect.center = (x, y)\` is often easier than calculating \`rect.x\` and \`rect.y\`.
+
+---
+
+## 💡 Tips & Tricks
+
+- **Gerber tip:** Use sprite groups — \`all_sprites.update()\` and \`all_sprites.draw()\` handle everything
+- **Tip:** Kenney.nl has free sprite sheets that work great for prototyping
+- **Tip:** Use \`pygame.SRCALPHA\` when creating surfaces for transparent sprites
+- **Tip:** Pixel art looks best scaled at integer multiples (2x, 3x, not 1.5x)
+- **Tip:** Call \`self.kill()\` to remove a sprite from all its groups
+
+---
+
+## ⚠️ Common Mistakes
+
+- **Forgetting \`super().__init__()\`** — sprite doesn't work properly with groups
+- **Not setting both self.image AND self.rect** — sprite won't draw
+- **Loading images inside update()** — loads every frame, kills performance
+- **Modifying self.image directly** — messes up animation, keep original frames separate
+- **Using convert() instead of convert_alpha()** — loses transparency
 `,
     starterCode: `# Sprite example — copy to local Pygame environment
 
@@ -579,22 +930,30 @@ clock = pygame.time.Clock()
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        # placeholder colored square
+        # Placeholder colored square
         self.image = pygame.Surface((40, 40))
         self.image.fill((0, 200, 100))
         self.rect = self.image.get_rect()
         self.rect.center = (400, 300)
-        self.speed = 5
 
-    def update(self):
+        # Float position for smooth movement
+        self.float_x = float(self.rect.centerx)
+        self.float_y = float(self.rect.centery)
+        self.speed = 300
+
+    def update(self, dt):
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT]:  self.rect.x -= self.speed
-        if keys[pygame.K_RIGHT]: self.rect.x += self.speed
-        if keys[pygame.K_UP]:    self.rect.y -= self.speed
-        if keys[pygame.K_DOWN]:  self.rect.y += self.speed
+        if keys[pygame.K_LEFT]:  self.float_x -= self.speed * dt
+        if keys[pygame.K_RIGHT]: self.float_x += self.speed * dt
+        if keys[pygame.K_UP]:    self.float_y -= self.speed * dt
+        if keys[pygame.K_DOWN]:  self.float_y += self.speed * dt
 
-        # keep on screen
+        self.rect.center = (int(self.float_x), int(self.float_y))
+
+        # Keep on screen
         self.rect.clamp_ip(screen.get_rect())
+        self.float_x = float(self.rect.centerx)
+        self.float_y = float(self.rect.centery)
 
 all_sprites = pygame.sprite.Group()
 player = Player()
@@ -602,54 +961,87 @@ all_sprites.add(player)
 
 running = True
 while running:
+    dt = clock.tick(60) / 1000.0
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
-    all_sprites.update()
+    all_sprites.update(dt)
     screen.fill((30, 30, 30))
     all_sprites.draw(screen)
     pygame.display.flip()
-    clock.tick(60)
 
 pygame.quit()
 `,
     examples: [
       {
-        title: "Basic Sprite Class",
-        explanation: "Minimum viable sprite with image, rect, and update",
-        code: `class Enemy(pygame.sprite.Sprite):
-    def __init__(self, x, y):
-        super().__init__()
-        self.image = pygame.Surface((30, 30))
-        self.image.fill((255, 50, 50))   # red square
-        self.rect = self.image.get_rect()
-        self.rect.topleft = (x, y)
-        self.speed = 2
+        title: "Surface Handler — Sprite Sheet Loader",
+        explanation: "Gerber's pattern for extracting frames from a sprite sheet",
+        code: `class SurfaceHandler:
+    def __init__(self, sheet_path, frame_width, frame_height):
+        self.sheet = pygame.image.load(sheet_path).convert_alpha()
+        self.frame_width = frame_width
+        self.frame_height = frame_height
 
-    def update(self):
-        # move left across the screen
-        self.rect.x -= self.speed
-        # remove when off-screen
-        if self.rect.right < 0:
-            self.kill()  # removes from all groups`,
+    def get_frame(self, col, row=0):
+        x = col * self.frame_width
+        y = row * self.frame_height
+        frame = pygame.Surface((self.frame_width, self.frame_height), pygame.SRCALPHA)
+        frame.blit(self.sheet, (0, 0), (x, y, self.frame_width, self.frame_height))
+        return frame
+
+    def get_animation(self, row, num_frames):
+        return [self.get_frame(col, row) for col in range(num_frames)]
+
+# Usage:
+# handler = SurfaceHandler("hero.png", 32, 32)
+# walk_right = handler.get_animation(row=0, num_frames=4)
+# walk_left = [pygame.transform.flip(f, True, False) for f in walk_right]`,
       },
       {
-        title: "Multiple Sprite Groups",
-        explanation: "Separate groups for players, enemies, and bullets — useful for targeted collision detection",
-        code: `all_sprites = pygame.sprite.Group()
-enemies = pygame.sprite.Group()
-bullets = pygame.sprite.Group()
+        title: "Animated Player with Direction",
+        explanation: "Full animation system with sprite flipping",
+        code: `class AnimatedPlayer(pygame.sprite.Sprite):
+    def __init__(self, frames):
+        super().__init__()
+        self.frames = frames
+        self.frame_index = 0
+        self.animation_timer = 0
+        self.image = self.frames[0]
+        self.rect = self.image.get_rect(center=(400, 300))
+        self.facing_right = True
+        self.speed = 300
+        self.float_x = float(self.rect.centerx)
 
-# add an enemy to both groups
-enemy = Enemy(700, 300)
-all_sprites.add(enemy)
-enemies.add(enemy)
+    def update(self, dt):
+        keys = pygame.key.get_pressed()
+        moving = False
 
-# collision check: did any bullet hit any enemy?
-hits = pygame.sprite.groupcollide(bullets, enemies, True, True)
-# True, True = kill both the bullet and enemy on hit
-# hits is a dict of {bullet: [enemies_hit]}`,
+        if keys[pygame.K_LEFT]:
+            self.float_x -= self.speed * dt
+            self.facing_right = False
+            moving = True
+        if keys[pygame.K_RIGHT]:
+            self.float_x += self.speed * dt
+            self.facing_right = True
+            moving = True
+
+        self.rect.centerx = int(self.float_x)
+
+        # Animate only when moving
+        if moving:
+            self.animation_timer += 1
+            if self.animation_timer >= 8:
+                self.animation_timer = 0
+                self.frame_index = (self.frame_index + 1) % len(self.frames)
+        else:
+            self.frame_index = 0
+
+        # Get frame and flip if needed
+        self.image = self.frames[self.frame_index]
+        if not self.facing_right:
+            self.image = pygame.transform.flip(self.image, True, False)`,
       },
     ],
     challenges: [
@@ -666,14 +1058,13 @@ def validate(answer):
       },
       {
         id: "sprites-2",
-        prompt: "What does sprite.kill() do?",
-        hint: "It doesn't delete the Python object — it removes from something",
+        prompt: "In a sprite sheet where each frame is 32x32 pixels, what pixel coordinates (x, y) would you use to get the frame at column 3, row 2?",
+        hint: "x = col * width, y = row * height",
         validateFn: `
 def validate(answer):
-    answer = answer.lower()
-    return "group" in answer or "remove" in answer or "all" in answer
+    return ("96" in answer and "64" in answer) or ("(96, 64)" in answer) or ("96,64" in answer)
 `,
-        solution: "kill() removes the sprite from all sprite groups it belongs to. It doesn't delete the Python object, but it won't be updated or drawn anymore.",
+        solution: "x = 3 * 32 = 96, y = 2 * 32 = 64. The source rect would be (96, 64, 32, 32).",
       },
     ],
   },
@@ -686,6 +1077,34 @@ def validate(answer):
     title: "Collision Detection",
     badge: "practice",
     theory: `
+## 🎬 What Gerber Covers in the Videos
+
+**Ball and Platform Collision (Brick Breakaway Video 7)**
+- \`colliderect()\` for rect-to-rect detection
+- Checking \`vy > 0\` before bouncing (prevent stuck ball)
+- The offset trick for angled bounces
+
+**Brick Collisions (Brick Breakaway Video 9)**
+- \`pygame.sprite.spritecollide()\` for one-vs-group
+- Removing bricks when hit
+- Figuring out which direction to bounce
+
+**Enemy Methods (Tower Defense Video 8)**
+- Waypoint path following for enemies
+- Moving toward a target point
+- Distance checking to know when you've arrived
+
+**Projectile Class (Tower Defense Videos 10-11)**
+- Velocity toward target using angle calculation
+- \`math.atan2(dy, dx)\` for angle between two points
+- Tracking a moving target
+
+**Collisions and Bug Fixes (Sprite Game Video 13)**
+- Player vs NPC collision
+- Common collision bugs and how to fix them
+
+---
+
 ## Why Collision Detection Matters
 
 Without it, things pass through each other. Bullets don't hit enemies. The ball goes through the paddle. The player walks through walls. Collision detection is what makes games feel real.
@@ -699,12 +1118,12 @@ The simplest method — check if two rectangles overlap:
 if rect1.colliderect(rect2):
     print("collision!")
 
-# Check a rect against a point
+# Check a rect against a point (like mouse position)
 if rect.collidepoint(mouse_x, mouse_y):
     print("mouse is inside rect")
 \`\`\`
 
-Rect collision is fast and good enough for most cases. Brick Breakaway uses this for the ball hitting the paddle and bricks.
+Rect collision is fast and good enough for most cases.
 
 ## Sprite Group Collision
 
@@ -717,22 +1136,16 @@ hit_list = pygame.sprite.spritecollide(player, enemies, False)
 # Returns list of enemies the player collided with
 
 if hit_list:
-    player_health -= 1
+    player.take_damage(10)
 
 # Did any bullet hit any enemy? Kill both.
 hits = pygame.sprite.groupcollide(bullets, enemies, True, True)
+# True, True = kill both the bullet and enemy on hit
 \`\`\`
 
-## Circle Collision
+## Circle/Distance-Based Collision
 
-More accurate for round objects (balls, planets, explosions):
-
-\`\`\`python
-# Using collide_circle as a callback
-hits = pygame.sprite.spritecollide(ball, bricks, True, pygame.sprite.collide_circle)
-\`\`\`
-
-Or manually:
+More accurate for round objects or when you need range detection (like tower targeting):
 
 \`\`\`python
 import math
@@ -740,48 +1153,157 @@ import math
 def circles_collide(x1, y1, r1, x2, y2, r2):
     dist = math.sqrt((x2-x1)**2 + (y2-y1)**2)
     return dist < r1 + r2
+
+# Or use math.dist (cleaner):
+dist = math.dist((x1, y1), (x2, y2))
+if dist < r1 + r2:
+    # collision!
 \`\`\`
 
-## Ball + Paddle Collision (Brick Breakaway Style)
+**For tower range checking:**
+\`\`\`python
+# Is enemy within tower's attack range?
+dist = math.dist(tower.rect.center, enemy.rect.center)
+if dist <= TOWER_RANGE:
+    tower.target = enemy
+\`\`\`
 
-The tricky part is figuring out which side of the brick the ball hit:
+## Waypoint/Path Following (Tower Defense)
+
+Enemies follow a list of waypoints. The key is tracking which waypoint they're heading toward:
 
 \`\`\`python
-def handle_ball_brick_collision(ball_rect, ball_vel, brick_rect):
-    # figure out overlap on each axis
-    overlap_left   = ball_rect.right - brick_rect.left
-    overlap_right  = brick_rect.right - ball_rect.left
-    overlap_top    = ball_rect.bottom - brick_rect.top
-    overlap_bottom = brick_rect.bottom - ball_rect.top
+class Enemy:
+    def __init__(self, waypoints):
+        self.waypoints = waypoints
+        self.waypoint_index = 0
+        self.pos = pygame.math.Vector2(waypoints[0])
+        self.speed = 100  # pixels per second
 
-    # bounce off the axis with the smallest overlap
-    if min(overlap_left, overlap_right) < min(overlap_top, overlap_bottom):
+    def update(self, dt):
+        if self.waypoint_index >= len(self.waypoints):
+            return  # reached the end
+
+        target = pygame.math.Vector2(self.waypoints[self.waypoint_index])
+        direction = target - self.pos
+        dist = direction.length()
+
+        if dist < self.speed * dt:
+            # Reached this waypoint, go to next
+            self.pos = target
+            self.waypoint_index += 1
+        else:
+            # Move toward waypoint
+            direction = direction.normalize()
+            self.pos += direction * self.speed * dt
+\`\`\`
+
+## Angle Calculation with math.atan2
+
+**Essential for projectiles that need to aim at a target:**
+
+\`\`\`python
+import math
+
+# Get angle from point A to point B
+dx = target_x - start_x
+dy = target_y - start_y
+angle = math.atan2(dy, dx)  # radians
+
+# Convert to velocity
+speed = 400  # pixels per second
+vx = math.cos(angle) * speed
+vy = math.sin(angle) * speed
+\`\`\`
+
+**Why atan2 instead of atan?** \`atan2(y, x)\` handles all four quadrants correctly. Regular \`atan\` doesn't know which quadrant you're in.
+
+## Projectile That Tracks a Moving Target
+
+\`\`\`python
+class Projectile:
+    def __init__(self, start_pos, target_sprite):
+        self.pos = pygame.math.Vector2(start_pos)
+        self.target = target_sprite  # reference to enemy
+        self.speed = 500
+        self.damage = 25
+        self.alive = True
+
+    def update(self, dt):
+        if not self.target or not self.target.alive():
+            self.alive = False
+            return
+
+        # Aim at target's current position (tracks movement!)
+        target_pos = pygame.math.Vector2(self.target.rect.center)
+        direction = target_pos - self.pos
+        dist = direction.length()
+
+        if dist < self.speed * dt:
+            # Hit!
+            self.target.take_damage(self.damage)
+            self.alive = False
+        else:
+            direction = direction.normalize()
+            self.pos += direction * self.speed * dt
+\`\`\`
+
+## Ball + Paddle Collision (The Right Way)
+
+**Gerber tip:** Always check \`vy > 0\` before bouncing off the paddle:
+
+\`\`\`python
+if ball_rect.colliderect(paddle_rect) and ball_vy > 0:
+    ball_vy *= -1
+\`\`\`
+
+**Why?** If you don't check, the ball can get stuck inside the paddle and bounce back and forth rapidly. \`vy > 0\` means the ball is moving downward — only then should we bounce it up.
+
+## Side-Aware Bounce (Which Side Did I Hit?)
+
+For bouncing off bricks, you need to know if you hit the top/bottom or left/right:
+
+\`\`\`python
+def bounce_off_rect(ball_rect, ball_vel, target_rect):
+    # Calculate overlap on each side
+    overlap_left   = ball_rect.right - target_rect.left
+    overlap_right  = target_rect.right - ball_rect.left
+    overlap_top    = ball_rect.bottom - target_rect.top
+    overlap_bottom = target_rect.bottom - ball_rect.top
+
+    min_horizontal = min(overlap_left, overlap_right)
+    min_vertical   = min(overlap_top, overlap_bottom)
+
+    # Bounce off the axis with smaller overlap
+    if min_horizontal < min_vertical:
         ball_vel[0] *= -1  # horizontal bounce
     else:
         ball_vel[1] *= -1  # vertical bounce
+
+    return ball_vel
 \`\`\`
 
-## Wall Collision
+**Why smallest overlap?** The smallest overlap indicates which side the ball entered from. If horizontal overlap is smaller, it came from the left/right. If vertical is smaller, it came from top/bottom.
 
-For keeping a ball inside a window:
+---
 
-\`\`\`python
-# Ball with velocity [vx, vy] and radius r
-if ball_x - r <= 0:           # hit left wall
-    ball_x = r
-    vx = abs(vx)              # force positive (moving right)
-elif ball_x + r >= WIDTH:     # hit right wall
-    ball_x = WIDTH - r
-    vx = -abs(vx)             # force negative (moving left)
+## 💡 Tips & Tricks
 
-if ball_y - r <= 0:           # hit top
-    ball_y = r
-    vy = abs(vy)
-elif ball_y + r >= HEIGHT:    # hit bottom (game over or lose life)
-    handle_ball_lost()
-\`\`\`
+- **Gerber tip:** Check \`vy > 0\` on paddle collision — prevents ball getting stuck
+- **Tip:** \`math.atan2(dy, dx)\` gives angle from point A to point B — essential for Tower Defense
+- **Tip:** Use \`math.dist()\` instead of manual sqrt — cleaner and just as fast
+- **Tip:** Keep a reference to the target, not just its position, for tracking projectiles
+- **Tip:** Process only one brick collision per frame to prevent weird double-bounces
 
-Using \`abs()\` instead of just flipping sign prevents the ball from getting "stuck" in a wall.
+---
+
+## ⚠️ Common Mistakes
+
+- **Not checking vy > 0 on paddle** — ball gets stuck and vibrates
+- **Using position-at-fire instead of tracking** — projectiles miss moving targets
+- **Bouncing off multiple bricks in one frame** — causes erratic behavior
+- **Forgetting to check if target is still alive** — crashes or weird behavior
+- **Using atan instead of atan2** — wrong angles in some quadrants
 `,
     starterCode: `# Collision demo — rect-based
 
@@ -793,95 +1315,126 @@ clock = pygame.time.Clock()
 
 # Player (movable)
 player_rect = pygame.Rect(100, 270, 40, 60)
-SPEED = 5
+speed = 300
 
-# Wall (static)
-wall_rect = pygame.Rect(350, 200, 20, 200)
+# Walls (static)
+walls = [
+    pygame.Rect(350, 100, 20, 400),
+    pygame.Rect(500, 200, 200, 20),
+]
 
 WHITE = (255, 255, 255)
 GREEN = (0, 200, 100)
-RED   = (255, 50, 50)
-BLACK = (0, 0, 0)
+RED = (255, 50, 50)
 
 running = True
 while running:
+    dt = clock.tick(60) / 1000.0
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_RIGHT]: player_rect.x += SPEED
-    if keys[pygame.K_LEFT]:  player_rect.x -= SPEED
+    dx, dy = 0, 0
+    if keys[pygame.K_RIGHT]: dx = speed * dt
+    if keys[pygame.K_LEFT]:  dx = -speed * dt
+    if keys[pygame.K_UP]:    dy = -speed * dt
+    if keys[pygame.K_DOWN]:  dy = speed * dt
 
-    # collision check
-    colliding = player_rect.colliderect(wall_rect)
+    # Move and check collision
+    player_rect.x += dx
+    for wall in walls:
+        if player_rect.colliderect(wall):
+            if dx > 0: player_rect.right = wall.left
+            if dx < 0: player_rect.left = wall.right
+
+    player_rect.y += dy
+    for wall in walls:
+        if player_rect.colliderect(wall):
+            if dy > 0: player_rect.bottom = wall.top
+            if dy < 0: player_rect.top = wall.bottom
+
+    # Check collision status for color
+    colliding = any(player_rect.colliderect(w) for w in walls)
     player_color = RED if colliding else GREEN
 
-    screen.fill(BLACK)
+    screen.fill((0, 0, 0))
     pygame.draw.rect(screen, player_color, player_rect)
-    pygame.draw.rect(screen, WHITE, wall_rect)
+    for wall in walls:
+        pygame.draw.rect(screen, WHITE, wall)
     pygame.display.flip()
-    clock.tick(60)
 
 pygame.quit()
 `,
     examples: [
       {
-        title: "spritecollide — one vs group",
-        explanation: "Check if one sprite overlaps any sprite in a group",
-        code: `# player hits any enemy
-hit_enemies = pygame.sprite.spritecollide(player, enemy_group, False)
-if hit_enemies:
-    player.take_damage(10)
+        title: "Tower Targeting with Range Check",
+        explanation: "Find the closest enemy within range using distance",
+        code: `import math
 
-# bullet hits any enemy — kill both
-hits = pygame.sprite.groupcollide(bullet_group, enemy_group, True, True)
-for bullet, enemies_hit in hits.items():
-    score += len(enemies_hit) * 100`,
+def find_target(tower, enemies, tower_range):
+    closest = None
+    closest_dist = tower_range + 1
+
+    for enemy in enemies:
+        if not enemy.alive:
+            continue
+        dist = math.dist(tower.rect.center, enemy.rect.center)
+        if dist <= tower_range and dist < closest_dist:
+            closest = enemy
+            closest_dist = dist
+
+    return closest
+
+# Usage in tower.update():
+# self.target = find_target(self, enemies, TOWER_RANGE)
+# if self.target and self.cooldown <= 0:
+#     fire_projectile(self.pos, self.target)`,
       },
       {
-        title: "Side-Aware Bounce",
-        explanation: "Ball bouncing off a brick and detecting which side it hit",
-        code: `def bounce_ball_off_rect(ball_x, ball_y, ball_vx, ball_vy, ball_r, rect):
-    # how much does the ball overlap each side?
-    overlap_left   = (ball_x + ball_r) - rect.left
-    overlap_right  = rect.right - (ball_x - ball_r)
-    overlap_top    = (ball_y + ball_r) - rect.top
-    overlap_bottom = rect.bottom - (ball_y - ball_r)
+        title: "Projectile Velocity from Angle",
+        explanation: "Calculate vx/vy to fire toward a target",
+        code: `import math
 
-    min_h = min(overlap_left, overlap_right)
-    min_v = min(overlap_top, overlap_bottom)
+def calculate_velocity_to_target(start_pos, target_pos, speed):
+    dx = target_pos[0] - start_pos[0]
+    dy = target_pos[1] - start_pos[1]
 
-    if min_h < min_v:
-        ball_vx *= -1  # hit a side — reverse horizontal
-    else:
-        ball_vy *= -1  # hit top or bottom — reverse vertical
+    angle = math.atan2(dy, dx)
 
-    return ball_vx, ball_vy`,
+    vx = math.cos(angle) * speed
+    vy = math.sin(angle) * speed
+
+    return vx, vy
+
+# Usage:
+# vx, vy = calculate_velocity_to_target(tower.pos, enemy.pos, PROJECTILE_SPEED)
+# projectile = Projectile(tower.pos, vx, vy)`,
       },
     ],
     challenges: [
       {
         id: "collision-1",
-        prompt: "What does pygame.sprite.spritecollide(player, enemies, True) return, and what does the True argument do?",
-        hint: "The True argument affects the enemies group",
+        prompt: "Why do you check 'vy > 0' before bouncing the ball off the paddle in Brick Breakaway?",
+        hint: "Think about the ball moving upward through the paddle",
         validateFn: `
 def validate(answer):
     answer = answer.lower()
-    return ("list" in answer or "enemies" in answer) and ("kill" in answer or "remove" in answer or "delete" in answer)
+    return ("down" in answer or "stuck" in answer or "through" in answer or "direction" in answer or "moving" in answer)
 `,
-        solution: "Returns a list of enemy sprites that collided with the player. The True argument kills (removes from groups) each enemy that was hit.",
+        solution: "If you don't check, the ball can get stuck inside the paddle and bounce rapidly. vy > 0 means the ball is moving downward — only then do we reverse it.",
       },
       {
         id: "collision-2",
-        prompt: "When a ball hits a brick in Brick Breakaway, why check which axis has the smaller overlap to decide bounce direction?",
-        hint: "Think about which side the ball actually came from",
+        prompt: "What does math.atan2(dy, dx) return, and why use it instead of math.atan(dy/dx)?",
+        hint: "Think about different quadrants and division by zero",
         validateFn: `
 def validate(answer):
     answer = answer.lower()
-    return ("side" in answer or "direction" in answer or "enter" in answer or "overlap" in answer or "minimum" in answer or "smallest" in answer)
+    return ("angle" in answer or "radian" in answer) and ("quadrant" in answer or "zero" in answer or "direction" in answer or "four" in answer or "all" in answer)
 `,
-        solution: "The smallest overlap tells you which axis the ball entered from. If the horizontal overlap is smaller, the ball came from the left or right side. If vertical overlap is smaller, it came from the top or bottom.",
+        solution: "atan2 returns the angle in radians from the positive x-axis to the point (dx, dy). It handles all four quadrants correctly and doesn't divide by zero when dx=0. Regular atan can't distinguish between opposite directions.",
       },
     ],
   },
@@ -898,31 +1451,82 @@ def validate(answer):
 
 Brick Breakaway is a classic arcade game: a ball bounces around breaking bricks, you control a paddle at the bottom to keep the ball from falling off-screen. Clear all the bricks to win.
 
-## Core Components
+---
+
+## 🎬 Gerber's Video Breakdown (9 Videos)
+
+Follow along with Gerber's videos in order. Each video adds one piece:
+
+**Video 1: Project Setup**
+- Create folder structure: main.py, settings.py
+- Import pygame, basic window setup
+- Empty game loop with clock
+
+**Video 2: User Platform Class and Attributes**
+- Create Paddle class extending pygame.sprite.Sprite
+- self.image, self.rect, self.speed
+- Position at bottom of screen
+
+**Video 3: Basic Platform Movement**
+- \`keys = pygame.key.get_pressed()\`
+- Move paddle left/right with \`rect.x += speed\`
+- Clamp to screen boundaries
+
+**Video 4: Delta Time and Smooth Movements**
+- \`dt = clock.tick(60) / 1000.0\`
+- Multiply velocity by dt
+- Consistent speed on any machine
+
+**Video 5: Ball Class and Attributes**
+- Ball sprite with vx/vy as floats
+- \`pygame.SRCALPHA\` for circular surface
+- Float position separate from rect
+
+**Video 6: Ball Class Methods**
+- update() with wall bounce logic
+- \`active\` flag for spacebar launch
+- Wait until player is ready
+
+**Video 7: Ball and Platform Collision**
+- \`colliderect()\` detection
+- Check \`vy > 0\` before bouncing!
+- Offset trick for angled bounces based on hit position
+
+**Video 8: Brick Class**
+- Grid layout with nested loops
+- Color by row (harder = different color)
+- Rect-based collision bounds
+
+**Video 9: Brick Collisions**
+- \`spritecollide()\` or manual rect check
+- Remove bricks on hit
+- Determine bounce direction
+
+---
+
+## Project Structure
 
 \`\`\`
 BrickBreakaway/
 ├── main.py          # game loop + main()
+├── settings.py      # constants (WIDTH, HEIGHT, colors, speeds)
 ├── paddle.py        # Paddle sprite
 ├── ball.py          # Ball with physics
-├── brick.py         # Brick sprite (with color by hits)
-└── settings.py      # constants (WIDTH, HEIGHT, colors, speeds)
+└── brick.py         # Brick sprite
 \`\`\`
 
-## Settings / Constants
-
-Start by defining everything in one place — way easier to tune later:
+## Video 1: Settings / Constants
 
 \`\`\`python
 # settings.py
 WIDTH, HEIGHT = 800, 600
 FPS = 60
 
-PADDLE_SPEED = 7
+PADDLE_SPEED = 400   # pixels per second (use dt!)
 PADDLE_WIDTH = 120
 PADDLE_HEIGHT = 15
 
-BALL_SPEED_INIT = 5
+BALL_SPEED = 350     # pixels per second
 BALL_RADIUS = 10
 
 BRICK_ROWS = 5
@@ -939,7 +1543,7 @@ COLORS = {
 }
 \`\`\`
 
-## Paddle Class
+## Video 2-3: Paddle Class
 
 \`\`\`python
 # paddle.py
@@ -954,16 +1558,21 @@ class Paddle(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.centerx = WIDTH // 2
         self.rect.bottom = HEIGHT - 20
+        self.float_x = float(self.rect.x)
 
-    def update(self):
+    def update(self, dt):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT] and self.rect.left > 0:
-            self.rect.x -= PADDLE_SPEED
+            self.float_x -= PADDLE_SPEED * dt
         if keys[pygame.K_RIGHT] and self.rect.right < WIDTH:
-            self.rect.x += PADDLE_SPEED
+            self.float_x += PADDLE_SPEED * dt
+
+        self.rect.x = int(self.float_x)
+        self.rect.clamp_ip(pygame.Rect(0, 0, WIDTH, HEIGHT))
+        self.float_x = float(self.rect.x)
 \`\`\`
 
-## Ball Class
+## Video 5-6: Ball Class
 
 \`\`\`python
 # ball.py
@@ -976,25 +1585,53 @@ class Ball(pygame.sprite.Sprite):
         self.image = pygame.Surface((BALL_RADIUS*2, BALL_RADIUS*2), pygame.SRCALPHA)
         pygame.draw.circle(self.image, (255, 255, 255), (BALL_RADIUS, BALL_RADIUS), BALL_RADIUS)
         self.rect = self.image.get_rect()
-        self.rect.center = (WIDTH // 2, HEIGHT // 2)
-        self.vx = BALL_SPEED_INIT
-        self.vy = -BALL_SPEED_INIT
-        self.active = False  # waits for spacebar
+        self.reset()
 
-    def update(self):
+    def reset(self):
+        self.rect.center = (WIDTH // 2, HEIGHT // 2)
+        self.float_x = float(self.rect.centerx)
+        self.float_y = float(self.rect.centery)
+        self.vx = BALL_SPEED * 0.7
+        self.vy = -BALL_SPEED
+        self.active = False
+
+    def update(self, dt):
         if not self.active:
             return
-        self.rect.x += self.vx
-        self.rect.y += self.vy
 
-        # wall bounces
-        if self.rect.left <= 0 or self.rect.right >= WIDTH:
-            self.vx *= -1
-        if self.rect.top <= 0:
-            self.vy *= -1
+        self.float_x += self.vx * dt
+        self.float_y += self.vy * dt
+
+        # Wall bounces
+        if self.float_x - BALL_RADIUS <= 0:
+            self.float_x = BALL_RADIUS
+            self.vx = abs(self.vx)
+        elif self.float_x + BALL_RADIUS >= WIDTH:
+            self.float_x = WIDTH - BALL_RADIUS
+            self.vx = -abs(self.vx)
+
+        if self.float_y - BALL_RADIUS <= 0:
+            self.float_y = BALL_RADIUS
+            self.vy = abs(self.vy)
+
+        self.rect.center = (int(self.float_x), int(self.float_y))
 \`\`\`
 
-## Brick Class
+## Video 7: Ball + Paddle Collision
+
+\`\`\`python
+# In main game loop:
+if ball.rect.colliderect(paddle.rect) and ball.vy > 0:
+    ball.vy = -abs(ball.vy)  # Bounce up
+
+    # Offset trick: angle based on where ball hit paddle
+    offset = (ball.rect.centerx - paddle.rect.centerx) / (PADDLE_WIDTH / 2)
+    ball.vx = BALL_SPEED * offset * 0.8
+\`\`\`
+
+**Gerber tip:** The offset trick makes the game more interesting. Hit the ball with the edge of the paddle and it bounces at an angle.
+
+## Video 8-9: Brick Class and Collisions
 
 \`\`\`python
 # brick.py
@@ -1005,182 +1642,123 @@ class Brick(pygame.sprite.Sprite):
     def __init__(self, x, y, hits=1):
         super().__init__()
         self.hits = hits
-        self.max_hits = hits
         self.image = pygame.Surface((BRICK_WIDTH, BRICK_HEIGHT))
         self.image.fill(COLORS.get(hits, (150, 150, 150)))
-        self.rect = self.image.get_rect()
-        self.rect.topleft = (x, y)
+        self.rect = self.image.get_rect(topleft=(x, y))
 
     def hit(self):
         self.hits -= 1
         if self.hits <= 0:
             self.kill()
         else:
-            # change color to show damage
             self.image.fill(COLORS.get(self.hits, (150, 150, 150)))
 \`\`\`
 
-## Main Game Loop
+---
 
-\`\`\`python
-# main.py
-import pygame
-from settings import *
-from paddle import Paddle
-from ball import Ball
-from brick import Brick
+## 💡 Tips & Tricks
 
-def create_bricks():
-    bricks = pygame.sprite.Group()
-    for row in range(BRICK_ROWS):
-        for col in range(BRICK_COLS):
-            x = col * (BRICK_WIDTH + BRICK_PADDING) + 50
-            y = row * (BRICK_HEIGHT + BRICK_PADDING) + BRICK_TOP_OFFSET
-            hits = BRICK_ROWS - row  # top rows = more hits
-            brick = Brick(x, y, hits)
-            bricks.add(brick)
-    return bricks
+- **Gerber tip:** Keep all constants in settings.py — way easier to tune
+- **Gerber tip:** Check \`vy > 0\` before paddle bounce — prevents stuck ball
+- **Tip:** Use float positions for smooth movement, sync to rect each frame
+- **Tip:** Process only one brick collision per frame to prevent double-bounces
 
-def main():
-    pygame.init()
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Brick Breakaway")
-    clock = pygame.time.Clock()
-    font = pygame.font.Font(None, 36)
+---
 
-    paddle = Paddle()
-    ball = Ball()
-    bricks = create_bricks()
-    all_sprites = pygame.sprite.Group(paddle, ball, *bricks.sprites())
+## ⚠️ Common Mistakes
 
-    game_over = False
-    won = False
+- **Forgetting vy > 0 check** — ball gets stuck in paddle
+- **Integer positions causing jitter** — use floats, convert to int for rect
+- **Not clamping paddle to screen** — paddle escapes the window
+- **Multiple brick collisions per frame** — break after first hit
 
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                return
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE and not ball.active:
-                    ball.active = True
+---
 
-        if not game_over:
-            all_sprites.update()
+## Step 2 — Improvement Ideas (20+ points required)
 
-            # ball hits paddle
-            if ball.rect.colliderect(paddle.rect) and ball.vy > 0:
-                ball.vy *= -1
-
-            # ball hits bricks
-            hit_bricks = pygame.sprite.spritecollide(ball, bricks, False)
-            for brick in hit_bricks:
-                ball.vy *= -1
-                brick.hit()
-                break  # only one brick per frame
-
-            # ball falls off bottom
-            if ball.rect.top > HEIGHT:
-                game_over = True
-
-            # all bricks cleared
-            if len(bricks) == 0:
-                game_over = True
-                won = True
-
-        screen.fill((10, 10, 30))
-        all_sprites.draw(screen)
-
-        if not ball.active:
-            text = font.render("Press SPACE to start", True, (255, 255, 255))
-            screen.blit(text, (WIDTH//2 - text.get_width()//2, HEIGHT//2))
-
-        if game_over:
-            msg = "YOU WIN!" if won else "GAME OVER"
-            text = font.render(msg, True, (255, 255, 0))
-            screen.blit(text, (WIDTH//2 - text.get_width()//2, HEIGHT//2))
-
-        pygame.display.flip()
-        clock.tick(FPS)
-
-if __name__ == "__main__":
-    main()
-\`\`\`
-
-## Step 2 — Improvement Ideas
-
-Pick options worth at least 20 points total:
-- **Informative Text (5pts)** — spacebar prompt + game over message (already in template above!)
-- **Randomized Ball Start (5pts)** — use \`random.uniform(-45, 45)\` for angle, convert to vx/vy with trig
-- **Player Life (10pts)** — track lives, spawn new ball when one falls off
-- **Additional Levels (10pts)** — reload \`create_bricks()\` with different layout after clearing
-- **Power Up Bricks (15pts)** — special Brick subclass that drops a falling power-up on death
+- **Informative Text (5pts)** — spacebar prompt + game over message
+- **Randomized Ball Start (5pts)** — random angle on launch
+- **Player Life (10pts)** — 3 lives, reset ball on fall
+- **Additional Levels (10pts)** — new brick layout after clearing
+- **Power Up Bricks (15pts)** — special bricks drop power-ups
 `,
-    starterCode: `# Brick Breakaway starter — minimal working version
-# Run this locally, then add Step 2 improvements
-
+    starterCode: `# Brick Breakaway — complete starter with delta time
 import pygame
-import sys
 pygame.init()
 
 WIDTH, HEIGHT = 800, 600
 FPS = 60
-PADDLE_SPEED = 7
-BALL_SPEED = 5
+PADDLE_SPEED = 400
+BALL_SPEED = 350
 BRICK_ROWS, BRICK_COLS = 5, 10
 BRICK_W, BRICK_H = 72, 24
-BRICK_PAD = 4
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Brick Breakaway")
 clock = pygame.time.Clock()
 font = pygame.font.Font(None, 36)
 
-# paddle
+# Paddle
 paddle = pygame.Rect(WIDTH//2 - 60, HEIGHT - 40, 120, 15)
+paddle_float_x = float(paddle.x)
 
-# ball
-bx, by = WIDTH//2, HEIGHT//2
-bvx, bvy = BALL_SPEED, -BALL_SPEED
+# Ball (float position)
+bx, by = float(WIDTH//2), float(HEIGHT//2)
+bvx, bvy = BALL_SPEED * 0.7, -BALL_SPEED
 ball_active = False
 BALL_R = 10
 
-# bricks
+# Bricks
 bricks = []
 colors = [(255,80,80),(255,140,0),(255,220,0),(100,220,100),(100,180,255)]
 for row in range(BRICK_ROWS):
     for col in range(BRICK_COLS):
-        x = col * (BRICK_W + BRICK_PAD) + 40
-        y = row * (BRICK_H + BRICK_PAD) + 80
+        x = col * (BRICK_W + 4) + 40
+        y = row * (BRICK_H + 4) + 80
         bricks.append(pygame.Rect(x, y, BRICK_W, BRICK_H))
 
 running = True
 while running:
+    dt = clock.tick(FPS) / 1000.0
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
             ball_active = True
 
-    # paddle movement
+    # Paddle movement with dt
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT] and paddle.left > 0:   paddle.x -= PADDLE_SPEED
-    if keys[pygame.K_RIGHT] and paddle.right < WIDTH: paddle.x += PADDLE_SPEED
+    if keys[pygame.K_LEFT] and paddle.left > 0:
+        paddle_float_x -= PADDLE_SPEED * dt
+    if keys[pygame.K_RIGHT] and paddle.right < WIDTH:
+        paddle_float_x += PADDLE_SPEED * dt
+    paddle.x = int(paddle_float_x)
 
     if ball_active:
-        bx += bvx
-        by += bvy
+        bx += bvx * dt
+        by += bvy * dt
 
-        # wall bounces
-        if bx - BALL_R <= 0 or bx + BALL_R >= WIDTH: bvx *= -1
-        if by - BALL_R <= 0: bvy *= -1
+        # Wall bounces
+        if bx - BALL_R <= 0:
+            bx = BALL_R
+            bvx = abs(bvx)
+        elif bx + BALL_R >= WIDTH:
+            bx = WIDTH - BALL_R
+            bvx = -abs(bvx)
+        if by - BALL_R <= 0:
+            by = BALL_R
+            bvy = abs(bvy)
 
-        # paddle bounce
+        # Paddle bounce
         ball_rect = pygame.Rect(bx-BALL_R, by-BALL_R, BALL_R*2, BALL_R*2)
         if ball_rect.colliderect(paddle) and bvy > 0:
-            bvy *= -1
+            bvy = -abs(bvy)
+            # Offset for angle
+            offset = (bx - paddle.centerx) / (paddle.width / 2)
+            bvx = BALL_SPEED * offset * 0.8
 
-        # brick collisions
+        # Brick collision
         for brick in bricks[:]:
             if ball_rect.colliderect(brick):
                 bricks.remove(brick)
@@ -1206,75 +1784,70 @@ while running:
         screen.blit(txt, (WIDTH//2 - txt.get_width()//2, HEIGHT//2))
 
     pygame.display.flip()
-    clock.tick(FPS)
 
 pygame.quit()
 `,
     examples: [
       {
-        title: "Randomized Ball Launch Direction",
-        explanation: "Step 2 option — ball launches at a random angle on spacebar",
-        code: `import math, random
-
-def launch_ball_random():
-    # random angle between -60 and 60 degrees (downward direction)
-    angle_deg = random.uniform(-60, 60)
-    angle_rad = math.radians(angle_deg)
-    speed = 5
-    vx = speed * math.sin(angle_rad)
-    vy = -speed * math.cos(angle_rad)  # negative = upward
-    return vx, vy
-
-# usage:
-# if event.key == pygame.K_SPACE:
-#     ball.vx, ball.vy = launch_ball_random()
-#     ball.active = True`,
-      },
-      {
         title: "Player Lives System",
-        explanation: "Step 2 option — track lives, reset ball when it falls off",
+        explanation: "Step 2 option (10pts) — track lives, reset ball on fall",
         code: `lives = 3
-font = pygame.font.Font(None, 36)
 
-# when ball falls off bottom:
-if ball.rect.top > HEIGHT:
+# When ball falls:
+if by > HEIGHT:
     lives -= 1
     if lives <= 0:
         game_over = True
     else:
-        # reset ball position
-        ball.rect.center = (WIDTH // 2, HEIGHT - 100)
-        ball.vx = BALL_SPEED
-        ball.vy = -BALL_SPEED
-        ball.active = False  # wait for spacebar again
+        # Reset ball
+        bx, by = float(WIDTH//2), float(HEIGHT - 100)
+        bvx, bvy = BALL_SPEED * 0.7, -BALL_SPEED
+        ball_active = False
 
-# draw lives on screen:
-lives_text = font.render(f"Lives: {lives}", True, (255, 255, 255))
+# Draw lives:
+lives_text = font.render(f"Lives: {lives}", True, (255,255,255))
 screen.blit(lives_text, (10, 10))`,
+      },
+      {
+        title: "Randomized Ball Launch",
+        explanation: "Step 2 option (5pts) — random angle on spacebar",
+        code: `import math, random
+
+def launch_ball():
+    angle = random.uniform(-45, 45)  # degrees
+    rad = math.radians(angle)
+    vx = BALL_SPEED * math.sin(rad)
+    vy = -BALL_SPEED * math.cos(rad)  # negative = up
+    return vx, vy
+
+# On spacebar:
+if event.key == pygame.K_SPACE and not ball_active:
+    bvx, bvy = launch_ball()
+    ball_active = True`,
       },
     ],
     challenges: [
       {
         id: "breakaway-1",
-        prompt: "In Brick Breakaway, why do you check 'if ball.vy > 0' before bouncing off the paddle?",
-        hint: "Think about the ball moving upward through the paddle from below",
+        prompt: "Why check 'vy > 0' before bouncing off the paddle?",
+        hint: "What happens if the ball is already moving up?",
         validateFn: `
 def validate(answer):
     answer = answer.lower()
-    return ("down" in answer or "below" in answer or "upward" in answer or "through" in answer or "already" in answer or "moving" in answer)
+    return ("stuck" in answer or "through" in answer or "down" in answer or "moving" in answer)
 `,
-        solution: "If you don't check, the ball can get stuck inside the paddle and bounce back and forth rapidly. Checking vy > 0 means the ball is moving downward — only then do we reverse it upward.",
+        solution: "Without the check, the ball can get stuck inside the paddle and vibrate. vy > 0 means it's moving down — only then should we bounce it up.",
       },
       {
         id: "breakaway-2",
-        prompt: "What's the formula to convert an angle (in degrees) to velocity components vx and vy in Pygame?",
-        hint: "Use math.sin for vx and math.cos for vy. Remember Pygame's y-axis is flipped.",
+        prompt: "What does the 'offset trick' do for paddle collision?",
+        hint: "Think about where on the paddle the ball hits",
         validateFn: `
 def validate(answer):
     answer = answer.lower()
-    return ("sin" in answer or "cos" in answer) and ("angle" in answer or "radians" in answer or "math" in answer)
+    return ("angle" in answer or "direction" in answer or "edge" in answer or "position" in answer or "where" in answer)
 `,
-        solution: "angle_rad = math.radians(angle_deg); vx = speed * math.sin(angle_rad); vy = -speed * math.cos(angle_rad). The negative vy is because Pygame's y increases downward.",
+        solution: "It changes the ball's horizontal velocity based on where it hits the paddle. Hit the edge = steep angle. Hit the center = straight up.",
       },
     ],
   },
@@ -1289,382 +1862,197 @@ def validate(answer):
     theory: `
 ## What You're Building
 
-Tower Defense is that genre where enemies walk down a path and you place towers to shoot them. It's more complex than Brick Breakaway because you need multiple enemy types, targeting logic, and projectiles that actually track things. This one took me a while to wrap my head around but once the pieces clicked it made sense.
+Tower Defense: enemies walk down a path, you place towers to shoot them. More complex than Brick Breakaway because you need waypoint pathfinding, targeting logic, and projectiles that track moving targets.
 
-## Core Components
+---
+
+## 🎬 Gerber's Video Breakdown (12 Videos)
+
+**Video 1: Project Setup**
+- Folder structure, main.py, settings.py
+- Basic window and game loop
+
+**Video 2: Game Settings**
+- Constants file: screen size, colors
+- Tower cost, enemy speed, projectile damage
+- Starting gold and lives
+
+**Video 3: Game Loop Setup**
+- Clock and dt for frame-rate independence
+- Event handling structure
+- Update/draw pattern
+
+**Video 4: Adding the Map**
+- Loading tilemap from 2D list
+- 0 = grass (buildable), 1 = path
+- Drawing tiles with nested loops
+
+**Video 5: Creating the Level Class**
+- Encapsulate map data
+- Tile drawing method
+- \`can_build_tower(x, y)\` check
+
+**Video 6: Adding Level Data and Cursors**
+- Cursor highlight for tower placement
+- Click detection on tiles
+- Visual feedback before building
+
+**Video 7: Enemy Class Attributes**
+- Waypoints list (path to follow)
+- current_waypoint index
+- Speed, HP, alive flag
+
+**Video 8: Enemy Methods and Spawning**
+- \`move_toward_waypoint()\` using normalize
+- Spawn timer, enemy list
+- Check if reached end
+
+**Video 9: Tower Class and Spawning**
+- Click to place (if gold and valid tile)
+- Range circle for targeting
+- Find nearest enemy in range
+
+**Video 10: Projectile Class**
+- Velocity toward target at creation
+- \`math.atan2(dy, dx)\` for angle
+- Store reference to target sprite
+
+**Video 11: Firing Projectiles**
+- Tower fire rate / cooldown timer
+- Spawn projectile toward nearest enemy
+- Track cooldown between shots
+
+**Video 12: Collision Detection**
+- Projectile hits enemy (distance check)
+- Deal damage, kill when HP <= 0
+- Remove projectile after hit
+
+---
+
+## Project Structure
 
 \`\`\`
 TowerDefense/
-├── main.py          # game loop, spawning, main()
-├── settings.py      # constants and game balance
-├── level.py         # Level class with map data and path
-├── enemy.py         # Enemy class with movement along path
-├── tower.py         # Tower class with targeting and firing
-├── projectile.py    # Projectile class that flies toward target
-└── assets/          # images and cursors
+├── main.py
+├── settings.py
+├── level.py      # map data + waypoints
+├── enemy.py
+├── tower.py
+└── projectile.py
 \`\`\`
 
-## Settings / Constants
+## Key Concepts
 
-I always start with settings. It's easier to balance the game later when all the numbers are in one file:
-
-\`\`\`python
-# settings.py
-WIDTH, HEIGHT = 800, 600
-FPS = 60
-
-# Tower settings
-TOWER_COST = 50
-TOWER_RANGE = 150
-TOWER_FIRE_RATE = 45    # frames between shots
-TOWER_DAMAGE = 25
-
-# Enemy settings
-ENEMY_SPEED = 2
-ENEMY_HP = 100
-
-# Projectile
-PROJECTILE_SPEED = 8
-
-# Player
-START_GOLD = 200
-START_LIVES = 10
-
-# Colors
-GRASS_COLOR = (34, 139, 34)
-PATH_COLOR = (139, 119, 101)
-\`\`\`
-
-## The Level Class
-
-This was confusing at first. The level stores the map layout AND the path that enemies follow:
+### Waypoint Path Following
 
 \`\`\`python
-# level.py
-import pygame
-from settings import *
-
-class Level:
-    def __init__(self, map_data, waypoints):
-        self.map_data = map_data      # 2D grid: 0=grass, 1=path
-        self.waypoints = waypoints    # list of (x,y) points enemies walk through
-        self.tile_size = 40
-
-    def draw(self, screen):
-        for row_idx, row in enumerate(self.map_data):
-            for col_idx, tile in enumerate(row):
-                x = col_idx * self.tile_size
-                y = row_idx * self.tile_size
-                color = PATH_COLOR if tile == 1 else GRASS_COLOR
-                pygame.draw.rect(screen, color, (x, y, self.tile_size, self.tile_size))
-
-    def can_build_tower(self, x, y):
-        # can only build on grass, not on path
-        col = x // self.tile_size
-        row = y // self.tile_size
-        if 0 <= row < len(self.map_data) and 0 <= col < len(self.map_data[0]):
-            return self.map_data[row][col] == 0
-        return False
-\`\`\`
-
-## Level Data and Waypoints
-
-The map is just a 2D list. The waypoints tell enemies where to walk:
-
-\`\`\`python
-# level data — 0=grass (buildable), 1=path
-MAP_DATA = [
-    [0,0,0,1,0,0,0,0,0,0],
-    [0,0,0,1,0,0,0,0,0,0],
-    [0,0,0,1,1,1,1,0,0,0],
-    [0,0,0,0,0,0,1,0,0,0],
-    [0,0,0,0,0,0,1,1,1,0],
-    [0,0,0,0,0,0,0,0,1,0],
-]
-
-# waypoints: corners where path turns
-WAYPOINTS = [
-    (140, 0),    # start off-screen top
-    (140, 100),
-    (280, 100),
-    (280, 180),
-    (360, 180),  # had to fiddle with these numbers
-    (360, 220),
-]
-\`\`\`
-
-## Enemy Class
-
-Enemies follow the waypoints. This part took me a bit because you need to track which waypoint they're heading toward:
-
-\`\`\`python
-# enemy.py
-import pygame
-import math
-from settings import *
-
-class Enemy(pygame.sprite.Sprite):
+class Enemy:
     def __init__(self, waypoints):
-        super().__init__()
-        self.image = pygame.Surface((30, 30))
-        self.image.fill((255, 50, 50))  # red square for now
-        self.rect = self.image.get_rect()
-
         self.waypoints = waypoints
-        self.waypoint_index = 0
+        self.wp_index = 0
         self.pos = pygame.math.Vector2(waypoints[0])
-        self.rect.center = self.pos
+        self.speed = 80
 
-        self.hp = ENEMY_HP
-        self.speed = ENEMY_SPEED
+    def update(self, dt):
+        if self.wp_index >= len(self.waypoints):
+            return True  # reached end, damage player
 
-    def update(self):
-        if self.waypoint_index < len(self.waypoints):
-            target = pygame.math.Vector2(self.waypoints[self.waypoint_index])
-            direction = target - self.pos
-            dist = direction.length()
+        target = pygame.math.Vector2(self.waypoints[self.wp_index])
+        direction = target - self.pos
+        dist = direction.length()
 
-            if dist < self.speed:
-                # reached waypoint, go to next
-                self.pos = target
-                self.waypoint_index += 1
-            else:
-                # move toward waypoint
-                direction = direction.normalize()
-                self.pos += direction * self.speed
-
-            self.rect.center = self.pos
+        if dist < self.speed * dt:
+            self.pos = target
+            self.wp_index += 1
         else:
-            # reached end — deal damage to player
-            self.kill()
-            return True  # signal that enemy got through
-        return False
-
-    def take_damage(self, dmg):
-        self.hp -= dmg
-        if self.hp <= 0:
-            self.kill()
-            return True  # died
+            direction = direction.normalize()
+            self.pos += direction * self.speed * dt
         return False
 \`\`\`
 
-## Tower Class
-
-Towers need to find the closest enemy in range and shoot at it:
+### Tower Targeting with math.atan2
 
 \`\`\`python
-# tower.py
-import pygame
 import math
-from settings import *
-from projectile import Projectile
 
-class Tower(pygame.sprite.Sprite):
-    def __init__(self, x, y, projectiles_group):
-        super().__init__()
-        self.image = pygame.Surface((40, 40), pygame.SRCALPHA)
-        pygame.draw.polygon(self.image, (100, 100, 200), [(20,0), (40,40), (0,40)])
-        self.rect = self.image.get_rect()
-        self.rect.center = (x, y)
+def find_closest_enemy(tower_pos, enemies, tower_range):
+    closest = None
+    closest_dist = tower_range + 1
+    for enemy in enemies:
+        if not enemy.alive:
+            continue
+        dist = math.dist(tower_pos, enemy.pos)
+        if dist <= tower_range and dist < closest_dist:
+            closest = enemy
+            closest_dist = dist
+    return closest
 
-        self.projectiles = projectiles_group
-        self.fire_cooldown = 0
-        self.target = None
-
-    def find_target(self, enemies):
-        # find closest enemy in range
-        closest = None
-        closest_dist = TOWER_RANGE + 1
-
-        for enemy in enemies:
-            dist = math.dist(self.rect.center, enemy.rect.center)
-            if dist < TOWER_RANGE and dist < closest_dist:
-                closest = enemy
-                closest_dist = dist
-
-        self.target = closest
-
-    def update(self, enemies):
-        if self.fire_cooldown > 0:
-            self.fire_cooldown -= 1
-
-        self.find_target(enemies)
-
-        if self.target and self.fire_cooldown <= 0:
-            # shoot!
-            proj = Projectile(self.rect.center, self.target)
-            self.projectiles.add(proj)
-            self.fire_cooldown = TOWER_FIRE_RATE
+def calc_projectile_velocity(start, target_pos, speed):
+    dx = target_pos[0] - start[0]
+    dy = target_pos[1] - start[1]
+    angle = math.atan2(dy, dx)
+    return math.cos(angle) * speed, math.sin(angle) * speed
 \`\`\`
 
-## Projectile Class
-
-Projectiles fly toward their target. The tricky bit is they need to track a moving target:
+### Projectile Tracking
 
 \`\`\`python
-# projectile.py
-import pygame
-from settings import *
+class Projectile:
+    def __init__(self, pos, target):
+        self.pos = pygame.math.Vector2(pos)
+        self.target = target  # reference to enemy
+        self.speed = 400
+        self.damage = 25
+        self.alive = True
 
-class Projectile(pygame.sprite.Sprite):
-    def __init__(self, start_pos, target):
-        super().__init__()
-        self.image = pygame.Surface((8, 8))
-        self.image.fill((255, 255, 0))  # yellow dot
-        self.rect = self.image.get_rect()
-        self.rect.center = start_pos
+    def update(self, dt):
+        if not self.target or not self.target.alive:
+            self.alive = False
+            return
 
-        self.pos = pygame.math.Vector2(start_pos)
-        self.target = target  # reference to enemy sprite
-        self.speed = PROJECTILE_SPEED
-        self.damage = TOWER_DAMAGE
+        target_pos = pygame.math.Vector2(self.target.pos)
+        direction = target_pos - self.pos
+        dist = direction.length()
 
-    def update(self):
-        if self.target and self.target.alive():
-            # fly toward target's current position
-            target_pos = pygame.math.Vector2(self.target.rect.center)
-            direction = target_pos - self.pos
-            dist = direction.length()
-
-            if dist < self.speed:
-                # hit!
-                self.target.take_damage(self.damage)
-                self.kill()
-            else:
-                direction = direction.normalize()
-                self.pos += direction * self.speed
-                self.rect.center = self.pos
+        if dist < self.speed * dt:
+            self.target.hp -= self.damage
+            if self.target.hp <= 0:
+                self.target.alive = False
+            self.alive = False
         else:
-            # target died or doesn't exist
-            self.kill()
+            self.pos += direction.normalize() * self.speed * dt
 \`\`\`
 
-## Main Game Loop
+---
 
-Putting it all together. This is where spawning enemies and handling collisions happens:
+## 💡 Tips & Tricks
 
-\`\`\`python
-# main.py
-import pygame
-from settings import *
-from level import Level
-from enemy import Enemy
-from tower import Tower
+- **Gerber tip:** Store enemy reference in projectile, not just position — tracks moving targets
+- **Tip:** \`math.atan2(dy, dx)\` gives angle in radians — essential for aiming
+- **Tip:** Check \`enemy.alive\` before targeting — prevents crashes
+- **Tip:** Wave scaling: increase enemy HP/speed each wave for difficulty curve
 
-MAP_DATA = [
-    [0,0,0,1,0,0,0,0,0,0],
-    [0,0,0,1,0,0,0,0,0,0],
-    [0,0,0,1,1,1,1,0,0,0],
-    [0,0,0,0,0,0,1,0,0,0],
-    [0,0,0,0,0,0,1,1,1,0],
-    [0,0,0,0,0,0,0,0,1,0],
-]
+---
 
-WAYPOINTS = [(140,-30), (140,60), (260,60), (260,140), (340,140), (340,220)]
+## ⚠️ Common Mistakes
 
-def main():
-    pygame.init()
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Tower Defense")
-    clock = pygame.time.Clock()
-    font = pygame.font.Font(None, 32)
+- **Storing position instead of reference** — projectiles miss moving enemies
+- **Not checking if target is alive** — crashes when enemy dies mid-flight
+- **Forgetting to normalize direction** — speed varies with distance
+- **Spawning too many enemies at once** — overwhelms player immediately
 
-    level = Level(MAP_DATA, WAYPOINTS)
+---
 
-    enemies = pygame.sprite.Group()
-    towers = pygame.sprite.Group()
-    projectiles = pygame.sprite.Group()
+## Step 2 Options (20+ points required)
 
-    gold = START_GOLD
-    lives = START_LIVES
-    spawn_timer = 0
-    wave = 1
-    enemies_per_wave = 5
-    enemies_spawned = 0
-
-    running = True
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                mx, my = pygame.mouse.get_pos()
-                if gold >= TOWER_COST and level.can_build_tower(mx, my):
-                    tower = Tower(mx, my, projectiles)
-                    towers.add(tower)
-                    gold -= TOWER_COST
-
-        # spawn enemies
-        spawn_timer += 1
-        if spawn_timer >= 60 and enemies_spawned < enemies_per_wave:
-            enemy = Enemy(WAYPOINTS)
-            enemies.add(enemy)
-            enemies_spawned += 1
-            spawn_timer = 0
-
-        # update everything
-        for enemy in enemies:
-            if enemy.update():  # returns True if reached end
-                lives -= 1
-
-        for tower in towers:
-            tower.update(enemies)
-
-        projectiles.update()
-
-        # check if wave complete
-        if enemies_spawned >= enemies_per_wave and len(enemies) == 0:
-            wave += 1
-            enemies_per_wave += 2
-            enemies_spawned = 0
-            gold += 50  # bonus gold between waves
-
-        # draw
-        screen.fill(GRASS_COLOR)
-        level.draw(screen)
-        enemies.draw(screen)
-        towers.draw(screen)
-        projectiles.draw(screen)
-
-        # UI
-        gold_text = font.render(f"Gold: {gold}", True, (255, 215, 0))
-        lives_text = font.render(f"Lives: {lives}", True, (255, 255, 255))
-        wave_text = font.render(f"Wave: {wave}", True, (255, 255, 255))
-        screen.blit(gold_text, (10, 10))
-        screen.blit(lives_text, (10, 40))
-        screen.blit(wave_text, (10, 70))
-
-        if lives <= 0:
-            over_text = font.render("GAME OVER", True, (255, 0, 0))
-            screen.blit(over_text, (WIDTH//2 - 60, HEIGHT//2))
-
-        pygame.display.flip()
-        clock.tick(FPS)
-
-    pygame.quit()
-
-if __name__ == "__main__":
-    main()
-\`\`\`
-
-## Step 2 — Improvement Ideas
-
-Pick options worth at least 20 points total:
-
-- **Tower Sprite (5pts)** — load an actual image for towers instead of drawing a triangle
-- **Projectile Sprite with rotation (5pts)** — sprite that rotates to face its target using \`pygame.transform.rotate()\`
-- **Balance: Waves (5pts)** — enemies get faster/tougher each wave, tune spawn rates
-- **Informative Text (5pts)** — show how to build towers + display game over screen
-- **Enemy Sprites 3 directions (10pts)** — sprite sheet with up/down/left-right facing frames, switch based on movement direction
-- **Enemy HP Bar (10pts)** — draw a small health bar above each enemy showing remaining HP
-- **Player Life (10pts)** — visual lives display, maybe small heart icons
-- **Additional Levels (10pts)** — load a new map/waypoints after clearing a certain number of waves
-- **New Tower Type inheriting Tower class (15pts)** — create a subclass with different mechanics like splash damage, rapid fire, or slow effect
+- **Tower Sprite (5pts)** — load image instead of drawing shape
+- **Projectile Rotation (5pts)** — rotate sprite to face target
+- **Wave Balance (5pts)** — enemies scale with waves
+- **Enemy HP Bar (10pts)** — draw health above enemies
+- **Additional Levels (10pts)** — new maps after X waves
+- **New Tower Type (15pts)** — subclass with splash damage or slow
 `,
-    starterCode: `# Tower Defense starter — minimal working version
-# Run locally, then add Step 2 improvements
-
+    starterCode: `# Tower Defense — complete starter with delta time
 import pygame
 import math
 pygame.init()
@@ -1673,14 +2061,14 @@ WIDTH, HEIGHT = 800, 600
 FPS = 60
 TOWER_RANGE = 120
 TOWER_COST = 50
-TOWER_FIRE_RATE = 40
+TOWER_FIRE_RATE = 0.8  # seconds between shots
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Tower Defense")
 clock = pygame.time.Clock()
 font = pygame.font.Font(None, 32)
 
-# map: 0=grass, 1=path
+# Map: 0=grass, 1=path
 MAP = [
     [0,0,0,1,0,0,0,0,0,0],
     [0,0,0,1,0,0,0,0,0,0],
@@ -1688,254 +2076,219 @@ MAP = [
     [0,0,0,0,0,0,1,0,0,0],
     [0,0,0,0,0,0,1,1,1,1],
 ]
-TILE_SIZE = 80
-WAYPOINTS = [(3*80+40, -20), (3*80+40, 1*80+40), (6*80+40, 2*80+40), (6*80+40, 3*80+40), (9*80+40, 4*80+40), (9*80+40, HEIGHT+20)]
+TILE = 80
+WAYPOINTS = [(3*TILE+40,-20), (3*TILE+40,1*TILE+40), (6*TILE+40,2*TILE+40),
+             (6*TILE+40,3*TILE+40), (9*TILE+40,4*TILE+40), (9*TILE+40,HEIGHT+20)]
 
-# game state
-gold = 200
-lives = 10
-wave = 1
-spawn_timer = 0
-enemies_this_wave = 5
-spawned = 0
+gold, lives, wave = 200, 10, 1
+spawn_timer, spawned, enemies_per_wave = 0.0, 0, 5
 
-# lists instead of sprite groups for simplicity
-enemies = []
-towers = []
-projectiles = []
+enemies, towers, projectiles = [], [], []
 
 class Enemy:
     def __init__(self):
-        self.x, self.y = WAYPOINTS[0]
+        self.pos = pygame.math.Vector2(WAYPOINTS[0])
         self.wp_idx = 0
-        self.speed = 1.5
+        self.speed = 80
         self.hp = 80
         self.alive = True
 
-    def update(self):
-        if self.wp_idx < len(WAYPOINTS):
-            tx, ty = WAYPOINTS[self.wp_idx]
-            dx, dy = tx - self.x, ty - self.y
-            dist = math.sqrt(dx*dx + dy*dy)
-            if dist < self.speed:
-                self.x, self.y = tx, ty
-                self.wp_idx += 1
-            else:
-                self.x += (dx/dist) * self.speed
-                self.y += (dy/dist) * self.speed
-        else:
+    def update(self, dt):
+        if self.wp_idx >= len(WAYPOINTS):
             self.alive = False
-            return True  # got through
+            return True
+        target = pygame.math.Vector2(WAYPOINTS[self.wp_idx])
+        direction = target - self.pos
+        dist = direction.length()
+        if dist < self.speed * dt:
+            self.pos = target
+            self.wp_idx += 1
+        else:
+            self.pos += direction.normalize() * self.speed * dt
         return False
 
 class Tower:
     def __init__(self, x, y):
-        self.x, self.y = x, y
-        self.cooldown = 0
+        self.pos = (x, y)
+        self.cooldown = 0.0
 
-    def update(self, enemies):
+    def update(self, dt, enemies):
+        self.cooldown -= dt
         if self.cooldown > 0:
-            self.cooldown -= 1
-
-        # find closest enemy in range
-        closest = None
-        closest_dist = TOWER_RANGE + 1
+            return
+        target = None
+        closest = TOWER_RANGE + 1
         for e in enemies:
             if not e.alive: continue
-            d = math.dist((self.x, self.y), (e.x, e.y))
-            if d < TOWER_RANGE and d < closest_dist:
-                closest = e
-                closest_dist = d
-
-        if closest and self.cooldown <= 0:
-            projectiles.append(Projectile(self.x, self.y, closest))
+            d = math.dist(self.pos, e.pos)
+            if d <= TOWER_RANGE and d < closest:
+                target, closest = e, d
+        if target:
+            projectiles.append(Projectile(self.pos, target))
             self.cooldown = TOWER_FIRE_RATE
 
 class Projectile:
-    def __init__(self, x, y, target):
-        self.x, self.y = x, y
+    def __init__(self, pos, target):
+        self.pos = pygame.math.Vector2(pos)
         self.target = target
-        self.speed = 6
+        self.speed = 400
         self.alive = True
 
-    def update(self):
-        if not self.target.alive:
+    def update(self, dt):
+        if not self.target or not self.target.alive:
             self.alive = False
             return
-        dx = self.target.x - self.x
-        dy = self.target.y - self.y
-        dist = math.sqrt(dx*dx + dy*dy)
-        if dist < self.speed:
+        direction = pygame.math.Vector2(self.target.pos) - self.pos
+        dist = direction.length()
+        if dist < self.speed * dt:
             self.target.hp -= 30
             if self.target.hp <= 0:
                 self.target.alive = False
             self.alive = False
         else:
-            self.x += (dx/dist) * self.speed
-            self.y += (dy/dist) * self.speed
+            self.pos += direction.normalize() * self.speed * dt
 
 running = True
 while running:
+    dt = clock.tick(FPS) / 1000.0
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             mx, my = pygame.mouse.get_pos()
-            col, row = mx // TILE_SIZE, my // TILE_SIZE
+            col, row = mx // TILE, my // TILE
             if row < len(MAP) and col < len(MAP[0]) and MAP[row][col] == 0:
                 if gold >= TOWER_COST:
                     towers.append(Tower(mx, my))
                     gold -= TOWER_COST
 
-    # spawn
-    spawn_timer += 1
-    if spawn_timer >= 80 and spawned < enemies_this_wave:
+    # Spawn enemies
+    spawn_timer += dt
+    if spawn_timer >= 1.0 and spawned < enemies_per_wave:
         enemies.append(Enemy())
         spawned += 1
-        spawn_timer = 0
+        spawn_timer = 0.0
 
-    # update enemies
+    # Update
     for e in enemies[:]:
-        if e.update():  # got through
-            lives -= 1
-        if not e.alive:
-            enemies.remove(e)
-
-    # update towers
-    for t in towers:
-        t.update(enemies)
-
-    # update projectiles
+        if e.update(dt): lives -= 1
+        if not e.alive: enemies.remove(e)
+    for t in towers: t.update(dt, enemies)
     for p in projectiles[:]:
-        p.update()
-        if not p.alive:
-            projectiles.remove(p)
+        p.update(dt)
+        if not p.alive: projectiles.remove(p)
 
-    # next wave check
-    if spawned >= enemies_this_wave and len(enemies) == 0:
+    # Next wave
+    if spawned >= enemies_per_wave and not enemies:
         wave += 1
-        enemies_this_wave += 2
+        enemies_per_wave += 2
         spawned = 0
         gold += 40
 
-    # draw map
+    # Draw
     screen.fill((34, 100, 34))
     for r, row in enumerate(MAP):
         for c, tile in enumerate(row):
             color = (139, 119, 101) if tile == 1 else (34, 139, 34)
-            pygame.draw.rect(screen, color, (c*TILE_SIZE, r*TILE_SIZE, TILE_SIZE, TILE_SIZE))
-
-    # draw enemies
+            pygame.draw.rect(screen, color, (c*TILE, r*TILE, TILE, TILE))
     for e in enemies:
-        pygame.draw.circle(screen, (255, 50, 50), (int(e.x), int(e.y)), 15)
-
-    # draw towers
+        pygame.draw.circle(screen, (255,50,50), (int(e.pos.x), int(e.pos.y)), 15)
     for t in towers:
-        pygame.draw.circle(screen, (100, 100, 200), (t.x, t.y), 20)
-
-    # draw projectiles
+        pygame.draw.circle(screen, (100,100,200), t.pos, 20)
     for p in projectiles:
-        pygame.draw.circle(screen, (255, 255, 0), (int(p.x), int(p.y)), 5)
+        pygame.draw.circle(screen, (255,255,0), (int(p.pos.x), int(p.pos.y)), 5)
 
-    # UI
     screen.blit(font.render(f"Gold: {gold}", True, (255,215,0)), (10,10))
     screen.blit(font.render(f"Lives: {lives}", True, (255,255,255)), (10,40))
     screen.blit(font.render(f"Wave: {wave}", True, (255,255,255)), (10,70))
-    screen.blit(font.render("Click grass to build tower", True, (200,200,200)), (10, HEIGHT-30))
+    screen.blit(font.render("Click grass to build", True, (200,200,200)), (10, HEIGHT-30))
 
     if lives <= 0:
         screen.blit(font.render("GAME OVER", True, (255,0,0)), (WIDTH//2-60, HEIGHT//2))
 
     pygame.display.flip()
-    clock.tick(FPS)
 
 pygame.quit()
 `,
     examples: [
       {
         title: "Enemy HP Bar",
-        explanation: "Step 2 option — draw a health bar above each enemy showing remaining HP",
-        code: `def draw_enemy_hp_bar(screen, enemy):
-    bar_width = 40
-    bar_height = 6
-    bar_x = int(enemy.x) - bar_width // 2
-    bar_y = int(enemy.y) - 25  # above the enemy
+        explanation: "Step 2 option (10pts) — health bar above enemies",
+        code: `def draw_hp_bar(screen, enemy):
+    bar_w, bar_h = 40, 6
+    x = int(enemy.pos.x) - bar_w // 2
+    y = int(enemy.pos.y) - 25
 
-    # background (red)
-    pygame.draw.rect(screen, (100, 0, 0), (bar_x, bar_y, bar_width, bar_height))
+    # Background (red)
+    pygame.draw.rect(screen, (100,0,0), (x, y, bar_w, bar_h))
+    # Health (green)
+    hp_ratio = max(0, enemy.hp / 80)
+    pygame.draw.rect(screen, (0,200,0), (x, y, int(bar_w * hp_ratio), bar_h))
+    # Border
+    pygame.draw.rect(screen, (0,0,0), (x, y, bar_w, bar_h), 1)
 
-    # health (green) — scales with remaining HP
-    hp_ratio = max(0, enemy.hp / 80)  # 80 is max HP
-    pygame.draw.rect(screen, (0, 200, 0), (bar_x, bar_y, int(bar_width * hp_ratio), bar_height))
-
-    # border
-    pygame.draw.rect(screen, (0, 0, 0), (bar_x, bar_y, bar_width, bar_height), 1)
-
-# in the draw loop:
+# In draw loop:
 for e in enemies:
-    pygame.draw.circle(screen, (255, 50, 50), (int(e.x), int(e.y)), 15)
-    draw_enemy_hp_bar(screen, e)`,
+    pygame.draw.circle(screen, (255,50,50), (int(e.pos.x), int(e.pos.y)), 15)
+    draw_hp_bar(screen, e)`,
       },
       {
-        title: "New Tower Type — Splash Damage",
-        explanation: "Step 2 option (15pts) — tower subclass that damages all enemies in an area",
+        title: "Splash Tower (New Type)",
+        explanation: "Step 2 option (15pts) — damages all enemies near target",
         code: `class SplashTower(Tower):
     def __init__(self, x, y):
         super().__init__(x, y)
         self.splash_radius = 60
-        self.damage = 20  # less damage but hits multiple
+        self.damage = 15  # less than normal, but hits many
 
-    def update(self, enemies):
+    def update(self, dt, enemies):
+        self.cooldown -= dt
         if self.cooldown > 0:
-            self.cooldown -= 1
             return
 
-        # find closest enemy
-        closest = None
-        closest_dist = TOWER_RANGE + 1
+        # Find target (same as before)
+        target = None
+        closest = TOWER_RANGE + 1
         for e in enemies:
             if not e.alive: continue
-            d = math.dist((self.x, self.y), (e.x, e.y))
-            if d < TOWER_RANGE and d < closest_dist:
-                closest = e
-                closest_dist = d
+            d = math.dist(self.pos, e.pos)
+            if d <= TOWER_RANGE and d < closest:
+                target, closest = e, d
 
-        if closest and self.cooldown <= 0:
-            # damage ALL enemies near the target
+        if target:
+            # Damage ALL enemies near target
             for e in enemies:
                 if not e.alive: continue
-                d = math.dist((closest.x, closest.y), (e.x, e.y))
+                d = math.dist(target.pos, e.pos)
                 if d <= self.splash_radius:
                     e.hp -= self.damage
-                    if e.hp <= 0:
-                        e.alive = False
-            self.cooldown = TOWER_FIRE_RATE * 1.5  # slower fire rate
-
-# could make it cost more: SPLASH_TOWER_COST = 80`,
+                    if e.hp <= 0: e.alive = False
+            self.cooldown = TOWER_FIRE_RATE * 1.5`,
       },
     ],
     challenges: [
       {
-        id: "tower-defense-1",
-        prompt: "In Tower Defense, why do projectiles keep a reference to the target enemy instead of just storing the target's position?",
-        hint: "Think about what happens when the enemy moves",
+        id: "tower-1",
+        prompt: "Why store a reference to the target enemy instead of just its position?",
+        hint: "Enemies move while projectile is flying",
         validateFn: `
 def validate(answer):
     answer = answer.lower()
-    return ("move" in answer or "moving" in answer or "track" in answer or "follow" in answer or "update" in answer or "position" in answer)
+    return ("move" in answer or "track" in answer or "follow" in answer or "update" in answer)
 `,
-        solution: "Enemies move while the projectile is flying. If we only stored the position at fire time, the projectile would miss. Keeping a reference lets us track the enemy's current position each frame.",
+        solution: "Enemies move while the projectile flies. Storing the position at fire time means the projectile misses. Storing the reference lets us track current position each frame.",
       },
       {
-        id: "tower-defense-2",
-        prompt: "What's the formula to move an object toward a target at a constant speed?",
-        hint: "You need direction (normalized) multiplied by speed",
+        id: "tower-2",
+        prompt: "What does math.atan2(dy, dx) return?",
+        hint: "It's an angle measurement",
         validateFn: `
 def validate(answer):
     answer = answer.lower()
-    return ("normalize" in answer or "direction" in answer or "unit" in answer) and ("speed" in answer or "multiply" in answer or "*" in answer)
+    return ("angle" in answer or "radian" in answer) and ("point" in answer or "direction" in answer or "target" in answer)
 `,
-        solution: "direction = (target_pos - current_pos).normalize(); new_pos = current_pos + direction * speed. Normalizing gives a unit vector (length 1), then multiplying by speed gives consistent movement regardless of distance.",
+        solution: "The angle in radians from the positive x-axis to the point (dx, dy). Use with cos/sin to get velocity components toward a target.",
       },
     ],
   },
@@ -1950,414 +2303,290 @@ def validate(answer):
     theory: `
 ## What You're Building
 
-A character-based game with animated sprites, NPCs that move around, and collision interactions. This is the foundation for RPGs, platformers, or action games. The big new thing here is sprite sheets — loading multiple animation frames from a single image.
+A character-based game with animated sprites, NPCs that move around, and collision interactions. The foundation for RPGs, platformers, or action games. The big new thing is sprite sheets — multiple animation frames from a single image.
 
-## Core Components
+---
+
+## 🎬 Gerber's Video Breakdown (13 Videos)
+
+**Video 1: Project Setup**
+- Folder/file structure
+- Constants in settings.py
+
+**Video 2: Asset Selection and Background Display**
+- Loading background image
+- \`pygame.image.load()\` + \`.convert()\`
+- \`screen.blit(background, (0, 0))\`
+
+**Video 3: The Character Module**
+- Separate character.py file
+- Base class for shared code
+- Encapsulation of common attributes
+
+**Video 4: Surface Handler**
+- Extracting frames from sprite sheet
+- Pixel offset math: \`x = col * frame_width\`
+- \`pygame.SRCALPHA\` for transparency
+
+**Video 5: Displaying the User**
+- Blit character image at position
+- Initial placement on screen
+
+**Video 6: Animating the User**
+- \`frame_index\` counter
+- \`animation_timer\` for speed control
+- Cycling through frames with modulo
+
+**Video 7: User Movement**
+- Keyboard input with \`get_pressed()\`
+- Velocity-based movement
+- Boundary clamping
+
+**Video 8: Character Actions**
+- Additional key bindings (attack, interact)
+- Triggering action animation frames
+- Action state that locks movement
+
+**Video 9: Character Resize and User Limits**
+- \`pygame.transform.scale()\` for sizing
+- \`rect.clamp_ip()\` for screen bounds
+- Keeping aspect ratio
+
+**Video 10: Runner Class Setup**
+- NPC subclass of Character
+- Initial position and attributes
+- Different from player (AI-controlled)
+
+**Video 11: Runner Velocity**
+- Random direction or patrol pattern
+- Speed attribute
+- Movement each frame
+
+**Video 12: Runner Teleport**
+- Random teleport on condition
+- Edge bounce or wraparound
+- Respawn mechanic
+
+**Video 13: Collisions and Bug Fixes**
+- Player vs runner rect collision
+- Common bugs and fixes
+- Final polish
+
+---
+
+## Project Structure
 
 \`\`\`
 SpriteGame/
-├── main.py           # game loop, spawning NPCs
-├── settings.py       # constants
-├── character.py      # base Character class (shared code)
-├── surface_handler.py # loading and cutting sprite sheets
-├── user.py           # User class (player-controlled)
-├── runner.py         # Runner class (NPC that moves around)
-└── assets/           # sprite sheets and backgrounds
+├── main.py
+├── settings.py
+├── character.py       # base class
+├── surface_handler.py # sprite sheet loading
+├── user.py            # player character
+├── runner.py          # NPC class
+└── assets/            # sprites, backgrounds
 \`\`\`
 
-## The Character Module
-
-I made a base class that both the player and NPCs inherit from. Keeps things DRY:
+## Surface Handler Pattern
 
 \`\`\`python
-# character.py
-import pygame
-from settings import *
+class SurfaceHandler:
+    def __init__(self, sheet_path, frame_w, frame_h):
+        self.sheet = pygame.image.load(sheet_path).convert_alpha()
+        self.frame_w = frame_w
+        self.frame_h = frame_h
 
+    def get_frame(self, col, row=0):
+        x = col * self.frame_w
+        y = row * self.frame_h
+        frame = pygame.Surface((self.frame_w, self.frame_h), pygame.SRCALPHA)
+        frame.blit(self.sheet, (0, 0), (x, y, self.frame_w, self.frame_h))
+        return frame
+
+    def get_animation(self, row, num_frames):
+        return [self.get_frame(col, row) for col in range(num_frames)]
+\`\`\`
+
+## Base Character Class
+
+\`\`\`python
 class Character(pygame.sprite.Sprite):
     def __init__(self, x, y, frames):
         super().__init__()
-        self.frames = frames  # list of animation frames
+        self.frames = frames
         self.frame_index = 0
         self.animation_timer = 0
-        self.image = self.frames[0] if self.frames else pygame.Surface((40, 40))
-        self.rect = self.image.get_rect()
-        self.rect.center = (x, y)
-
-        self.vx = 0
-        self.vy = 0
+        self.image = frames[0] if frames else pygame.Surface((40, 40))
+        self.rect = self.image.get_rect(center=(x, y))
+        self.float_x = float(x)
+        self.float_y = float(y)
         self.facing_right = True
 
     def animate(self, speed=8):
-        # cycle through frames
         self.animation_timer += 1
         if self.animation_timer >= speed:
             self.animation_timer = 0
             self.frame_index = (self.frame_index + 1) % len(self.frames)
             self.image = self.frames[self.frame_index]
-
-            # flip if facing left
             if not self.facing_right:
                 self.image = pygame.transform.flip(self.image, True, False)
 \`\`\`
 
-## Surface Handler — Loading Sprite Sheets
-
-This part confused me at first. A sprite sheet is one big image with all the frames. You have to cut it up:
+## Runner NPC with Teleport
 
 \`\`\`python
-# surface_handler.py
-import pygame
-
-class SurfaceHandler:
-    def __init__(self, sheet_path, frame_width, frame_height):
-        self.sheet = pygame.image.load(sheet_path).convert_alpha()
-        self.frame_width = frame_width
-        self.frame_height = frame_height
-
-    def get_frame(self, col, row=0):
-        # cut a single frame from the sheet
-        x = col * self.frame_width
-        y = row * self.frame_height
-        frame = pygame.Surface((self.frame_width, self.frame_height), pygame.SRCALPHA)
-        frame.blit(self.sheet, (0, 0), (x, y, self.frame_width, self.frame_height))
-        return frame
-
-    def get_animation(self, row, num_frames):
-        # get a row of frames for animation
-        return [self.get_frame(col, row) for col in range(num_frames)]
-\`\`\`
-
-## The User Class
-
-Player-controlled character with keyboard movement and animations:
-
-\`\`\`python
-# user.py
-import pygame
-from settings import *
-from character import Character
-
-class User(Character):
-    def __init__(self, x, y, frames, action_frames=None):
-        super().__init__(x, y, frames)
-        self.action_frames = action_frames or []
-        self.doing_action = False
-        self.action_timer = 0
-        self.speed = 4
-
-    def update(self):
-        # handle action first (locks out movement)
-        if self.doing_action:
-            self.action_timer += 1
-            if self.action_timer >= len(self.action_frames) * 6:
-                self.doing_action = False
-                self.action_timer = 0
-            else:
-                frame_idx = self.action_timer // 6
-                self.image = self.action_frames[min(frame_idx, len(self.action_frames)-1)]
-                if not self.facing_right:
-                    self.image = pygame.transform.flip(self.image, True, False)
-            return
-
-        keys = pygame.key.get_pressed()
-        self.vx = 0
-        self.vy = 0
-
-        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-            self.vx = -self.speed
-            self.facing_right = False
-        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            self.vx = self.speed
-            self.facing_right = True
-        if keys[pygame.K_UP] or keys[pygame.K_w]:
-            self.vy = -self.speed
-        if keys[pygame.K_DOWN] or keys[pygame.K_s]:
-            self.vy = self.speed
-
-        self.rect.x += self.vx
-        self.rect.y += self.vy
-
-        # keep on screen
-        self.rect.clamp_ip(pygame.Rect(0, 0, WIDTH, HEIGHT))
-
-        # animate when moving
-        if self.vx != 0 or self.vy != 0:
-            self.animate(6)
-        else:
-            self.frame_index = 0
-            self.image = self.frames[0]
-            if not self.facing_right:
-                self.image = pygame.transform.flip(self.image, True, False)
-
-    def do_action(self):
-        if self.action_frames and not self.doing_action:
-            self.doing_action = True
-            self.action_timer = 0
-\`\`\`
-
-## The Runner Class (NPC)
-
-NPCs that wander around and can be "caught" or interacted with:
-
-\`\`\`python
-# runner.py
-import pygame
-import random
-from settings import *
-from character import Character
-
 class Runner(Character):
     def __init__(self, x, y, frames):
         super().__init__(x, y, frames)
-        self.vx = random.choice([-2, 2])
-        self.vy = random.choice([-2, 2])
-        self.direction_timer = 0
-        self.direction_change_interval = random.randint(60, 180)
+        self.vx = random.choice([-100, 100])
+        self.vy = random.choice([-100, 100])
+        self.change_timer = random.uniform(1.0, 3.0)
 
-    def update(self):
-        # random direction changes
-        self.direction_timer += 1
-        if self.direction_timer >= self.direction_change_interval:
-            self.direction_timer = 0
-            self.direction_change_interval = random.randint(60, 180)
-            self.vx = random.choice([-2, -1, 0, 1, 2])
-            self.vy = random.choice([-2, -1, 0, 1, 2])
+    def update(self, dt):
+        self.change_timer -= dt
+        if self.change_timer <= 0:
+            self.vx = random.choice([-100, -50, 0, 50, 100])
+            self.vy = random.choice([-100, -50, 0, 50, 100])
+            self.change_timer = random.uniform(1.0, 3.0)
 
-        # update facing direction
-        if self.vx > 0:
-            self.facing_right = True
-        elif self.vx < 0:
-            self.facing_right = False
+        self.float_x += self.vx * dt
+        self.float_y += self.vy * dt
 
-        self.rect.x += self.vx
-        self.rect.y += self.vy
-
-        # bounce off edges
-        if self.rect.left < 0 or self.rect.right > WIDTH:
+        # Bounce off edges
+        if self.float_x < 20 or self.float_x > WIDTH - 20:
             self.vx *= -1
-            self.rect.clamp_ip(pygame.Rect(0, 0, WIDTH, HEIGHT))
-        if self.rect.top < 0 or self.rect.bottom > HEIGHT:
+        if self.float_y < 20 or self.float_y > HEIGHT - 20:
             self.vy *= -1
-            self.rect.clamp_ip(pygame.Rect(0, 0, WIDTH, HEIGHT))
 
-        # animate
+        self.rect.center = (int(self.float_x), int(self.float_y))
+
         if self.vx != 0 or self.vy != 0:
-            self.animate(8)
+            self.animate(10)
 
-    def teleport_random(self):
-        # used when caught — reappear somewhere else
-        self.rect.centerx = random.randint(50, WIDTH - 50)
-        self.rect.centery = random.randint(50, HEIGHT - 50)
-        self.vx = random.choice([-2, 2])
-        self.vy = random.choice([-2, 2])
+    def teleport(self):
+        self.float_x = random.randint(50, WIDTH - 50)
+        self.float_y = random.randint(50, HEIGHT - 50)
+        self.rect.center = (int(self.float_x), int(self.float_y))
 \`\`\`
 
-## Main Game Loop
+---
 
-\`\`\`python
-# main.py
-import pygame
-import random
-from settings import *
-from surface_handler import SurfaceHandler
-from user import User
-from runner import Runner
+## 💡 Tips & Tricks
 
-def main():
-    pygame.init()
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Sprite Game")
-    clock = pygame.time.Clock()
-    font = pygame.font.Font(None, 36)
+- **Gerber tip:** Separate character.py keeps shared code DRY
+- **Tip:** \`pygame.SRCALPHA\` is required for transparent sprites
+- **Tip:** Flip sprites at runtime instead of making left-facing art
+- **Tip:** Animation speed of 8-10 frames feels natural for walking
 
-    # load background
-    # background = pygame.image.load("assets/background.png").convert()
-    background = pygame.Surface((WIDTH, HEIGHT))
-    background.fill((50, 100, 50))  # green grass placeholder
+---
 
-    # load sprite sheets (replace with actual paths)
-    # player_handler = SurfaceHandler("assets/player.png", 64, 64)
-    # player_frames = player_handler.get_animation(0, 4)
+## ⚠️ Common Mistakes
 
-    # placeholder frames (colored squares)
-    player_frames = []
-    for i in range(4):
-        s = pygame.Surface((40, 50))
-        s.fill((100 + i*30, 150, 200))
-        player_frames.append(s)
+- **Loading sprites inside update()** — kills performance
+- **Modifying self.image directly** — keep original frames separate
+- **Forgetting to sync float position to rect** — jittery movement
+- **Not checking direction.length() > 0** before normalize — division by zero
 
-    runner_frames = []
-    for i in range(4):
-        s = pygame.Surface((35, 45))
-        s.fill((200, 100 + i*30, 100))
-        runner_frames.append(s)
+---
 
-    # create player
-    player = User(WIDTH // 2, HEIGHT // 2, player_frames)
+## Step 2 Options (20+ points required)
 
-    # create NPCs
-    runners = pygame.sprite.Group()
-    for _ in range(5):
-        x = random.randint(50, WIDTH - 50)
-        y = random.randint(50, HEIGHT - 50)
-        runner = Runner(x, y, runner_frames[:])  # copy frames
-        runners.add(runner)
-
-    all_sprites = pygame.sprite.Group(player, *runners.sprites())
-
-    score = 0
-
-    running = True
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    player.do_action()
-
-        all_sprites.update()
-
-        # collision detection
-        hits = pygame.sprite.spritecollide(player, runners, False)
-        for runner in hits:
-            score += 10
-            runner.teleport_random()
-
-        # draw
-        screen.blit(background, (0, 0))
-        all_sprites.draw(screen)
-
-        # UI
-        score_text = font.render(f"Score: {score}", True, (255, 255, 255))
-        screen.blit(score_text, (10, 10))
-
-        pygame.display.flip()
-        clock.tick(FPS)
-
-    pygame.quit()
-
-if __name__ == "__main__":
-    main()
-\`\`\`
-
-## Step 2 — Improvement Ideas
-
-Pick options worth at least 20 points total:
-
-- **Background Change on trigger (5pts)** — swap the background image when score reaches a threshold or some other metric
-- **Additional Sprite Sheets 5+ NPCs random (5pts)** — load multiple different sprite sheets and randomly assign them to NPCs
-- **Balance: Win/Lose mechanic (5pts)** — add a timer or goal that ends the game (catch X runners in Y seconds)
-- **Informative Text (5pts)** — display controls and current objective on screen
-- **Additional Action: jump/taunt (10pts)** — add another animation triggered by a different key (like jumping or a taunt)
-- **Choose Your Character at startup (20pts)** — show a selection screen with 2-3 different character options before the game starts
-- **Acceleration/Deceleration/Friction for player + NPCs (20pts)** — smooth physics instead of instant start/stop, affects both player and NPC movement
+- **Background Change (5pts)** — swap on score threshold
+- **Multiple Sprite Sheets (5pts)** — random NPC appearances
+- **Win/Lose Mechanic (5pts)** — timer or catch goal
+- **Additional Action (10pts)** — jump or attack animation
+- **Character Select (20pts)** — choose character at start
+- **Acceleration/Friction (20pts)** — smooth physics for both player and NPCs
 `,
-    starterCode: `# Sprite Game starter — minimal working version
-# Run locally, then add Step 2 improvements
-
+    starterCode: `# Sprite Game — complete starter with delta time
 import pygame
 import random
 pygame.init()
 
 WIDTH, HEIGHT = 800, 600
 FPS = 60
+PLAYER_SPEED = 250
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Sprite Game")
 clock = pygame.time.Clock()
 font = pygame.font.Font(None, 36)
 
-# placeholder "sprites" — just colored rectangles for now
-# replace with actual sprite sheet loading for better visuals
-
 class Character:
     def __init__(self, x, y, color, speed):
-        self.x = x
-        self.y = y
+        self.float_x = float(x)
+        self.float_y = float(y)
         self.color = color
         self.speed = speed
-        self.vx = 0
-        self.vy = 0
-        self.width = 40
-        self.height = 50
+        self.width, self.height = 40, 50
         self.facing_right = True
         self.frame = 0
-        self.timer = 0
+        self.timer = 0.0
 
     def get_rect(self):
-        return pygame.Rect(self.x, self.y, self.width, self.height)
+        return pygame.Rect(int(self.float_x), int(self.float_y), self.width, self.height)
 
 class Player(Character):
     def __init__(self, x, y):
-        super().__init__(x, y, (100, 150, 200), 4)
+        super().__init__(x, y, (100, 150, 200), PLAYER_SPEED)
 
-    def update(self):
+    def update(self, dt):
         keys = pygame.key.get_pressed()
-        self.vx = 0
-        self.vy = 0
-
+        dx, dy = 0, 0
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-            self.vx = -self.speed
+            dx = -self.speed * dt
             self.facing_right = False
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            self.vx = self.speed
+            dx = self.speed * dt
             self.facing_right = True
         if keys[pygame.K_UP] or keys[pygame.K_w]:
-            self.vy = -self.speed
+            dy = -self.speed * dt
         if keys[pygame.K_DOWN] or keys[pygame.K_s]:
-            self.vy = self.speed
+            dy = self.speed * dt
 
-        self.x += self.vx
-        self.y += self.vy
+        self.float_x += dx
+        self.float_y += dy
+        self.float_x = max(0, min(WIDTH - self.width, self.float_x))
+        self.float_y = max(0, min(HEIGHT - self.height, self.float_y))
 
-        # clamp to screen
-        self.x = max(0, min(WIDTH - self.width, self.x))
-        self.y = max(0, min(HEIGHT - self.height, self.y))
-
-        # simple animation cycling
-        if self.vx != 0 or self.vy != 0:
-            self.timer += 1
-            if self.timer >= 8:
+        if dx != 0 or dy != 0:
+            self.timer += dt
+            if self.timer >= 0.1:
                 self.timer = 0
                 self.frame = (self.frame + 1) % 4
 
     def draw(self, screen):
-        # change color slightly based on frame for "animation"
         shade = self.frame * 20
         color = (self.color[0] + shade, self.color[1], self.color[2])
         pygame.draw.rect(screen, color, self.get_rect())
 
 class Runner(Character):
     def __init__(self, x, y):
-        super().__init__(x, y, (200, 100, 100), 2)
-        self.vx = random.choice([-2, 2])
-        self.vy = random.choice([-2, 2])
-        self.change_timer = random.randint(60, 180)
+        super().__init__(x, y, (200, 100, 100), 80)
+        self.vx = random.choice([-80, 80])
+        self.vy = random.choice([-80, 80])
+        self.change_timer = random.uniform(1.0, 3.0)
 
-    def update(self):
-        self.change_timer -= 1
+    def update(self, dt):
+        self.change_timer -= dt
         if self.change_timer <= 0:
-            self.change_timer = random.randint(60, 180)
-            self.vx = random.choice([-2, -1, 0, 1, 2])
-            self.vy = random.choice([-2, -1, 0, 1, 2])
+            self.vx = random.choice([-80, -40, 0, 40, 80])
+            self.vy = random.choice([-80, -40, 0, 40, 80])
+            self.change_timer = random.uniform(1.0, 3.0)
 
-        self.x += self.vx
-        self.y += self.vy
+        self.float_x += self.vx * dt
+        self.float_y += self.vy * dt
 
-        # bounce off walls
-        if self.x < 0 or self.x > WIDTH - self.width:
+        if self.float_x < 0 or self.float_x > WIDTH - self.width:
             self.vx *= -1
-            self.x = max(0, min(WIDTH - self.width, self.x))
-        if self.y < 0 or self.y > HEIGHT - self.height:
+            self.float_x = max(0, min(WIDTH - self.width, self.float_x))
+        if self.float_y < 0 or self.float_y > HEIGHT - self.height:
             self.vy *= -1
-            self.y = max(0, min(HEIGHT - self.height, self.y))
+            self.float_y = max(0, min(HEIGHT - self.height, self.float_y))
 
-        # animate
         if self.vx != 0 or self.vy != 0:
-            self.timer += 1
-            if self.timer >= 10:
+            self.timer += dt
+            if self.timer >= 0.12:
                 self.timer = 0
                 self.frame = (self.frame + 1) % 4
 
@@ -2367,101 +2596,83 @@ class Runner(Character):
         pygame.draw.rect(screen, color, self.get_rect())
 
     def teleport(self):
-        self.x = random.randint(50, WIDTH - 100)
-        self.y = random.randint(50, HEIGHT - 100)
-        self.vx = random.choice([-2, 2])
-        self.vy = random.choice([-2, 2])
+        self.float_x = random.randint(50, WIDTH - 100)
+        self.float_y = random.randint(50, HEIGHT - 100)
+        self.vx = random.choice([-80, 80])
+        self.vy = random.choice([-80, 80])
 
-# create entities
 player = Player(WIDTH // 2, HEIGHT // 2)
 runners = [Runner(random.randint(50, WIDTH-100), random.randint(50, HEIGHT-100)) for _ in range(5)]
-
 score = 0
 
 running = True
 while running:
+    dt = clock.tick(FPS) / 1000.0
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
-    player.update()
+    player.update(dt)
     for r in runners:
-        r.update()
+        r.update(dt)
 
-    # collision: player catches runner
+    # Collision
     player_rect = player.get_rect()
     for r in runners:
         if player_rect.colliderect(r.get_rect()):
             score += 10
             r.teleport()
 
-    # draw
-    screen.fill((50, 100, 50))  # grass background
-
+    screen.fill((50, 100, 50))
     for r in runners:
         r.draw(screen)
     player.draw(screen)
 
-    # UI
     screen.blit(font.render(f"Score: {score}", True, (255,255,255)), (10, 10))
-    screen.blit(font.render("WASD or arrows to move, catch the runners!", True, (200,200,200)), (10, HEIGHT-30))
+    screen.blit(font.render("WASD/arrows to move, catch runners!", True, (200,200,200)), (10, HEIGHT-30))
 
     pygame.display.flip()
-    clock.tick(FPS)
 
 pygame.quit()
 `,
     examples: [
       {
         title: "Acceleration & Friction",
-        explanation: "Step 2 option (20pts) — smooth physics for player movement",
-        code: `class PlayerWithPhysics(Character):
+        explanation: "Step 2 option (20pts) — smooth physics movement",
+        code: `class PlayerPhysics(Character):
     def __init__(self, x, y):
-        super().__init__(x, y, (100, 150, 200), 4)
-        self.max_speed = 5
-        self.acceleration = 0.4
-        self.friction = 0.88  # must be < 1.0
+        super().__init__(x, y, (100, 150, 200), 250)
+        self.vx, self.vy = 0.0, 0.0
+        self.accel = 600
+        self.friction = 0.88
+        self.max_speed = 300
 
-    def update(self):
+    def update(self, dt):
         keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT]:  self.vx -= self.accel * dt
+        if keys[pygame.K_RIGHT]: self.vx += self.accel * dt
+        if keys[pygame.K_UP]:    self.vy -= self.accel * dt
+        if keys[pygame.K_DOWN]:  self.vy += self.accel * dt
 
-        # apply acceleration based on input
-        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-            self.vx -= self.acceleration
-            self.facing_right = False
-        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            self.vx += self.acceleration
-            self.facing_right = True
-        if keys[pygame.K_UP] or keys[pygame.K_w]:
-            self.vy -= self.acceleration
-        if keys[pygame.K_DOWN] or keys[pygame.K_s]:
-            self.vy += self.acceleration
-
-        # apply friction (slows down when not pressing)
         self.vx *= self.friction
         self.vy *= self.friction
-
-        # clamp to max speed
         self.vx = max(-self.max_speed, min(self.max_speed, self.vx))
         self.vy = max(-self.max_speed, min(self.max_speed, self.vy))
 
-        # update position
-        self.x += self.vx
-        self.y += self.vy
+        if abs(self.vx) < 1: self.vx = 0
+        if abs(self.vy) < 1: self.vy = 0
 
-        # clamp to screen
-        self.x = max(0, min(WIDTH - self.width, self.x))
-        self.y = max(0, min(HEIGHT - self.height, self.y))
-
-        # stop completely at very low speeds (prevents drift)
-        if abs(self.vx) < 0.1: self.vx = 0
-        if abs(self.vy) < 0.1: self.vy = 0`,
+        self.float_x += self.vx * dt
+        self.float_y += self.vy * dt
+        self.float_x = max(0, min(WIDTH - self.width, self.float_x))
+        self.float_y = max(0, min(HEIGHT - self.height, self.float_y))`,
       },
       {
-        title: "Character Selection Screen",
-        explanation: "Step 2 option (20pts) — let player choose their character before the game starts",
+        title: "Character Select Screen",
+        explanation: "Step 2 option (20pts) — choose before playing",
         code: `def character_select(screen, clock, font):
-    characters = [
+    chars = [
         {"name": "Blue Knight", "color": (100, 150, 200)},
         {"name": "Red Warrior", "color": (200, 100, 100)},
         {"name": "Green Ranger", "color": (100, 200, 100)},
@@ -2471,68 +2682,59 @@ pygame.quit()
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
                 return None
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
-                    selected = (selected - 1) % len(characters)
+                    selected = (selected - 1) % len(chars)
                 if event.key == pygame.K_RIGHT:
-                    selected = (selected + 1) % len(characters)
+                    selected = (selected + 1) % len(chars)
                 if event.key == pygame.K_RETURN:
-                    return characters[selected]
+                    return chars[selected]
 
         screen.fill((30, 30, 50))
-
-        # title
-        title = font.render("Choose Your Character", True, (255, 255, 255))
+        title = font.render("Choose Your Character", True, (255,255,255))
         screen.blit(title, (WIDTH//2 - title.get_width()//2, 100))
 
-        # draw character options
-        for i, char in enumerate(characters):
-            x = 200 + i * 200
-            y = 300
-            color = char["color"]
-            # highlight selected
+        for i, c in enumerate(chars):
+            x, y = 150 + i * 200, 300
             if i == selected:
-                pygame.draw.rect(screen, (255, 255, 0), (x-5, y-5, 60, 70), 3)
-            pygame.draw.rect(screen, color, (x, y, 50, 60))
-            name_text = font.render(char["name"], True, (255,255,255))
-            screen.blit(name_text, (x - name_text.get_width()//2 + 25, y + 80))
+                pygame.draw.rect(screen, (255,255,0), (x-5, y-5, 60, 70), 3)
+            pygame.draw.rect(screen, c["color"], (x, y, 50, 60))
+            name = font.render(c["name"], True, (255,255,255))
+            screen.blit(name, (x - name.get_width()//2 + 25, y + 80))
 
-        # instructions
-        instr = font.render("Left/Right to choose, Enter to confirm", True, (150,150,150))
+        instr = font.render("Left/Right, Enter to confirm", True, (150,150,150))
         screen.blit(instr, (WIDTH//2 - instr.get_width()//2, 500))
-
         pygame.display.flip()
         clock.tick(60)
 
-# usage in main:
+# In main:
 # choice = character_select(screen, clock, font)
-# player = Player(WIDTH//2, HEIGHT//2, choice["color"])`,
+# if choice: player = Player(WIDTH//2, HEIGHT//2, choice["color"])`,
       },
     ],
     challenges: [
       {
-        id: "sprite-game-1",
-        prompt: "When loading a sprite sheet, what does the blit method do when you pass a source rect like (x, y, width, height)?",
-        hint: "It doesn't copy the whole source image",
+        id: "sprite-1",
+        prompt: "When extracting a frame from a sprite sheet, what does blit's source rect (x, y, w, h) specify?",
+        hint: "It's not copying the whole sheet",
         validateFn: `
 def validate(answer):
     answer = answer.lower()
-    return ("copy" in answer or "cut" in answer or "portion" in answer or "section" in answer or "area" in answer or "part" in answer or "region" in answer)
+    return ("portion" in answer or "part" in answer or "section" in answer or "rectangle" in answer or "area" in answer or "cut" in answer)
 `,
-        solution: "The source rect tells blit to only copy that specific rectangular portion of the source image. So (x, y, width, height) cuts out a single frame from the sprite sheet at that position and size.",
+        solution: "The source rect tells blit to copy only that rectangular portion of the source image. (x, y) is the top-left corner, (w, h) is the size of the frame to copy.",
       },
       {
-        id: "sprite-game-2",
-        prompt: "Why use pygame.transform.flip(image, True, False) when a character faces left?",
+        id: "sprite-2",
+        prompt: "Why use pygame.transform.flip(image, True, False) for a left-facing character?",
         hint: "Sprite sheets usually only have one direction",
         validateFn: `
 def validate(answer):
     answer = answer.lower()
-    return ("mirror" in answer or "horizontal" in answer or "flip" in answer or "direction" in answer or "facing" in answer or "left" in answer or "right" in answer or "one" in answer)
+    return ("horizontal" in answer or "mirror" in answer or "flip" in answer or "direction" in answer or "one" in answer)
 `,
-        solution: "Most sprite sheets only draw the character facing one direction (usually right). Instead of making separate left-facing sprites, you flip the image horizontally at runtime. The True, False means flip horizontally but not vertically.",
+        solution: "Most sprite sheets only draw characters facing right. Instead of making separate left-facing art, flip horizontally at runtime. True, False = flip horizontal only.",
       },
     ],
   },
