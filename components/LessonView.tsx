@@ -451,6 +451,7 @@ function generateCheatSheet(moduleSlug: string): Array<{ title: string; code: st
 
 export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: LessonViewProps) {
   const { isLoading, isReady, error: pyodideError, runCode } = usePyodide();
+  const isPygameLesson = lesson.moduleSlug === "game-dev-pygame";
   const [code, setCode] = useState(lesson.starterCode);
   const [output, setOutput] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -835,9 +836,29 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
       </div>
 
       <div className={`w-full lg:w-1/2 flex flex-col overflow-hidden ${mobilePane !== "editor" ? "hidden lg:flex" : "flex"}`}>
+        {/* Pygame lessons: show "Run Locally" banner instead of Pyodide status */}
+        {isPygameLesson && (
+          <div className="px-4 py-3 border-b border-border bg-amber-500/10 text-sm">
+            <div className="flex items-center gap-2 mb-1">
+              <span>🎮</span>
+              <span className="font-semibold text-amber-400">Pygame — Run Locally</span>
+            </div>
+            <p className="text-muted-foreground text-xs">
+              Pygame needs a real window, so it can&apos;t run in the browser. Copy this code and run it in your terminal:
+            </p>
+            <code className="block mt-1 text-xs text-amber-300 bg-black/30 px-2 py-1 rounded">
+              python3 ~/Projects/python-game-dev/{lesson.slug.replace('pygame-', '')}/
+            </code>
+          </div>
+        )}
         <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-card">
           <div className="flex items-center gap-3">
-            {isLoading ? (
+            {isPygameLesson ? (
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                <span className="text-sm">🎮</span>
+                <span className="text-sm text-amber-400 font-medium">Copy & Run Locally</span>
+              </div>
+            ) : isLoading ? (
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-warning/10 border border-warning/20">
                 <div className="relative w-4 h-4">
                   <span className="absolute inset-0 flex items-center justify-center text-xs">🐍</span>
