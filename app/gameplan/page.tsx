@@ -471,7 +471,7 @@ export default function GamePlanPage() {
         {/* Urgent banner */}
         <div className="mb-8 p-4 rounded-xl border border-red-500/40 bg-red-500/10">
           <p className="font-bold text-red-400 mb-1">🚨 Do this first — email Gerber NOW</p>
-          <p className="text-sm text-muted-foreground">pgerber1@wctc.edu — Zoom slots are first come first serve. Subject: "Step 3 Meeting Request — Brick Breakaway"</p>
+          <p className="text-sm text-muted-foreground">pgerber1@wctc.edu — Zoom slots are first come first serve. Subject: &quot;Step 3 Meeting Request — Brick Breakaway&quot;</p>
         </div>
 
         {/* Days */}

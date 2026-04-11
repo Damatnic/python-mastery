@@ -633,8 +633,10 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
     }
   }, [lesson.projectChallenge]);
 
+  const [mobilePane, setMobilePane] = useState<"content" | "editor">("content");
+
   return (
-    <div className="flex flex-1 h-full overflow-hidden relative">
+    <div className="flex flex-col lg:flex-row flex-1 h-full overflow-hidden relative">
       {/* Completion Toast */}
       {showCompletionToast && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 animate-slide-down">
@@ -648,7 +650,31 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
         </div>
       )}
 
-      <div className="w-1/2 flex flex-col border-r border-border overflow-hidden">
+      {/* Mobile pane toggle — only visible on small screens */}
+      <div className="flex lg:hidden border-b border-border bg-card">
+        <button
+          onClick={() => setMobilePane("content")}
+          className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+            mobilePane === "content"
+              ? "text-accent border-b-2 border-accent"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          📖 Learn
+        </button>
+        <button
+          onClick={() => setMobilePane("editor")}
+          className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+            mobilePane === "editor"
+              ? "text-accent border-b-2 border-accent"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          💻 Code
+        </button>
+      </div>
+
+      <div className={`w-full lg:w-1/2 flex flex-col border-r border-border overflow-hidden ${mobilePane !== "content" ? "hidden lg:flex" : "flex"}`}>
         <div className="flex border-b border-border bg-card">
           {(["theory", "examples", "challenges", "cheatsheet"] as const).map((tab) => (
             <button
@@ -808,7 +834,7 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
         </div>
       </div>
 
-      <div className="w-1/2 flex flex-col overflow-hidden">
+      <div className={`w-full lg:w-1/2 flex flex-col overflow-hidden ${mobilePane !== "editor" ? "hidden lg:flex" : "flex"}`}>
         <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-card">
           <div className="flex items-center gap-3">
             {isLoading ? (

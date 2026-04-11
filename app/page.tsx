@@ -65,7 +65,7 @@ export default function Home() {
 
             <p className="text-xl text-muted-foreground max-w-lg">
               Write real Python and pandas code directly in your browser.
-              47 interactive lessons across 9 modules, 3 guided projects, and instant feedback
+              51 interactive lessons across 9 modules, 3 guided projects, and instant feedback
               to take you from basics to data analysis and game development.
             </p>
 
@@ -87,7 +87,7 @@ export default function Home() {
             {/* Stats */}
             <div className="flex items-center gap-8 pt-4">
               <div>
-                <div className="text-3xl font-bold text-foreground">47</div>
+                <div className="text-3xl font-bold text-foreground">51</div>
                 <div className="text-sm text-muted-foreground">Lessons</div>
               </div>
               <div className="w-px h-10 bg-border" />
@@ -275,8 +275,8 @@ max     99.99      15.00`}
                 slug: "game-dev-pygame",
                 firstLesson: "pygame-basics",
                 title: "Game Dev with Pygame",
-                desc: "Game loops, sprites, collision, physics",
-                lessons: 7,
+                desc: "Game loops, sprites, collision, physics, sound, HUD, state management",
+                lessons: 11,
               },
               {
                 num: "09",

@@ -78,7 +78,9 @@ export default function LessonPage({ params }: LessonPageProps) {
 
   return (
     <div className="h-screen flex overflow-hidden">
-      <Sidebar modules={modules} completedLessons={completedLessons} />
+      <div className="hidden lg:block">
+        <Sidebar modules={modules} completedLessons={completedLessons} />
+      </div>
       <main className="flex-1 flex flex-col overflow-hidden">
         <LessonView
           lesson={lesson}

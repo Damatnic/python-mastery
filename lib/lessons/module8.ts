@@ -2738,4 +2738,1431 @@ def validate(answer):
       },
     ],
   },
+  {
+    module: "Game Development with Pygame",
+    moduleSlug: "game-dev-pygame",
+    lessonNumber: 43,
+    slug: "pygame-sound",
+    title: "Sound & Music",
+    badge: "concept",
+    theory: `
+## Adding Sound to Your Game
+
+A game without sound feels dead. Pygame's \`mixer\` module handles both short sound effects (explosions, jumps, hits) and background music (looping tracks).
+
+\`\`\`python
+import pygame
+pygame.init()
+pygame.mixer.init()  # already called by pygame.init(), but good to know it exists
+\`\`\`
+
+There are two separate systems and they work differently:
+- **Sound effects** — short clips, multiple can play at once
+- **Music** — one track at a time, streams from disk (good for long files)
+
+---
+
+## Sound Effects with pygame.mixer.Sound
+
+Sound effects are loaded into memory. Use \`.wav\` or \`.ogg\` files (mp3 support is inconsistent).
+
+\`\`\`python
+# Load sounds (do this ONCE, outside the game loop)
+jump_sound = pygame.mixer.Sound("assets/jump.wav")
+hit_sound = pygame.mixer.Sound("assets/hit.wav")
+coin_sound = pygame.mixer.Sound("assets/coin.ogg")
+
+# Play a sound (inside the game loop, when something happens)
+if player_jumped:
+    jump_sound.play()
+
+if collision_detected:
+    hit_sound.play()
+\`\`\`
+
+**Key point:** Load sounds once at startup. Don't load them inside the game loop or you'll destroy your frame rate.
+
+### Volume Control
+
+\`\`\`python
+# Set volume (0.0 = silent, 1.0 = full volume)
+jump_sound.set_volume(0.5)   # 50% volume
+hit_sound.set_volume(0.3)    # quieter
+
+# Get current volume
+current_vol = jump_sound.get_volume()
+\`\`\`
+
+### Stopping Sounds
+
+\`\`\`python
+hit_sound.stop()          # stop this specific sound
+pygame.mixer.stop()       # stop ALL sounds
+\`\`\`
+
+---
+
+## Background Music with pygame.mixer.music
+
+Music streams from disk instead of loading into memory. Only one track plays at a time.
+
+\`\`\`python
+# Load and play background music
+pygame.mixer.music.load("assets/background.ogg")
+pygame.mixer.music.set_volume(0.4)
+pygame.mixer.music.play(-1)  # -1 = loop forever
+
+# Pause / unpause
+pygame.mixer.music.pause()
+pygame.mixer.music.unpause()
+
+# Stop completely
+pygame.mixer.music.stop()
+
+# Fade out over 2 seconds (smooth ending)
+pygame.mixer.music.fadeout(2000)
+\`\`\`
+
+**The \`-1\` argument** is important. \`play(0)\` plays once, \`play(3)\` plays 3 extra times (4 total), \`play(-1)\` loops forever. For background music you almost always want \`-1\`.
+
+---
+
+## Channels — Playing Multiple Sounds
+
+Pygame has 8 channels by default. Each channel can play one sound at a time. When you call \`sound.play()\`, it grabs a free channel automatically.
+
+\`\`\`python
+# Need more simultaneous sounds?
+pygame.mixer.set_num_channels(16)  # now 16 channels
+
+# Reserve a channel for important sounds (so it never gets stolen)
+pygame.mixer.set_reserved(1)
+important_channel = pygame.mixer.Channel(0)  # channel 0 is reserved
+important_channel.play(alert_sound)
+\`\`\`
+
+If all channels are busy when you play a sound, the oldest sound gets cut off. Reserving a channel guarantees your critical sounds (like a game-over chime) always play.
+
+---
+
+## Common Pattern — Sound Manager
+
+Most games wrap their sounds in a simple manager:
+
+\`\`\`python
+class SoundManager:
+    def __init__(self):
+        self.sounds = {}
+        self.muted = False
+
+    def load(self, name, filepath):
+        self.sounds[name] = pygame.mixer.Sound(filepath)
+
+    def play(self, name, volume=1.0):
+        if not self.muted and name in self.sounds:
+            self.sounds[name].set_volume(volume)
+            self.sounds[name].play()
+
+    def toggle_mute(self):
+        self.muted = not self.muted
+        if self.muted:
+            pygame.mixer.stop()
+
+# Usage:
+sfx = SoundManager()
+sfx.load("jump", "assets/jump.wav")
+sfx.load("coin", "assets/coin.ogg")
+
+# In game loop:
+sfx.play("jump")
+sfx.play("coin", volume=0.5)
+\`\`\`
+
+**Gerber tip:** Keep your sound loading separate from your game logic. Load everything in an init function, then just call \`play()\` during the game. Clean separation.
+
+---
+
+## File Formats
+
+| Format | Best For | Notes |
+|--------|----------|-------|
+| .wav | Sound effects | Uncompressed, fast to load, large files |
+| .ogg | Music + effects | Compressed, small files, good quality |
+| .mp3 | Avoid | Licensing issues, inconsistent support |
+
+Stick with \`.ogg\` for most things. Use \`.wav\` for tiny effects where loading speed matters.
+`,
+    starterCode: `# Sound & Music Demo — run this locally with pygame installed
+# You'll need some .wav or .ogg files in an "assets" folder
+
+import pygame
+pygame.init()
+
+screen = pygame.display.set_mode((600, 400))
+pygame.display.set_caption("Sound Demo")
+clock = pygame.time.Clock()
+
+# --- LOAD SOUNDS ---
+# Uncomment these when you have actual sound files:
+# jump_sound = pygame.mixer.Sound("assets/jump.wav")
+# jump_sound.set_volume(0.5)
+#
+# pygame.mixer.music.load("assets/background.ogg")
+# pygame.mixer.music.set_volume(0.3)
+# pygame.mixer.music.play(-1)  # loop forever
+
+# --- Simple visual to go with the demo ---
+WHITE = (255, 255, 255)
+BLUE = (100, 149, 237)
+ball_y = 300
+ball_vel = 0
+GRAVITY = 800
+JUMP_FORCE = -400
+on_ground = True
+
+running = True
+while running:
+    dt = clock.tick(60) / 1000.0
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE and on_ground:
+                ball_vel = JUMP_FORCE
+                on_ground = False
+                # jump_sound.play()  # uncomment when you have the file
+            if event.key == pygame.K_m:
+                # Toggle music mute
+                # pygame.mixer.music.pause() or .unpause()
+                pass
+
+    # Physics
+    ball_vel += GRAVITY * dt
+    ball_y += ball_vel * dt
+    if ball_y >= 300:
+        ball_y = 300
+        ball_vel = 0
+        on_ground = True
+
+    # Draw
+    screen.fill((30, 30, 40))
+    pygame.draw.circle(screen, BLUE, (300, int(ball_y)), 20)
+    pygame.draw.line(screen, WHITE, (0, 320), (600, 320), 2)  # ground
+
+    # HUD
+    font = pygame.font.SysFont(None, 24)
+    text = font.render("SPACE = jump  |  M = toggle music", True, WHITE)
+    screen.blit(text, (10, 10))
+
+    pygame.display.flip()
+
+pygame.quit()
+`,
+    examples: [
+      {
+        title: "Loading and Playing a Sound Effect",
+        explanation: "Load once at startup, play when events happen. Never load inside the game loop.",
+        code: `hit_sound = pygame.mixer.Sound("assets/hit.wav")
+hit_sound.set_volume(0.6)
+
+# In the game loop, on collision:
+if ball_rect.colliderect(brick_rect):
+    hit_sound.play()
+    brick.kill()`,
+      },
+      {
+        title: "Looping Background Music with Fadeout",
+        explanation: "Music streams from disk. Use play(-1) for infinite loop, fadeout() for smooth transitions.",
+        code: `# Start menu music
+pygame.mixer.music.load("assets/menu_theme.ogg")
+pygame.mixer.music.play(-1)
+
+# When game starts, crossfade to game music:
+pygame.mixer.music.fadeout(1000)  # 1 second fade
+# After fadeout, load the new track:
+pygame.mixer.music.load("assets/game_theme.ogg")
+pygame.mixer.music.play(-1)`,
+      },
+    ],
+    challenges: [
+      {
+        id: "sound-1",
+        prompt: "What's the difference between pygame.mixer.Sound and pygame.mixer.music? When would you use each?",
+        hint: "Think about file size and how many can play at once",
+        validateFn: `
+def validate(answer):
+    answer = answer.lower()
+    return ("memory" in answer or "effect" in answer or "short" in answer or "one" in answer or "stream" in answer or "background" in answer or "loop" in answer)
+`,
+        solution: "Sound loads the entire file into memory — good for short effects. You can play many at once. Music streams from disk — good for long tracks. Only one music track plays at a time.",
+      },
+      {
+        id: "sound-2",
+        prompt: "What does pygame.mixer.music.play(-1) do? What would play(0) and play(3) do?",
+        hint: "The number controls repetition",
+        validateFn: `
+def validate(answer):
+    answer = answer.lower()
+    return ("loop" in answer or "forever" in answer or "infinite" in answer or "repeat" in answer)
+`,
+        solution: "play(-1) loops the music forever. play(0) plays it once. play(3) plays it 4 times total (1 initial + 3 repeats).",
+      },
+      {
+        id: "sound-3",
+        prompt: "Why should you load all your Sound objects outside the game loop, not inside it?",
+        hint: "Think about what happens 60 times per second",
+        validateFn: `
+def validate(answer):
+    answer = answer.lower()
+    return ("performance" in answer or "slow" in answer or "frame" in answer or "fps" in answer or "once" in answer or "every" in answer or "load" in answer)
+`,
+        solution: "Loading a file from disk is slow. If you load inside the game loop, you'd be reading the file 60 times per second, destroying your frame rate. Load once at startup, then just call .play() when you need the sound.",
+      },
+    ],
+  },
+  {
+    module: "Game Development with Pygame",
+    moduleSlug: "game-dev-pygame",
+    lessonNumber: 44,
+    slug: "pygame-text-hud",
+    title: "Text & HUD Rendering",
+    badge: "concept",
+    theory: `
+## Rendering Text in Pygame
+
+Pygame doesn't have a text box you can just type into. To show text on screen you render it onto a surface, then blit that surface onto the screen. It's a two-step process.
+
+\`\`\`python
+font = pygame.font.SysFont(None, 36)  # None = default system font, 36 = size
+text_surface = font.render("Hello!", True, (255, 255, 255))  # text, antialias, color
+screen.blit(text_surface, (10, 10))  # draw it at position (10, 10)
+\`\`\`
+
+That's the whole pattern. Everything else is just variations on it.
+
+---
+
+## Font Options
+
+### System Fonts
+\`\`\`python
+# Use any font installed on the system
+font = pygame.font.SysFont("arial", 28)
+font = pygame.font.SysFont("courier", 20)
+
+# None = pygame default font (always available)
+font = pygame.font.SysFont(None, 36)
+
+# Bold and italic
+font = pygame.font.SysFont("arial", 28, bold=True, italic=True)
+
+# See what fonts are available:
+print(pygame.font.get_fonts())
+\`\`\`
+
+### Custom Font Files
+\`\`\`python
+# Load a .ttf file from your project folder
+font = pygame.font.Font("assets/fonts/PressStart2P.ttf", 16)
+\`\`\`
+
+Custom fonts make your game look unique. Free pixel fonts from Google Fonts or dafont.com work great for retro games.
+
+---
+
+## The render() Method
+
+\`\`\`python
+text_surface = font.render(text, antialias, color, background=None)
+\`\`\`
+
+| Param | What it does |
+|-------|-------------|
+| text | The string to display |
+| antialias | True = smooth edges, False = pixelated |
+| color | (R, G, B) text color |
+| background | Optional (R, G, B) background color |
+
+**Anti-aliasing:** Use \`True\` for most text. Use \`False\` for pixel art games where you want that crispy look.
+
+\`\`\`python
+# Smooth text
+smooth = font.render("Score: 100", True, (255, 255, 255))
+
+# Pixel-crisp text (retro style)
+crispy = font.render("GAME OVER", False, (255, 0, 0))
+
+# Text with background color (like a highlight)
+highlighted = font.render("NEW HIGH SCORE!", True, (255, 255, 0), (0, 0, 100))
+\`\`\`
+
+---
+
+## Positioning Text
+
+The tricky part. \`font.render()\` gives you a surface. You need to position it yourself.
+
+### Basic Positioning
+\`\`\`python
+# Top-left corner
+screen.blit(text_surface, (10, 10))
+
+# But what if you want it centered?
+text_rect = text_surface.get_rect()
+text_rect.center = (400, 300)  # center of an 800x600 screen
+screen.blit(text_surface, text_rect)
+\`\`\`
+
+### Alignment Shortcuts
+\`\`\`python
+rect = text_surface.get_rect()
+
+# Center on screen
+rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+
+# Top-center
+rect.midtop = (SCREEN_WIDTH // 2, 10)
+
+# Right-aligned
+rect.topright = (SCREEN_WIDTH - 10, 10)
+
+# Bottom-center (for UI at bottom of screen)
+rect.midbottom = (SCREEN_WIDTH // 2, SCREEN_HEIGHT - 10)
+\`\`\`
+
+---
+
+## Building a HUD (Heads-Up Display)
+
+A HUD shows game info that updates every frame: score, lives, timer, level.
+
+### The Pattern
+\`\`\`python
+class HUD:
+    def __init__(self):
+        self.font = pygame.font.SysFont(None, 28)
+        self.score = 0
+        self.lives = 3
+        self.level = 1
+
+    def draw(self, screen):
+        # Score — top left
+        score_text = self.font.render(f"Score: {self.score}", True, (255, 255, 255))
+        screen.blit(score_text, (10, 10))
+
+        # Lives — top right
+        lives_text = self.font.render(f"Lives: {self.lives}", True, (255, 100, 100))
+        lives_rect = lives_text.get_rect(topright=(screen.get_width() - 10, 10))
+        screen.blit(lives_text, lives_rect)
+
+        # Level — top center
+        level_text = self.font.render(f"Level {self.level}", True, (200, 200, 200))
+        level_rect = level_text.get_rect(midtop=(screen.get_width() // 2, 10))
+        screen.blit(level_text, level_rect)
+\`\`\`
+
+### Using It
+
+\`\`\`python
+hud = HUD()
+
+while running:
+    # ... game logic ...
+
+    if brick_destroyed:
+        hud.score += 10
+
+    if player_hit:
+        hud.lives -= 1
+
+    # Draw everything
+    screen.fill((0, 0, 0))
+    # ... draw game objects ...
+    hud.draw(screen)  # HUD goes LAST (on top of everything)
+    pygame.display.flip()
+\`\`\`
+
+**Key insight:** Draw the HUD last so it renders on top of everything else.
+
+---
+
+## Performance Tip — Cache Rendered Text
+
+Re-rendering text every frame is wasteful if the text hasn't changed. Cache it:
+
+\`\`\`python
+class HUD:
+    def __init__(self):
+        self.font = pygame.font.SysFont(None, 28)
+        self._score = 0
+        self._cached_score_surface = None
+
+    @property
+    def score(self):
+        return self._score
+
+    @score.setter
+    def score(self, value):
+        self._score = value
+        # Only re-render when score actually changes
+        self._cached_score_surface = self.font.render(
+            f"Score: {value}", True, (255, 255, 255)
+        )
+
+    def draw(self, screen):
+        if self._cached_score_surface:
+            screen.blit(self._cached_score_surface, (10, 10))
+\`\`\`
+
+For simple games this optimization doesn't matter much, but it's a good habit. Rendering text is one of the slower operations in Pygame.
+
+---
+
+## Timer Display
+
+\`\`\`python
+start_time = pygame.time.get_ticks()
+
+# In game loop:
+elapsed_ms = pygame.time.get_ticks() - start_time
+seconds = elapsed_ms // 1000
+minutes = seconds // 60
+display_seconds = seconds % 60
+timer_text = font.render(f"{minutes:02d}:{display_seconds:02d}", True, WHITE)
+\`\`\`
+
+The \`:02d\` format pads with zeros: "01:05" instead of "1:5".
+`,
+    starterCode: `# Text & HUD Demo — run this locally with pygame installed
+
+import pygame
+pygame.init()
+
+SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("HUD Demo")
+clock = pygame.time.Clock()
+
+# Fonts
+title_font = pygame.font.SysFont(None, 48)
+hud_font = pygame.font.SysFont(None, 28)
+small_font = pygame.font.SysFont(None, 20)
+
+# Game state
+score = 0
+lives = 3
+level = 1
+start_time = pygame.time.get_ticks()
+
+# Colors
+WHITE = (255, 255, 255)
+RED = (255, 100, 100)
+GREEN = (100, 255, 100)
+GRAY = (150, 150, 150)
+BG = (25, 25, 35)
+
+# Simple interactive element
+box_rect = pygame.Rect(375, 275, 50, 50)
+
+running = True
+while running:
+    dt = clock.tick(60) / 1000.0
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if box_rect.collidepoint(event.pos):
+                score += 10
+                # Move box to random position
+                import random
+                box_rect.x = random.randint(50, SCREEN_WIDTH - 100)
+                box_rect.y = random.randint(80, SCREEN_HEIGHT - 100)
+
+    # Timer
+    elapsed = (pygame.time.get_ticks() - start_time) // 1000
+    mins = elapsed // 60
+    secs = elapsed % 60
+
+    # Draw
+    screen.fill(BG)
+
+    # Draw clickable box
+    pygame.draw.rect(screen, GREEN, box_rect)
+
+    # --- HUD ---
+    # Score (top-left)
+    score_surf = hud_font.render(f"Score: {score}", True, WHITE)
+    screen.blit(score_surf, (10, 10))
+
+    # Lives (top-right)
+    lives_surf = hud_font.render(f"Lives: {lives}", True, RED)
+    lives_rect = lives_surf.get_rect(topright=(SCREEN_WIDTH - 10, 10))
+    screen.blit(lives_surf, lives_rect)
+
+    # Level (top-center)
+    level_surf = hud_font.render(f"Level {level}", True, GRAY)
+    level_rect = level_surf.get_rect(midtop=(SCREEN_WIDTH // 2, 10))
+    screen.blit(level_surf, level_rect)
+
+    # Timer (below level)
+    timer_surf = small_font.render(f"{mins:02d}:{secs:02d}", True, GRAY)
+    timer_rect = timer_surf.get_rect(midtop=(SCREEN_WIDTH // 2, 40))
+    screen.blit(timer_surf, timer_rect)
+
+    # Instructions (bottom)
+    instr = small_font.render("Click the green box to score points!", True, GRAY)
+    instr_rect = instr.get_rect(midbottom=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 10))
+    screen.blit(instr_surf, instr_rect)
+
+    pygame.display.flip()
+
+pygame.quit()
+`,
+    examples: [
+      {
+        title: "Centering Text on Screen",
+        explanation: "Use get_rect() with center to position text in the middle of the screen.",
+        code: `font = pygame.font.SysFont(None, 64)
+text = font.render("GAME OVER", True, (255, 0, 0))
+rect = text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+screen.blit(text, rect)`,
+      },
+      {
+        title: "Dynamic Score with Right Alignment",
+        explanation: "Right-align the score so it doesn't jump around as the number gets bigger.",
+        code: `score_text = font.render(f"Score: {score:,}", True, WHITE)
+# :, adds comma separators (1,000 instead of 1000)
+score_rect = score_text.get_rect(topright=(SCREEN_WIDTH - 10, 10))
+screen.blit(score_text, score_rect)`,
+      },
+    ],
+    challenges: [
+      {
+        id: "hud-1",
+        prompt: "What are the two steps to display text in Pygame? Why can't you just 'print' text to the screen?",
+        hint: "Think about surfaces",
+        validateFn: `
+def validate(answer):
+    answer = answer.lower()
+    return ("render" in answer or "surface" in answer or "blit" in answer)
+`,
+        solution: "Step 1: Render the text onto a surface with font.render(). Step 2: Blit that surface onto the screen. Pygame doesn't have a text box — everything is drawn as pixel surfaces.",
+      },
+      {
+        id: "hud-2",
+        prompt: "How do you center text horizontally on an 800px wide screen?",
+        hint: "Use get_rect() with a positioning argument",
+        validateFn: `
+def validate(answer):
+    answer = answer.lower()
+    return ("get_rect" in answer or "center" in answer or "400" in answer or "midtop" in answer or "// 2" in answer or "/2" in answer)
+`,
+        solution: "Call text_surface.get_rect(center=(400, y)) or text_surface.get_rect(midtop=(400, y)). Then blit using that rect as the position.",
+      },
+      {
+        id: "hud-3",
+        prompt: "Why should you draw your HUD last in the draw step, after all other game objects?",
+        hint: "Think about layering",
+        validateFn: `
+def validate(answer):
+    answer = answer.lower()
+    return ("top" in answer or "over" in answer or "above" in answer or "front" in answer or "last" in answer or "layer" in answer)
+`,
+        solution: "Whatever you draw last appears on top. If you draw the HUD before game objects, sprites could render over your score text. Drawing the HUD last ensures it's always visible on top of everything.",
+      },
+    ],
+  },
+  {
+    module: "Game Development with Pygame",
+    moduleSlug: "game-dev-pygame",
+    lessonNumber: 45,
+    slug: "pygame-game-states",
+    title: "Game State Management",
+    badge: "practice",
+    theory: `
+## Why State Management Matters
+
+Right now your games probably have a single game loop that handles everything. But real games have multiple screens: a title screen, the actual gameplay, a pause menu, a game-over screen. Without state management, your code turns into a tangled mess of \`if show_menu\` and \`if game_over\` flags scattered everywhere.
+
+The fix is simple: use a state variable and organize your code around it.
+
+---
+
+## The State Pattern
+
+\`\`\`python
+# Define your states
+STATE_MENU = "menu"
+STATE_PLAYING = "playing"
+STATE_PAUSED = "paused"
+STATE_GAME_OVER = "game_over"
+STATE_WIN = "win"
+
+# Current state
+game_state = STATE_MENU
+\`\`\`
+
+Then in your game loop, check the state and run only the relevant code:
+
+\`\`\`python
+while running:
+    dt = clock.tick(60) / 1000.0
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+        # Handle input differently per state
+        if game_state == STATE_MENU:
+            handle_menu_input(event)
+        elif game_state == STATE_PLAYING:
+            handle_game_input(event)
+        elif game_state == STATE_PAUSED:
+            handle_pause_input(event)
+        elif game_state == STATE_GAME_OVER:
+            handle_game_over_input(event)
+
+    # Update
+    if game_state == STATE_PLAYING:
+        update_game(dt)
+
+    # Draw
+    screen.fill((0, 0, 0))
+    if game_state == STATE_MENU:
+        draw_menu(screen)
+    elif game_state == STATE_PLAYING:
+        draw_game(screen)
+    elif game_state == STATE_PAUSED:
+        draw_game(screen)  # draw game underneath
+        draw_pause_overlay(screen)  # then overlay
+    elif game_state == STATE_GAME_OVER:
+        draw_game_over(screen)
+
+    pygame.display.flip()
+\`\`\`
+
+That's the entire pattern. Each state gets its own input handler, its own update logic, and its own draw function. Clean separation.
+
+---
+
+## State Transitions
+
+States change when specific things happen:
+
+\`\`\`python
+# Menu → Playing (player presses Enter)
+def handle_menu_input(event):
+    global game_state
+    if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+        game_state = STATE_PLAYING
+        reset_game()  # initialize game variables
+
+# Playing → Paused (player presses Escape)
+def handle_game_input(event):
+    global game_state
+    if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+        game_state = STATE_PAUSED
+
+# Paused → Playing (player presses Escape again)
+def handle_pause_input(event):
+    global game_state
+    if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+        game_state = STATE_PLAYING  # resume
+
+# Playing → Game Over (player dies)
+def update_game(dt):
+    global game_state
+    # ... game logic ...
+    if lives <= 0:
+        game_state = STATE_GAME_OVER
+
+# Game Over → Menu (player presses R to restart)
+def handle_game_over_input(event):
+    global game_state
+    if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+        game_state = STATE_MENU
+\`\`\`
+
+---
+
+## Drawing Each State
+
+### Menu Screen
+\`\`\`python
+def draw_menu(screen):
+    title_font = pygame.font.SysFont(None, 72)
+    sub_font = pygame.font.SysFont(None, 28)
+
+    title = title_font.render("MY GAME", True, (255, 255, 255))
+    title_rect = title.get_rect(center=(SCREEN_WIDTH // 2, 200))
+    screen.blit(title, title_rect)
+
+    prompt = sub_font.render("Press ENTER to start", True, (180, 180, 180))
+    prompt_rect = prompt.get_rect(center=(SCREEN_WIDTH // 2, 350))
+    screen.blit(prompt, prompt_rect)
+\`\`\`
+
+### Pause Overlay
+\`\`\`python
+def draw_pause_overlay(screen):
+    # Semi-transparent dark overlay
+    overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+    overlay.set_alpha(128)
+    overlay.fill((0, 0, 0))
+    screen.blit(overlay, (0, 0))
+
+    font = pygame.font.SysFont(None, 48)
+    text = font.render("PAUSED", True, (255, 255, 255))
+    text_rect = text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+    screen.blit(text, text_rect)
+
+    sub = pygame.font.SysFont(None, 24)
+    hint = sub.render("Press ESC to resume", True, (180, 180, 180))
+    hint_rect = hint.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 40))
+    screen.blit(hint, hint_rect)
+\`\`\`
+
+### Game Over Screen
+\`\`\`python
+def draw_game_over(screen):
+    font = pygame.font.SysFont(None, 64)
+    text = font.render("GAME OVER", True, (255, 50, 50))
+    text_rect = text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 30))
+    screen.blit(text, text_rect)
+
+    score_font = pygame.font.SysFont(None, 32)
+    score_text = score_font.render(f"Final Score: {score}", True, (255, 255, 255))
+    score_rect = score_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 20))
+    screen.blit(score_text, score_rect)
+
+    hint = score_font.render("Press R to restart", True, (180, 180, 180))
+    hint_rect = hint.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 60))
+    screen.blit(hint, hint_rect)
+\`\`\`
+
+---
+
+## reset_game() — The Restart Function
+
+When transitioning from Game Over back to Playing, you need to reset everything:
+
+\`\`\`python
+def reset_game():
+    global score, lives, level, ball_pos, ball_vel
+    score = 0
+    lives = 3
+    level = 1
+    ball_pos = pygame.math.Vector2(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+    ball_vel = pygame.math.Vector2(3, -3)
+    # Reset any other game objects, sprites, etc.
+\`\`\`
+
+**Common mistake:** Forgetting to reset something. The player restarts and an old brick is still missing, or the score isn't zero. Always reset EVERYTHING.
+
+---
+
+## Gerber Tip — Keep It Simple
+
+You don't need a fancy state machine library. A string variable and some if/elif blocks is all most games need. Don't over-engineer it. The pattern above handles menus, pausing, game over, and win screens for any Pygame project.
+
+If your game gets really complex (multiple levels, cutscenes, shops), you might want to use a class-based approach where each state is its own class with \`handle_input()\`, \`update()\`, and \`draw()\` methods. But for the projects in this course, the simple approach works perfectly.
+`,
+    starterCode: `# Game State Management Demo — run this locally
+# Shows menu, playing, paused, and game over states
+
+import pygame
+import random
+
+pygame.init()
+
+SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("State Management Demo")
+clock = pygame.time.Clock()
+
+# States
+STATE_MENU = "menu"
+STATE_PLAYING = "playing"
+STATE_PAUSED = "paused"
+STATE_GAME_OVER = "game_over"
+
+game_state = STATE_MENU
+
+# Fonts
+title_font = pygame.font.SysFont(None, 72)
+hud_font = pygame.font.SysFont(None, 32)
+small_font = pygame.font.SysFont(None, 24)
+
+# Colors
+WHITE = (255, 255, 255)
+GRAY = (150, 150, 150)
+RED = (255, 80, 80)
+GREEN = (80, 255, 80)
+BLUE = (100, 149, 237)
+BG = (25, 25, 35)
+
+# Game variables
+score = 0
+lives = 3
+player_rect = pygame.Rect(375, 500, 50, 50)
+targets = []
+SPEED = 300
+
+def reset_game():
+    global score, lives, targets
+    score = 0
+    lives = 3
+    player_rect.center = (400, 500)
+    targets.clear()
+    for _ in range(5):
+        spawn_target()
+
+def spawn_target():
+    x = random.randint(50, SCREEN_WIDTH - 50)
+    y = random.randint(50, 350)
+    targets.append(pygame.Rect(x, y, 30, 30))
+
+running = True
+while running:
+    dt = clock.tick(60) / 1000.0
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+        if event.type == pygame.KEYDOWN:
+            if game_state == STATE_MENU:
+                if event.key == pygame.K_RETURN:
+                    game_state = STATE_PLAYING
+                    reset_game()
+
+            elif game_state == STATE_PLAYING:
+                if event.key == pygame.K_ESCAPE:
+                    game_state = STATE_PAUSED
+
+            elif game_state == STATE_PAUSED:
+                if event.key == pygame.K_ESCAPE:
+                    game_state = STATE_PLAYING
+
+            elif game_state == STATE_GAME_OVER:
+                if event.key == pygame.K_r:
+                    game_state = STATE_MENU
+
+    # --- UPDATE ---
+    if game_state == STATE_PLAYING:
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT] and player_rect.left > 0:
+            player_rect.x -= SPEED * dt
+        if keys[pygame.K_RIGHT] and player_rect.right < SCREEN_WIDTH:
+            player_rect.x += SPEED * dt
+
+        # Check collisions with targets
+        for target in targets[:]:
+            if player_rect.colliderect(target):
+                targets.remove(target)
+                score += 10
+                spawn_target()
+
+        # Lose a life every 10 seconds (just for demo)
+        if pygame.time.get_ticks() % 10000 < 20:
+            lives -= 1
+            if lives <= 0:
+                game_state = STATE_GAME_OVER
+
+    # --- DRAW ---
+    screen.fill(BG)
+
+    if game_state == STATE_MENU:
+        title = title_font.render("CATCH GAME", True, BLUE)
+        screen.blit(title, title.get_rect(center=(400, 200)))
+        prompt = small_font.render("Press ENTER to start", True, GRAY)
+        screen.blit(prompt, prompt.get_rect(center=(400, 300)))
+        controls = small_font.render("Arrow keys to move  |  ESC to pause", True, GRAY)
+        screen.blit(controls, controls.get_rect(center=(400, 340)))
+
+    elif game_state == STATE_PLAYING:
+        pygame.draw.rect(screen, BLUE, player_rect)
+        for t in targets:
+            pygame.draw.rect(screen, GREEN, t)
+        score_text = hud_font.render(f"Score: {score}", True, WHITE)
+        screen.blit(score_text, (10, 10))
+        lives_text = hud_font.render(f"Lives: {lives}", True, RED)
+        screen.blit(lives_text, lives_text.get_rect(topright=(SCREEN_WIDTH - 10, 10)))
+
+    elif game_state == STATE_PAUSED:
+        # Draw game underneath
+        pygame.draw.rect(screen, BLUE, player_rect)
+        for t in targets:
+            pygame.draw.rect(screen, GREEN, t)
+        # Dark overlay
+        overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+        overlay.set_alpha(150)
+        overlay.fill((0, 0, 0))
+        screen.blit(overlay, (0, 0))
+        pause_text = title_font.render("PAUSED", True, WHITE)
+        screen.blit(pause_text, pause_text.get_rect(center=(400, 280)))
+        hint = small_font.render("Press ESC to resume", True, GRAY)
+        screen.blit(hint, hint.get_rect(center=(400, 330)))
+
+    elif game_state == STATE_GAME_OVER:
+        go_text = title_font.render("GAME OVER", True, RED)
+        screen.blit(go_text, go_text.get_rect(center=(400, 250)))
+        final = hud_font.render(f"Final Score: {score}", True, WHITE)
+        screen.blit(final, final.get_rect(center=(400, 320)))
+        hint = small_font.render("Press R to return to menu", True, GRAY)
+        screen.blit(hint, hint.get_rect(center=(400, 360)))
+
+    pygame.display.flip()
+
+pygame.quit()
+`,
+    examples: [
+      {
+        title: "Semi-Transparent Pause Overlay",
+        explanation: "Draw the game underneath, then a dark semi-transparent surface on top. Looks polished with almost no effort.",
+        code: `# Create a surface the size of the screen
+overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+overlay.set_alpha(128)   # 0=invisible, 255=opaque
+overlay.fill((0, 0, 0))  # black
+screen.blit(overlay, (0, 0))
+
+# Now draw pause text ON TOP of the overlay
+text = font.render("PAUSED", True, WHITE)
+screen.blit(text, text.get_rect(center=(400, 300)))`,
+      },
+      {
+        title: "State Transition Diagram",
+        explanation: "Map out which states can transition to which. Helps you think through the flow before coding.",
+        code: `# MENU --[Enter]--> PLAYING
+# PLAYING --[Esc]--> PAUSED
+# PLAYING --[lives=0]--> GAME_OVER
+# PLAYING --[all bricks gone]--> WIN
+# PAUSED --[Esc]--> PLAYING
+# GAME_OVER --[R]--> MENU
+# WIN --[R]--> MENU
+
+# Each arrow is an if statement in your event handler.
+# That's the whole state machine.`,
+      },
+    ],
+    challenges: [
+      {
+        id: "states-1",
+        prompt: "What's the advantage of using a state variable (like game_state = 'menu') instead of multiple boolean flags (show_menu = True, game_over = False)?",
+        hint: "Think about what happens when you have 5 different screens",
+        validateFn: `
+def validate(answer):
+    answer = answer.lower()
+    return ("one" in answer or "exclusive" in answer or "conflict" in answer or "clear" in answer or "single" in answer or "which" in answer or "only" in answer)
+`,
+        solution: "With a single state variable, only one state is active at a time. With booleans, you could accidentally have show_menu=True AND game_over=True at the same time, leading to bugs. One variable makes it clear exactly which screen is active.",
+      },
+      {
+        id: "states-2",
+        prompt: "When you pause the game, why do you still call draw_game() before drawing the pause overlay?",
+        hint: "What would the player see if you only drew the pause text?",
+        validateFn: `
+def validate(answer):
+    answer = answer.lower()
+    return ("under" in answer or "behind" in answer or "see" in answer or "background" in answer or "beneath" in answer or "black" in answer or "blank" in answer or "game" in answer)
+`,
+        solution: "If you only draw the pause overlay, the player sees a blank screen with 'PAUSED' on it. By drawing the game first, then the semi-transparent overlay on top, the player can still see the game state underneath. It looks way better and helps them remember where they were.",
+      },
+      {
+        id: "states-3",
+        prompt: "What's the purpose of the reset_game() function? When should it be called?",
+        hint: "Think about what happens when a player starts a new game",
+        validateFn: `
+def validate(answer):
+    answer = answer.lower()
+    return ("reset" in answer or "initial" in answer or "start" in answer or "zero" in answer or "new" in answer or "fresh" in answer or "clear" in answer)
+`,
+        solution: "reset_game() sets all game variables back to their starting values (score=0, lives=3, respawn objects, etc). Call it when transitioning from MENU to PLAYING. Without it, starting a new game would keep the old score, dead enemies, and used-up lives from the last round.",
+      },
+      {
+        id: "states-4",
+        prompt: "Why should you only call update_game(dt) when game_state is PLAYING, not during PAUSED or MENU?",
+        hint: "What would happen to the ball if physics kept running while paused?",
+        validateFn: `
+def validate(answer):
+    answer = answer.lower()
+    return ("move" in answer or "keep" in answer or "still" in answer or "stop" in answer or "freeze" in answer or "continue" in answer or "run" in answer or "physics" in answer)
+`,
+        solution: "If you update game physics while paused, objects keep moving even though the player can't see or control them. When they unpause, everything is in a different position. Only updating during PLAYING means the game truly freezes when paused.",
+      },
+    ],
+  },
+  {
+    module: "Game Development with Pygame",
+    moduleSlug: "game-dev-pygame",
+    lessonNumber: 46,
+    slug: "pygame-project-breakaway-deep-dive",
+    title: "Brick Breakaway — Deep Dive & Demo Prep",
+    badge: "challenge",
+    theory: `
+## Your Brick Breakaway — How Everything Works
+
+This is a deep breakdown of the Brick Breakaway game you built. Everything here maps to your actual code. Know this inside and out for the Zoom demo with Gerber.
+
+---
+
+## The Big Picture
+
+The game has 5 core systems working together:
+1. **Platform** — keyboard-controlled paddle at the bottom
+2. **Ball** — bounces around, destroys bricks, uses delta time
+3. **Bricks** — grid of targets with variable health + power-ups
+4. **Power-Ups** — special drops that modify gameplay (wider paddle, extra life, slow ball, multi-ball)
+5. **Levels** — 3 different brick layouts with increasing difficulty
+
+Everything runs inside one game loop doing **events → update → draw** at 60fps.
+
+---
+
+## Delta Time — Why It Matters
+
+\`\`\`python
+dt = clock.tick(60) / 1000.0  # seconds since last frame
+\`\`\`
+
+Every movement in the game multiplies by \`dt\`. This is frame-rate independence. If your computer runs at 30fps instead of 60fps, \`dt\` is bigger, so things move farther per frame, keeping the actual speed the same.
+
+**Gerber will probably ask:** "Why do you use delta time?"
+**Your answer:** "So the game runs the same speed on every machine. Without dt, faster computers would make the ball move faster. Multiplying by dt converts from pixels-per-frame to pixels-per-second."
+
+\`\`\`python
+# BAD — frame dependent
+self.x += 5  # 5 pixels per frame = different speeds at different framerates
+
+# GOOD — frame independent
+self.x += self.speed * dt  # 500 pixels per second = same speed everywhere
+\`\`\`
+
+---
+
+## Ball Physics — Launch and Bounce
+
+### Random Launch
+\`\`\`python
+angle_deg = random.uniform(-60, 60)        # random angle range
+angle_rad = math.radians(angle_deg - 90)   # offset so 0 = straight up
+self.dx = math.cos(angle_rad) * self.speed # horizontal component
+self.dy = math.sin(angle_rad) * self.speed # vertical component (negative = up)
+\`\`\`
+
+**Why subtract 90?** Pygame's angle system starts at 3 o'clock (right). We want 0 degrees to mean straight up, so we rotate the whole thing by -90 degrees.
+
+**Gerber might ask:** "How does the random launch work?"
+**Your answer:** "I pick a random angle between -60 and 60 degrees from vertical, convert to radians, then use cos and sin to get the x and y velocity components. The ball always goes up but at a random horizontal angle."
+
+### Platform Bounce With Angle
+\`\`\`python
+hit_pos = (self.x - platform.x) / platform.width  # 0.0 to 1.0
+self.dx = (hit_pos - 0.5) * self.speed * 2
+\`\`\`
+
+This makes the ball bounce in different directions depending on WHERE it hits the paddle:
+- Hit the **left edge** → ball goes left (hit_pos near 0, so \`0 - 0.5 = -0.5\`)
+- Hit the **center** → ball goes straight up (hit_pos = 0.5, so \`0.5 - 0.5 = 0\`)
+- Hit the **right edge** → ball goes right (hit_pos near 1.0, so \`1.0 - 0.5 = 0.5\`)
+
+**Gerber might ask:** "How do you control the bounce angle?"
+**Your answer:** "I calculate where on the paddle the ball hit as a 0-to-1 ratio. Subtract 0.5 to center it, then multiply by speed to get the new horizontal velocity. Left side sends it left, right side sends it right."
+
+### Wall Bounces
+\`\`\`python
+if self.x - self.radius <= 0:       # left wall
+    self.dx = abs(self.dx)           # force positive (rightward)
+if self.x + self.radius >= SCREEN_WIDTH:  # right wall
+    self.dx = -abs(self.dx)          # force negative (leftward)
+if self.y - self.radius <= 0:       # top wall
+    self.dy = abs(self.dy)           # force positive (downward)
+\`\`\`
+
+Using \`abs()\` instead of \`*= -1\` prevents the "stuck in wall" bug where the ball flips direction twice if it's deep inside the wall.
+
+---
+
+## Brick Collision Detection
+
+\`\`\`python
+if ball_rect.colliderect(brick.get_rect()):
+    # figure out which side was hit
+    overlap_left = ball_rect.right - b.left
+    overlap_right = b.right - ball_rect.left
+    overlap_top = ball_rect.bottom - b.top
+    overlap_bottom = b.bottom - ball_rect.top
+
+    min_overlap = min(overlap_left, overlap_right, overlap_top, overlap_bottom)
+
+    if min_overlap == overlap_top or min_overlap == overlap_bottom:
+        ball.dy *= -1  # vertical bounce
+    else:
+        ball.dx *= -1  # horizontal bounce
+\`\`\`
+
+**How it works:** When two rectangles overlap, the smallest overlap tells you which side the ball entered from. Top/bottom overlap → flip vertical velocity. Left/right overlap → flip horizontal velocity.
+
+**Why \`break\` after one collision?** If the ball hits the corner where two bricks meet, processing both in the same frame would flip the velocity twice (canceling out). One brick per frame avoids this.
+
+**Gerber might ask:** "How does your collision detection work?"
+**Your answer:** "I use colliderect() to check if the ball overlaps a brick. Then I calculate the overlap on all four sides. The smallest overlap tells me which side the ball came from, and I flip the appropriate velocity component."
+
+---
+
+## Power-Up System
+
+### Brick Types
+Power-up bricks look different (colored with a letter symbol) and drop a collectible when destroyed:
+
+| Type | Color | Symbol | Effect |
+|------|-------|--------|--------|
+| Wide Paddle | Cyan | W | Platform +40px wider (max 220px) |
+| Extra Life | Pink | + | +1 life immediately |
+| Slow Ball | Purple | S | Ball speed -80 px/sec (min 250) |
+| Multi Ball | Green | M | Spawns second ball going opposite direction |
+
+### How Drops Work
+\`\`\`python
+class PowerUpDrop:
+    def update(self, dt):
+        self.y += self.speed * dt  # falls down at 150 px/sec
+        if self.y > SCREEN_HEIGHT:
+            self.alive = False      # missed it, gone
+\`\`\`
+
+When a power-up brick dies, a \`PowerUpDrop\` spawns at the brick's position and falls. If the platform catches it (colliderect), the effect applies. If it falls off screen, it's gone.
+
+**Gerber might ask:** "How do power-ups work in your game?"
+**Your answer:** "Certain bricks are randomly tagged as power-up bricks when the level loads. When you break one, it spawns a falling drop object. If you catch it with the paddle, the power-up activates. There are four types: wider paddle, extra life, slower ball, and multi-ball."
+
+### Multi-Ball Implementation
+\`\`\`python
+extra = Ball()
+extra.x = ball.x
+extra.y = ball.y
+extra.dx = -ball.dx  # opposite horizontal direction
+extra.dy = ball.dy
+extra.launched = True
+game_state["extra_balls"].append(extra)
+\`\`\`
+
+Spawns a second ball at the same position going the opposite horizontal direction. Extra balls are tracked separately and get cleaned up when they fall off screen. Only the main ball costs lives when lost.
+
+---
+
+## Level System
+
+Three level functions return different brick layouts:
+
+**Level 1 — Standard Grid:** 10×5 bricks, top rows have more HP (row 0 = 5HP, row 4 = 1HP)
+
+**Level 2 — Diamond Pattern:** Bricks arranged in a diamond shape. Center bricks have higher health. Uses a \`rows_config = [2, 4, 6, 8, 10, 8, 6, 4, 2]\` array to define width per row.
+
+**Level 3 — Alternating Gaps:** 8 rows, odd rows skip every other brick creating a gap pattern. Higher health in lower rows. Harder because the gaps make precision bounces more important.
+
+Each level randomly places 4-6 power-up bricks. Ball speed increases by 30 px/sec per level. Clearing all bricks gives a 100-point level bonus.
+
+**Gerber might ask:** "How do your levels work?"
+**Your answer:** "Each level is a function that returns a list of Brick objects with different positions and health values. When you clear all bricks, the game loads the next level function. Ball speed increases slightly per level. After all three levels, you win."
+
+---
+
+## Background — Procedural Generation
+
+Instead of loading an image file, the background is generated with code:
+
+\`\`\`python
+def create_background():
+    bg = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+    for y in range(SCREEN_HEIGHT):
+        ratio = y / SCREEN_HEIGHT
+        r = int(10 + ratio * 15)
+        g = int(15 + ratio * 10)
+        b = int(40 + ratio * 20)
+        pygame.draw.line(bg, (r, g, b), (0, y), (SCREEN_WIDTH, y))
+    # add stars
+    for _ in range(80):
+        sx = random.randint(0, SCREEN_WIDTH)
+        sy = random.randint(0, SCREEN_HEIGHT - 100)
+        pygame.draw.circle(bg, (brightness, brightness, brightness + 30), (sx, sy), size)
+    return bg
+\`\`\`
+
+Draws a vertical gradient line by line (dark blue getting darker toward the bottom), then scatters random "stars" on top. Generated once at startup, blitted every frame.
+
+**If Gerber asks why you didn't use an image file:** "I wanted the background to be self-contained in the code so there's no external file dependency. The gradient generates in milliseconds at startup and gets cached as a surface."
+
+**If you want to swap in a real image:** Replace \`background = create_background()\` with:
+\`\`\`python
+background = pygame.image.load("background.png")
+background = pygame.transform.scale(background, (SCREEN_WIDTH, SCREEN_HEIGHT))
+\`\`\`
+
+---
+
+## Brick Sprites — Cached Rendering
+
+\`\`\`python
+BRICK_SPRITES = {}  # cache
+
+def create_brick_sprite(width, height, color, health):
+    surf = pygame.Surface((width, height), pygame.SRCALPHA)
+    pygame.draw.rect(surf, color, (0, 0, width, height), border_radius=4)
+    # highlight on top
+    highlight = tuple(min(c + 50, 255) for c in color)
+    pygame.draw.rect(surf, highlight, (2, 2, width - 4, 4), border_radius=2)
+    # shadow on bottom
+    shadow = tuple(max(c - 40, 0) for c in color)
+    pygame.draw.rect(surf, shadow, (2, height - 5, width - 4, 3), border_radius=2)
+    return surf
+\`\`\`
+
+Each unique brick appearance (health level + power-up type) gets rendered once and cached in \`BRICK_SPRITES\`. After the first frame, bricks are just blitting pre-rendered surfaces instead of calling \`draw.rect()\` every frame.
+
+**Gerber might ask:** "Why cache the sprites?"
+**Your answer:** "So I'm not re-drawing highlight and shadow effects on 50+ bricks every frame. I render each unique appearance once and reuse the surface. It's a performance optimization."
+
+---
+
+## Common Gerber Questions — Quick Answers
+
+**"Walk me through the game loop."**
+"Events first — check for quit, spacebar launch, spacebar restart. Then update — move platform, move ball, check collisions, check if ball fell off screen. Then draw — background, platform, ball, bricks, HUD. Then flip the display."
+
+**"What happens when the ball falls off screen?"**
+"I check \`ball.is_off_screen()\` which returns true if the ball's y position is below the screen height. If so, decrement lives. If lives hit 0, game over. Otherwise reset the ball to follow the platform and reset paddle width."
+
+**"How do you handle multiple balls?"**
+"Extra balls from the multi-ball power-up are stored in a list. They get the same update and collision logic as the main ball. When they fall off screen they just get removed from the list, no life lost."
+
+**"What's the hardest part of this project?"**
+"Getting the collision direction right. The overlap method works but it can be finicky at corners. I used a \`break\` after the first collision to avoid double-bounces."
+
+**"How would you add more levels?"**
+"Just write another function that returns a list of Brick objects and add it to the LEVELS array. The level progression code handles the rest automatically."
+
+**"How would you add sound?"**
+"Import pygame.mixer, load .wav files at startup with pygame.mixer.Sound(), and call .play() on collision events. Background music with pygame.mixer.music.load() and .play(-1) for looping."
+`,
+    starterCode: `# This is your actual Brick Breakaway game code
+# Run it locally with: python main.py
+# Make sure pygame is installed: pip install pygame
+
+# The full game is at ~/Projects/brick-breakaway/main.py
+# This starter code shows the core structure
+
+import pygame
+import sys
+import random
+import math
+
+pygame.init()
+
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+clock = pygame.time.Clock()
+
+# --- Your 5 core systems ---
+# 1. Platform class (keyboard-controlled paddle)
+# 2. Ball class (physics, bouncing, delta time)
+# 3. Brick class (health, colors, power-ups)
+# 4. PowerUpDrop class (falling collectibles)
+# 5. Level functions (different brick layouts)
+
+# See the full main.py for complete implementation
+# Key concepts to know for the demo:
+# - Delta time (dt = clock.tick(60) / 1000.0)
+# - Random launch angles (trig with cos/sin)
+# - Platform bounce angle (hit position ratio)
+# - Collision direction (minimum overlap method)
+# - Sprite caching (render once, blit many)
+# - Level progression (list of level functions)
+# - Power-up drops (spawn on brick death, catch with paddle)
+
+print("Review the theory tab for full code walkthrough!")
+print("Know every system for the Gerber Zoom demo.")
+`,
+    examples: [
+      {
+        title: "Delta Time Pattern",
+        explanation: "The foundational pattern that makes everything consistent. Know this cold.",
+        code: `dt = clock.tick(60) / 1000.0  # seconds since last frame
+
+# ALL movement uses dt
+self.x += self.speed * dt      # pixels per second, not per frame
+self.y += self.speed * dt
+
+# 400 speed * 0.016 dt = 6.4 pixels this frame (at 60fps)
+# 400 speed * 0.033 dt = 13.2 pixels this frame (at 30fps)
+# Same distance per second either way`,
+      },
+      {
+        title: "Collision Direction Detection",
+        explanation: "Minimum overlap tells you which side the ball entered from.",
+        code: `# Calculate overlap on all 4 sides
+overlap_left = ball_rect.right - brick_rect.left
+overlap_right = brick_rect.right - ball_rect.left
+overlap_top = ball_rect.bottom - brick_rect.top
+overlap_bottom = brick_rect.bottom - ball_rect.top
+
+# Smallest overlap = the side the ball came from
+min_overlap = min(overlap_left, overlap_right, overlap_top, overlap_bottom)
+
+if min_overlap == overlap_top or min_overlap == overlap_bottom:
+    ball.dy *= -1  # came from top or bottom → flip vertical
+else:
+    ball.dx *= -1  # came from side → flip horizontal`,
+      },
+    ],
+    challenges: [
+      {
+        id: "breakaway-deep-1",
+        prompt: "Why do you use abs(self.dx) instead of self.dx *= -1 for wall bounces? What bug does it prevent?",
+        hint: "Think about what happens if the ball is already past the wall",
+        validateFn: `
+def validate(answer):
+    answer = answer.lower()
+    return ("stuck" in answer or "twice" in answer or "inside" in answer or "past" in answer or "double" in answer or "flip" in answer)
+`,
+        solution: "If the ball moves fast enough to be deep inside the wall, *= -1 would flip it away from the wall, but next frame it's still inside so it flips AGAIN, getting stuck. abs() forces the velocity in the correct direction regardless of how deep the ball is.",
+      },
+      {
+        id: "breakaway-deep-2",
+        prompt: "How does the platform bounce angle work? What does hit_pos represent and why subtract 0.5?",
+        hint: "Think about the range of values and what center means",
+        validateFn: `
+def validate(answer):
+    answer = answer.lower()
+    return ("ratio" in answer or "0 to 1" in answer or "center" in answer or "left" in answer or "right" in answer or "position" in answer or "where" in answer)
+`,
+        solution: "hit_pos is (ball.x - platform.x) / platform.width, giving a 0.0 to 1.0 ratio of where on the paddle the ball hit. Subtracting 0.5 centers it: left edge = -0.5 (goes left), center = 0 (straight up), right edge = +0.5 (goes right). Multiply by speed to get the actual horizontal velocity.",
+      },
+      {
+        id: "breakaway-deep-3",
+        prompt: "Why does check_ball_brick_collisions() use 'break' after hitting one brick?",
+        hint: "What happens at the corner where two bricks touch?",
+        validateFn: `
+def validate(answer):
+    answer = answer.lower()
+    return ("two" in answer or "double" in answer or "cancel" in answer or "twice" in answer or "corner" in answer or "multiple" in answer or "multi" in answer)
+`,
+        solution: "If the ball hits the corner where two bricks meet, processing both collisions in the same frame would flip the velocity twice — once for each brick — which cancels out and the ball passes through. Breaking after one collision avoids this bug.",
+      },
+      {
+        id: "breakaway-deep-4",
+        prompt: "How does the multi-ball power-up work? Why does losing an extra ball NOT cost a life?",
+        hint: "Think about which ball is the 'main' one",
+        validateFn: `
+def validate(answer):
+    answer = answer.lower()
+    return ("main" in answer or "list" in answer or "separate" in answer or "extra" in answer or "only" in answer or "primary" in answer or "track" in answer)
+`,
+        solution: "Extra balls are stored in a separate list (game_state['extra_balls']). Only the main ball is tracked for lives — when the main ball falls off screen, you lose a life. Extra balls just get removed from the list when they fall off. This keeps the game fair while still being chaotic with multiple balls.",
+      },
+    ],
+  },
 ];
