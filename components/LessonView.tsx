@@ -843,12 +843,15 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
               <span>🎮</span>
               <span className="font-semibold text-amber-400">Pygame — Run Locally</span>
             </div>
-            <p className="text-muted-foreground text-xs">
-              Pygame needs a real window, so it can&apos;t run in the browser. Copy this code and run it in your terminal:
+            <p className="text-muted-foreground text-xs mb-2">
+              Pygame needs a real window, so it can&apos;t run in the browser. Use the launcher or copy the code below to a .py file.
             </p>
-            <code className="block mt-1 text-xs text-amber-300 bg-black/30 px-2 py-1 rounded">
-              python3 ~/Projects/python-game-dev/{lesson.slug.replace('pygame-', '')}/
-            </code>
+            <div className="flex flex-col gap-1">
+              <code className="text-xs text-amber-300 bg-black/30 px-2 py-1 rounded">
+                cd ~/Projects/python-game-dev && python3 run.py
+              </code>
+              <span className="text-xs text-muted-foreground">or copy the code panel below into a .py file and run with python3</span>
+            </div>
           </div>
         )}
         <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-card">
