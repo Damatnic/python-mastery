@@ -196,13 +196,6 @@ export function Sidebar({ modules, completedLessons: initialCompleted }: Sidebar
           <span>Projects</span>
         </Link>
         <Link
-          href="/gameplan"
-          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <span>🎮</span>
-          <span>Game Plan</span>
-        </Link>
-        <Link
           href="/learn"
           className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >

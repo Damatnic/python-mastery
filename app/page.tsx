@@ -23,12 +23,6 @@ export default function Home() {
             >
               Projects
             </Link>
-            <Link
-              href="/gameplan"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              🎮 Game Plan
-            </Link>
             <Link href="/learn" className="btn-primary">
               Start Learning
             </Link>
@@ -394,9 +388,6 @@ max     99.99      15.00`}
               </Link>
               <Link href="/projects" className="hover:text-foreground transition-colors">
                 Projects
-              </Link>
-              <Link href="/gameplan" className="hover:text-foreground transition-colors">
-                🎮 Game Plan
               </Link>
             </div>
             <p className="text-sm text-muted-foreground">

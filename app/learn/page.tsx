@@ -70,12 +70,6 @@ export default function LearnDashboard() {
             >
               Projects
             </Link>
-            <Link
-              href="/gameplan"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              🎮 Game Plan
-            </Link>
           </nav>
         </div>
       </header>
