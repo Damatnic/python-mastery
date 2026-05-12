@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://damato-python.vercel.app"),
   title: "Python Mastery | Interactive Python Learning",
   description:
     "Master Python through interactive lessons. Write real code in your browser with instant feedback. Learn variables, pandas, data cleaning, APIs, and more.",
@@ -14,12 +15,19 @@ export const metadata: Metadata = {
     "coding bootcamp",
     "data science",
   ],
-  authors: [{ name: "Python Mastery" }],
+  authors: [{ name: "Nicholas D'Amato" }],
   openGraph: {
     title: "Python Mastery | Interactive Python Learning",
     description:
-      "Master Python through interactive lessons with real code execution in your browser.",
+      "Master Python through interactive lessons with real code execution in your browser via Pyodide.",
     type: "website",
+    url: "https://damato-python.vercel.app",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Python Mastery | Interactive Python Learning",
+    description:
+      "Master Python through interactive lessons with real code execution in your browser via Pyodide.",
   },
 };
 
