@@ -2,7 +2,7 @@
 
 Interactive Python learning platform. Write real Python and pandas code directly in your browser, no installation needed. 51 lessons across 9 modules, plus 3 guided projects.
 
-**Live site:** [python-mastery-green.vercel.app](https://python-mastery-green.vercel.app)
+**Live site:** [damato-python.vercel.app](https://damato-python.vercel.app)
 
 **Stack:** Next.js · TypeScript · Tailwind · Pyodide (Python in the browser)
 
