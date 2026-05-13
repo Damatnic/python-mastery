@@ -476,10 +476,14 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
 
   const cheatSheetItems = useMemo(() => generateCheatSheet(lesson.moduleSlug), [lesson.moduleSlug]);
 
-  // Reset state when lesson changes
+  // Load state from localStorage or reset when lesson changes
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- resetting state when lesson changes
-    setCode(lesson.starterCode);
+    const codeKey = `python-mastery-code-${lesson.moduleSlug}-${lesson.slug}`;
+    const projectKey = `python-mastery-project-${lesson.moduleSlug}-${lesson.slug}`;
+    
+    const savedCode = localStorage.getItem(codeKey);
+    setCode(savedCode || lesson.starterCode);
+    
     setOutput("");
     setError(null);
     setExecutionTime(0);
@@ -489,7 +493,8 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
     setActiveTab("theory");
 
     if (lesson.projectChallenge) {
-      setProjectCode(lesson.projectChallenge.starterCode);
+      const savedProject = localStorage.getItem(projectKey);
+      setProjectCode(savedProject || lesson.projectChallenge.starterCode);
     }
     setProjectOutput("");
     setProjectError(null);
@@ -511,6 +516,39 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
       setTotalXP(parseInt(savedXP, 10));
     }
   }, [lesson.slug, lesson.starterCode, lesson.projectChallenge, lesson.moduleSlug]);
+
+  // Save code to localStorage on change
+  useEffect(() => {
+    if (code !== lesson.starterCode) {
+      localStorage.setItem(`python-mastery-code-${lesson.moduleSlug}-${lesson.slug}`, code);
+    }
+  }, [code, lesson.moduleSlug, lesson.slug, lesson.starterCode]);
+
+  useEffect(() => {
+    if (lesson.projectChallenge && projectCode !== lesson.projectChallenge.starterCode) {
+      localStorage.setItem(`python-mastery-project-${lesson.moduleSlug}-${lesson.slug}`, projectCode);
+    }
+  }, [projectCode, lesson.projectChallenge, lesson.moduleSlug, lesson.slug]);
+
+  if (pyodideError) {
+    return (
+      <div className="flex-1 flex items-center justify-center p-8 bg-card text-center">
+        <div className="max-w-md p-6 rounded-2xl border-2 border-red-500/30 bg-red-500/5">
+          <div className="text-4xl mb-4">⚠️</div>
+          <h2 className="text-xl font-bold text-foreground mb-2">Engine Failed to Load</h2>
+          <p className="text-muted-foreground text-sm mb-6">
+            We couldn't download the Python WebAssembly engine. This usually happens on slow or restricted networks.
+          </p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-6 py-2.5 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition-colors"
+          >
+            Refresh & Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const handleRun = useCallback(async () => {
     if (!isReady) return;
