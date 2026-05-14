@@ -5,13 +5,13 @@ export const MODULE_METADATA: Omit<Module, "lessons">[] = [
     slug: "python-basics",
     title: "Python Basics",
     description:
-      "Master the fundamentals: variables, data structures, loops, and functions. Build a solid foundation for everything that follows.",
+      "Variables, data structures, loops, and functions. The stuff you'll use in every script you ever write.",
   },
   {
     slug: "pandas-fundamentals",
     title: "Pandas Fundamentals",
     description:
-      "Learn to work with DataFrames and Series. Select, filter, and transform data like a pro.",
+      "DataFrames, Series, filtering, and sorting. How you actually work with tabular data in Python.",
   },
   {
     slug: "data-cleaning",
@@ -53,6 +53,6 @@ export const MODULE_METADATA: Omit<Module, "lessons">[] = [
     slug: "data-manipulation-school",
     title: "Data Manipulation (WCTC)",
     description:
-      "String cleaning, number formatting, date parsing, combining DataFrames, and pivot tables — exactly what the WCTC Python Data Manipulation course covers.",
+      "String cleaning, number formatting, date parsing, combining DataFrames, and pivot tables. Exactly what the WCTC Python Data Manipulation course covers.",
   },
 ];

@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "Python Mastery — Interactive Python lessons in your browser";
+export const alt = "Python Mastery: Interactive Python lessons in your browser";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

@@ -7,13 +7,12 @@ import { OutputPanel } from "./OutputPanel";
 import { CopyButton } from "./CopyButton";
 import { TheoryContent } from "./TheoryContent";
 import { usePyodide } from "@/lib/pyodide";
-import type { Lesson, Example, Challenge, ProjectChallenge, Module } from "@/lib/types";
+import type { Lesson, Example, Challenge, ProjectChallenge } from "@/lib/types";
 import { PROJECT_THREAD_INFO } from "@/lib/project-threads";
 
 interface LessonViewProps {
   lesson: Lesson;
   onComplete: () => void;
-  modules?: Module[];
   prevLesson?: { slug: string; moduleSlug: string; title: string } | null;
   nextLesson?: { slug: string; moduleSlug: string; title: string } | null;
 }

@@ -163,7 +163,7 @@ max     99.99      15.00`}
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Why Python Mastery?</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              A different kind of learning platform built for real results
+              Built for people who want to actually write code, not just read about it
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
@@ -332,7 +332,7 @@ max     99.99      15.00`}
               </div>
               <h3 className="text-xl font-semibold mb-3">Read the Concept</h3>
               <p className="text-muted-foreground">
-                Each lesson starts with clear, concise theory and real-world context
+                Each lesson has a short theory section with examples before you touch the editor
               </p>
             </div>
             <div className="text-center">

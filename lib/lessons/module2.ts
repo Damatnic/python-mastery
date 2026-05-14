@@ -57,16 +57,16 @@ df.dtypes       # Data type of each column
 | bool | True/False |
 | datetime64 | Date/time |
 
-## Why DataFrames Matter
+## What You Do With Them
 
-Every data analysis project loads data into a DataFrame. Once it's there, you can:
+Once data is in a DataFrame you can:
 - Filter rows
 - Select columns
 - Aggregate and group
 - Join multiple datasets
 - Clean and transform
 
-Master DataFrames and you master data analysis.
+Almost every pandas operation you'll learn starts with a DataFrame.
 `,
     starterCode: `# The 'students' DataFrame is pre-loaded
 # Let's explore it

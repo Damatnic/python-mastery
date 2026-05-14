@@ -53,9 +53,9 @@ The \`:.2f\` is a format specifier — it means "show 2 decimal places."
 | \`:.0%\` | Percentage | \`0.85\` → \`85%\` |
 | \`:>10\` | Right-align, 10 chars | \`"hi"\` → \`"        hi"\` |
 
-## Why This Matters
+## Where This Shows Up
 
-Variables and f-strings are the foundation. Every data analysis script starts with storing values and building output strings. Master these and everything else becomes easier.
+Every script you write will use variables and f-strings. Once you get the format specifiers down, you'll reach for them constantly in output and reports.
 `,
     starterCode: `# Try creating variables and printing with f-strings
 name = "Your Name"

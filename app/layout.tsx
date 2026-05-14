@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://damato-python.vercel.app"),
   title: "Python Mastery | Interactive Python Learning",
   description:
-    "Master Python through interactive lessons. Write real code in your browser with instant feedback. Learn variables, pandas, data cleaning, APIs, and more.",
+    "Write real Python and pandas code in your browser. 51 interactive lessons covering variables, data cleaning, APIs, and game development. No install required.",
   keywords: [
     "Python",
     "learn Python",
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Python Mastery | Interactive Python Learning",
     description:
-      "Master Python through interactive lessons with real code execution in your browser via Pyodide.",
+      "Write real Python and pandas code in your browser. 51 interactive lessons, instant feedback, no install required.",
     type: "website",
     url: "https://damato-python.vercel.app",
   },
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Python Mastery | Interactive Python Learning",
     description:
-      "Master Python through interactive lessons with real code execution in your browser via Pyodide.",
+      "Write real Python and pandas code in your browser. 51 interactive lessons, instant feedback, no install required.",
   },
 };
 
