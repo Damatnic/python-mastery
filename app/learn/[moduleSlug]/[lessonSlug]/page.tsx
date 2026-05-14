@@ -6,6 +6,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { LessonView } from "@/components/LessonView";
 import { getAllModules, getLessonBySlug, getNextLesson, getPreviousLesson } from "@/lib/lessons";
 import { updateStreak } from "@/lib/streak";
+import { safeJsonParse, markReviewed } from "@/lib/storage";
 
 interface LessonPageProps {
   params: Promise<{
@@ -26,12 +27,16 @@ export default function LessonPage({ params }: LessonPageProps) {
   const prevLesson = lesson ? getPreviousLesson(moduleSlug, lessonSlug) : null;
 
   useEffect(() => {
-    const saved = localStorage.getItem("python-mastery-completed");
-    if (saved) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrating from localStorage
-      setCompletedLessons(new Set(JSON.parse(saved)));
+    const list = safeJsonParse<string[]>(localStorage.getItem("python-mastery-completed"), []);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrating from localStorage
+    setCompletedLessons(new Set(list));
+
+    // Track revisits to completed lessons (drives /stats review queue)
+    const lessonKey = `${moduleSlug}/${lessonSlug}`;
+    if (list.includes(lessonKey)) {
+      markReviewed(lessonKey);
     }
-  }, []);
+  }, [moduleSlug, lessonSlug]);
 
   const handleComplete = useCallback(() => {
     const lessonKey = `${moduleSlug}/${lessonSlug}`;

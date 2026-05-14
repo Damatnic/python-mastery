@@ -1061,4 +1061,158 @@ print(survey.head())`,
       xpReward: 50,
     },
   },
+  {
+    module: "Data Cleaning",
+    moduleSlug: "data-cleaning",
+    lessonNumber: 16,
+    slug: "datetime-handling",
+    title: "Datetime Handling",
+    badge: "concept",
+    theory: `
+## Converting Strings to Datetime
+
+Most CSVs give you dates as strings. \`pd.to_datetime\` parses them. It's smart about common formats: \`2024-01-15\`, \`01/15/2024\`, \`Jan 15 2024\` all work.
+
+\`\`\`python
+df["date"] = pd.to_datetime(df["date"])
+\`\`\`
+
+If parsing fails on a row, you'll get an error. Use \`errors="coerce"\` to turn bad rows into \`NaT\` (missing) instead:
+
+\`\`\`python
+df["date"] = pd.to_datetime(df["date"], errors="coerce")
+\`\`\`
+
+If the format is weird and pandas can't guess, tell it:
+
+\`\`\`python
+df["date"] = pd.to_datetime(df["date"], format="%d-%b-%Y")
+\`\`\`
+
+## The .dt Accessor
+
+Once a column is datetime, \`.dt\` gives you parts:
+
+\`\`\`python
+df["date"].dt.year         # 2024
+df["date"].dt.month        # 1
+df["date"].dt.day          # 15
+df["date"].dt.day_name()   # "Monday"
+df["date"].dt.weekday      # 0 (Monday)
+df["date"].dt.is_month_end # True/False
+\`\`\`
+
+## Date Arithmetic
+
+Subtracting two datetimes gives you a \`Timedelta\`:
+
+\`\`\`python
+df["days_since"] = (pd.Timestamp.today() - df["date"]).dt.days
+\`\`\`
+
+Adding offsets:
+
+\`\`\`python
+df["next_week"] = df["date"] + pd.Timedelta(days=7)
+df["next_month"] = df["date"] + pd.DateOffset(months=1)
+\`\`\`
+
+## Filtering by Date
+
+Once parsed, comparisons just work:
+
+\`\`\`python
+recent = df[df["date"] >= "2024-01-01"]
+last_30_days = df[df["date"] >= pd.Timestamp.today() - pd.Timedelta(days=30)]
+\`\`\`
+
+## Formatting Back to String
+
+\`strftime\` formats a datetime as a string:
+
+\`\`\`python
+df["date_str"] = df["date"].dt.strftime("%Y-%m-%d")
+df["pretty"] = df["date"].dt.strftime("%B %d, %Y")  # "January 15, 2024"
+\`\`\`
+
+Common format codes: \`%Y\` year, \`%m\` month, \`%d\` day, \`%H\` hour (24h), \`%M\` minute, \`%B\` month name, \`%A\` day name.
+`,
+    starterCode: `import pandas as pd
+
+# Try out the datetime helpers below.
+events = pd.DataFrame({
+    "label": ["launch", "review", "release", "retro"],
+    "date": ["2024-01-15", "2024-02-03", "2024-03-22", "2024-04-10"],
+})
+
+# convert and inspect
+events["date"] = pd.to_datetime(events["date"])
+print(events.dtypes)
+print(events)
+`,
+    examples: [
+      {
+        title: "Parse a column with mixed-quality dates",
+        explanation: "errors='coerce' converts unparseable values to NaT instead of raising",
+        code: `import pandas as pd
+
+raw = pd.DataFrame({
+    "when": ["2024-01-15", "2024-02-30", "not a date", "2024-04-10"],
+})
+raw["when"] = pd.to_datetime(raw["when"], errors="coerce")
+print(raw)
+print(f"bad rows: {raw['when'].isna().sum()}")`,
+      },
+      {
+        title: "Extract parts with .dt",
+        explanation: "Day name, month, weekday flag — all from the same column",
+        code: `import pandas as pd
+
+events = pd.DataFrame({
+    "date": pd.to_datetime(["2024-01-15", "2024-02-03", "2024-03-22"]),
+})
+events["year"] = events["date"].dt.year
+events["month"] = events["date"].dt.month
+events["day_name"] = events["date"].dt.day_name()
+print(events)`,
+      },
+      {
+        title: "Filter to the last N days",
+        explanation: "Today minus a Timedelta is the cutoff",
+        code: `import pandas as pd
+
+df = pd.DataFrame({
+    "date": pd.to_datetime(["2024-01-15", "2025-12-01", "2026-05-01", "2026-04-10"]),
+    "event": ["launch", "review", "release", "retro"],
+})
+cutoff = pd.Timestamp.today() - pd.Timedelta(days=60)
+recent = df[df["date"] >= cutoff]
+print(recent)`,
+      },
+    ],
+    challenges: [
+      {
+        id: "16-1",
+        prompt: "Parse a column of date strings to datetime and print the day_name() for each row. Use df['dates'] = ['2024-03-04', '2024-07-21', '2024-11-15'] as your data.",
+        solution: `import pandas as pd
+
+df = pd.DataFrame({"dates": ["2024-03-04", "2024-07-21", "2024-11-15"]})
+df["dates"] = pd.to_datetime(df["dates"])
+print(df["dates"].dt.day_name())`,
+        hint: "Use pd.to_datetime then the .dt.day_name() accessor.",
+        validateFn: `return output.includes("Monday") && output.includes("Sunday") && output.includes("Friday")`,
+      },
+      {
+        id: "16-2",
+        prompt: "Parse a column with some bad/unparseable dates ('2024-01-15', 'not a date', '2024-02-30', '2024-04-10') using errors='coerce' and print exactly 'bad rows: N' where N is the count of NaT rows.",
+        solution: `import pandas as pd
+
+df = pd.DataFrame({"raw": ["2024-01-15", "not a date", "2024-02-30", "2024-04-10"]})
+df["raw"] = pd.to_datetime(df["raw"], errors="coerce")
+print(f"bad rows: {df['raw'].isna().sum()}")`,
+        hint: "After parsing with errors='coerce', .isna().sum() counts the NaT rows.",
+        validateFn: `return output.includes("bad rows: 2")`,
+      },
+    ],
+  },
 ];

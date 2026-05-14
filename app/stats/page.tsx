@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { getAllModules } from "@/lib/lessons";
 import { getAllProjects } from "@/lib/projects";
 import { getRank, getRankLadder, getStreakData, type StreakData } from "@/lib/streak";
-import { safeJsonParse, safeReadNumber } from "@/lib/storage";
+import { safeJsonParse, safeReadNumber, getReviewedMap } from "@/lib/storage";
 
 function bar(pct: number, width = 12): string {
   const filled = Math.round((pct / 100) * width);
@@ -35,6 +35,7 @@ export default function StatsPage() {
     lastActiveDate: null,
     maxStreak: 0,
   });
+  const [reviewedAt, setReviewedAt] = useState<Record<string, string>>({});
 
   useEffect(() => {
     setXp(safeReadNumber(localStorage.getItem("python-mastery-xp"), 0));
@@ -49,6 +50,7 @@ export default function StatsPage() {
     );
 
     setStreakInfo(getStreakData());
+    setReviewedAt(getReviewedMap());
     setMounted(true);
   }, []);
 
@@ -92,6 +94,37 @@ export default function StatsPage() {
     const pct = total > 0 ? Math.round((done / total) * 100) : 0;
     return { slug: p.slug, title: p.title, done, total, pct };
   });
+
+  // Review queue: completed lessons sorted by oldest review timestamp.
+  const lessonTitleByKey = new Map<string, string>();
+  for (const m of modules) {
+    for (const l of m.lessons) {
+      lessonTitleByKey.set(`${m.slug}/${l.slug}`, l.title);
+    }
+  }
+  const reviewQueue = [...liveCompletedLessons]
+    .map((k) => {
+      const [moduleSlug, lessonSlug] = k.split("/");
+      return {
+        key: k,
+        moduleSlug,
+        lessonSlug,
+        title: lessonTitleByKey.get(k) ?? k,
+        ts: reviewedAt[k] ?? "",
+      };
+    })
+    .sort((a, b) => a.ts.localeCompare(b.ts))
+    .slice(0, 5);
+
+  const weakModules = moduleRows.filter((m) => m.pct < 50 && m.total > 0).slice(0, 5);
+
+  const daysSinceReview = (iso: string): string => {
+    if (!iso) return "never";
+    const days = Math.round((Date.now() - new Date(iso).getTime()) / 86_400_000);
+    if (days <= 0) return "today";
+    if (days === 1) return "1d ago";
+    return `${days}d ago`;
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
@@ -236,6 +269,51 @@ export default function StatsPage() {
                 ))}
               </ul>
             </section>
+
+            <section className="mt-10">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground"># review queue</p>
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                completed lessons you haven&apos;t opened in a while. the top one is the most forgotten.
+              </p>
+              {reviewQueue.length === 0 ? (
+                <p className="mt-3 text-xs text-muted-foreground">no completed lessons yet</p>
+              ) : (
+                <ul className="mt-3 text-xs space-y-1">
+                  {reviewQueue.map((r) => (
+                    <li key={r.key} className="grid grid-cols-[1fr_auto_auto] gap-4 items-baseline">
+                      <Link
+                        href={`/learn/${r.moduleSlug}/${r.lessonSlug}`}
+                        className="text-foreground hover:text-accent truncate focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded"
+                      >
+                        {r.moduleSlug}/{r.lessonSlug}
+                      </Link>
+                      <span className="text-muted-foreground truncate hidden md:inline">{r.title}</span>
+                      <span className="text-muted-foreground tabular-nums">{daysSinceReview(r.ts)}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <p className="mt-3 text-[11px] text-muted-foreground/70">
+                tip: from the home shell, type <span className="text-foreground/80">review</span> to open a random one.
+              </p>
+            </section>
+
+            {weakModules.length > 0 && (
+              <section className="mt-10">
+                <p className="text-xs uppercase tracking-widest text-muted-foreground"># weak modules</p>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  under 50% complete. worth a pass.
+                </p>
+                <ul className="mt-3 text-xs space-y-1">
+                  {weakModules.map((m) => (
+                    <li key={m.slug} className="grid grid-cols-[1fr_auto] gap-4 items-baseline">
+                      <span className="text-foreground truncate">{m.slug}</span>
+                      <span className="text-error tabular-nums">{m.pct}%</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
 
             <section className="mt-10">
               <p className="text-xs uppercase tracking-widest text-muted-foreground"># rank ladder</p>

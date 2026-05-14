@@ -12,7 +12,7 @@ const modules = [
   { num: "05", slug: "string-file-ops", firstLesson: "string-methods-deep", title: "string-file-ops", desc: "String methods, regex, file I/O, JSON.", lessons: 5 },
   { num: "06", slug: "web-apis", firstLesson: "requests-basics", title: "web-apis", desc: "HTTP requests, JSON parsing, pipelines.", lessons: 5 },
   { num: "07", slug: "functions-apply", firstLesson: "lambda-functions", title: "functions-apply", desc: "Lambda, apply/map, vectorization.", lessons: 5 },
-  { num: "08", slug: "game-dev-pygame", firstLesson: "pygame-basics", title: "game-dev-pygame", desc: "Game loops, sprites, collisions, sound.", lessons: 11 },
+  { num: "08", slug: "game-dev-pygame", firstLesson: "pygame-basics", title: "game-dev-pygame", desc: "Side practice. Game loops, sprites, collisions.", lessons: 11 },
   { num: "09", slug: "data-manipulation-school", firstLesson: "string-methods", title: "data-manipulation-school", desc: "Course notes: strings, dates, combining, pivots.", lessons: 5 },
 ];
 
