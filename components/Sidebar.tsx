@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Module } from "@/lib/types";
-import { getStreakData } from "@/lib/streak";
+import { getStreakData, getRank } from "@/lib/streak";
 
 interface SidebarProps {
   modules: Module[];
@@ -92,9 +92,25 @@ export function Sidebar({ modules, completedLessons: initialCompleted }: Sidebar
         </div>
         {(streak > 0 || xp > 0) && (
           <p className="mt-1.5">
-            {streak > 0 && <span>{streak}d streak</span>}
-            {streak > 0 && xp > 0 && <span> · </span>}
-            {xp > 0 && <span>{xp} xp</span>}
+            <Link
+              href="/stats"
+              className="hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded"
+              aria-label="open stats"
+            >
+              <span className="text-accent">[{getRank(xp).name}]</span>
+              {xp > 0 && (
+                <>
+                  <span> · </span>
+                  <span>{xp} xp</span>
+                </>
+              )}
+              {streak > 0 && (
+                <>
+                  <span> · </span>
+                  <span>{streak}d</span>
+                </>
+              )}
+            </Link>
           </p>
         )}
       </div>

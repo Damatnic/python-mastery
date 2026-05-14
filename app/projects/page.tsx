@@ -40,6 +40,12 @@ export default function ProjectsPage() {
               lessons
             </Link>
             <span className="text-foreground">&gt; projects</span>
+            <Link
+              href="/stats"
+              className="text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded"
+            >
+              stats
+            </Link>
           </nav>
         </div>
       </header>

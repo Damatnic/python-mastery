@@ -37,6 +37,7 @@ export default function LearnDashboard() {
           <nav className="flex items-center gap-5">
             <span className="text-foreground">&gt; lessons</span>
             <Link href="/projects" className="text-muted-foreground hover:text-foreground transition-colors">projects</Link>
+            <Link href="/stats" className="text-muted-foreground hover:text-foreground transition-colors">stats</Link>
           </nav>
         </div>
       </header>

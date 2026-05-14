@@ -1,27 +1,18 @@
-/**
- * Streak Tracking System
- * Tracks consecutive days of learning activity
- */
-
 const STREAK_KEY = "python-mastery-streak";
 const LAST_ACTIVE_KEY = "python-mastery-last-active";
+const MAX_STREAK_KEY = "python-mastery-max-streak";
 
 export interface StreakData {
   currentStreak: number;
   lastActiveDate: string | null;
+  maxStreak: number;
 }
 
-/**
- * Gets the current date in YYYY-MM-DD format (local time)
- */
 function getTodayString(): string {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 }
 
-/**
- * Calculates the difference in days between two date strings
- */
 function getDaysDifference(date1: string, date2: string): number {
   const d1 = new Date(date1);
   const d2 = new Date(date2);
@@ -29,40 +20,36 @@ function getDaysDifference(date1: string, date2: string): number {
   return Math.floor(diffTime / (1000 * 60 * 60 * 24));
 }
 
-/**
- * Gets the current streak data from localStorage
- */
+function readMaxStreak(): number {
+  return parseInt(localStorage.getItem(MAX_STREAK_KEY) || "0", 10);
+}
+
 export function getStreakData(): StreakData {
   if (typeof window === "undefined") {
-    return { currentStreak: 0, lastActiveDate: null };
+    return { currentStreak: 0, lastActiveDate: null, maxStreak: 0 };
   }
 
   const streakStr = localStorage.getItem(STREAK_KEY);
   const lastActive = localStorage.getItem(LAST_ACTIVE_KEY);
+  const maxStreak = readMaxStreak();
 
   const currentStreak = streakStr ? parseInt(streakStr, 10) : 0;
 
-  // Check if streak is still valid
   if (lastActive) {
     const today = getTodayString();
     const daysDiff = getDaysDifference(lastActive, today);
 
-    // If more than 1 day has passed, streak is broken
     if (daysDiff > 1) {
-      return { currentStreak: 0, lastActiveDate: lastActive };
+      return { currentStreak: 0, lastActiveDate: lastActive, maxStreak };
     }
   }
 
-  return { currentStreak, lastActiveDate: lastActive };
+  return { currentStreak, lastActiveDate: lastActive, maxStreak };
 }
 
-/**
- * Updates the streak when a lesson is completed
- * Call this when the user completes a lesson
- */
 export function updateStreak(): StreakData {
   if (typeof window === "undefined") {
-    return { currentStreak: 0, lastActiveDate: null };
+    return { currentStreak: 0, lastActiveDate: null, maxStreak: 0 };
   }
 
   const today = getTodayString();
@@ -70,43 +57,34 @@ export function updateStreak(): StreakData {
   let currentStreak = parseInt(localStorage.getItem(STREAK_KEY) || "0", 10);
 
   if (!lastActive) {
-    // First lesson ever - start streak at 1
     currentStreak = 1;
   } else {
     const daysDiff = getDaysDifference(lastActive, today);
 
     if (daysDiff === 0) {
-      // Same day - streak stays the same (already counted today)
-      // No change needed
+      // same day, no change
     } else if (daysDiff === 1) {
-      // Consecutive day - increment streak
       currentStreak += 1;
     } else {
-      // Streak broken - restart at 1
       currentStreak = 1;
     }
   }
 
-  // Save updated values
+  const newMax = Math.max(readMaxStreak(), currentStreak);
+
   localStorage.setItem(STREAK_KEY, String(currentStreak));
   localStorage.setItem(LAST_ACTIVE_KEY, today);
+  localStorage.setItem(MAX_STREAK_KEY, String(newMax));
 
-  // Dispatch event for UI updates
   window.dispatchEvent(new Event("streak-updated"));
 
-  return { currentStreak, lastActiveDate: today };
+  return { currentStreak, lastActiveDate: today, maxStreak: newMax };
 }
 
-/**
- * Gets just the current streak count
- */
 export function getCurrentStreak(): number {
   return getStreakData().currentStreak;
 }
 
-/**
- * Checks if the user has been active today
- */
 export function isActiveToday(): boolean {
   if (typeof window === "undefined") return false;
 
@@ -114,4 +92,29 @@ export function isActiveToday(): boolean {
   if (!lastActive) return false;
 
   return lastActive === getTodayString();
+}
+
+export interface Rank {
+  name: string;
+  threshold: number;
+}
+
+const RANKS: Rank[] = [
+  { name: "user", threshold: 0 },
+  { name: "apprentice", threshold: 100 },
+  { name: "contributor", threshold: 500 },
+  { name: "engineer", threshold: 1500 },
+  { name: "architect", threshold: 4000 },
+];
+
+export function getRank(xp: number): Rank {
+  let current = RANKS[0];
+  for (const r of RANKS) {
+    if (xp >= r.threshold) current = r;
+  }
+  return current;
+}
+
+export function getRankLadder(): Rank[] {
+  return RANKS;
 }

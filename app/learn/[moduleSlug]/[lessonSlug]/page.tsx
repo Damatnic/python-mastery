@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback, use } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Sidebar } from "@/components/Sidebar";
 import { LessonView } from "@/components/LessonView";
@@ -17,7 +16,6 @@ interface LessonPageProps {
 
 export default function LessonPage({ params }: LessonPageProps) {
   const { moduleSlug, lessonSlug } = use(params);
-  const router = useRouter();
   const [completedLessons, setCompletedLessons] = useState<Set<string>>(
     new Set()
   );
@@ -49,16 +47,8 @@ export default function LessonPage({ params }: LessonPageProps) {
       return next;
     });
 
-    // Update streak tracking
     updateStreak();
-
-    // Auto-advance to next lesson after a short delay
-    if (nextLesson) {
-      setTimeout(() => {
-        router.push(`/learn/${nextLesson.moduleSlug}/${nextLesson.slug}`);
-      }, 1500);
-    }
-  }, [moduleSlug, lessonSlug, nextLesson, router]);
+  }, [moduleSlug, lessonSlug]);
 
   if (!lesson) {
     return (

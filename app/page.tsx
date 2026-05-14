@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import HomeTerminal from "@/components/HomeTerminal";
 
 const modules = [
   { num: "01", slug: "python-basics", firstLesson: "variables-fstrings", title: "python-basics", desc: "Variables, lists, dicts, loops, functions.", lessons: 5 },
@@ -37,15 +38,11 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-background text-foreground font-mono text-sm">
       <main className="flex-1 max-w-3xl mx-auto w-full px-6 py-12 sm:py-16">
         <section className="flex flex-wrap items-baseline justify-between gap-3">
-          <p className="text-foreground">
-            <span className="text-accent">damato@python</span>
-            <span className="text-muted-foreground">:</span>
-            <span className="text-muted-foreground">~/lessons$</span>{" "}
-            <span>ls</span>
-            <span className="ml-1 inline-block w-2 h-4 align-text-bottom bg-foreground terminal-cursor" aria-hidden="true" />
-          </p>
+          <div className="flex-1 min-w-0">
+            <HomeTerminal modules={modules} />
+          </div>
           <p className="text-xs text-muted-foreground">
-            {lastTouched ? `// personal practice. last touched ${lastTouched}.` : "// personal practice."}
+            // type <span className="text-foreground/80">help</span> · ↑↓ history · tab completes
           </p>
         </section>
 
@@ -90,16 +87,27 @@ export default function Home() {
           </ul>
         </section>
 
-        <section className="mt-10">
-          <p className="text-xs uppercase tracking-widest text-muted-foreground"># projects</p>
-          <Link
-            href="/projects"
-            className="mt-3 inline-block py-2 px-2 -mx-2 rounded hover:bg-card/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-          >
-            <span className="text-foreground">projects/</span>
-            <span className="text-muted-foreground">  three guided projects that reuse what the modules cover</span>
-            <span className="ml-3 text-muted-foreground">→</span>
-          </Link>
+        <section className="mt-10 grid sm:grid-cols-2 gap-4">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground"># projects</p>
+            <Link
+              href="/projects"
+              className="mt-3 block py-2 px-2 -mx-2 rounded hover:bg-card/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              <span className="text-foreground">projects/</span>
+              <span className="ml-3 text-muted-foreground">→</span>
+            </Link>
+          </div>
+          <div>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground"># stats</p>
+            <Link
+              href="/stats"
+              className="mt-3 block py-2 px-2 -mx-2 rounded hover:bg-card/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              <span className="text-foreground">stats/</span>
+              <span className="ml-3 text-muted-foreground">→</span>
+            </Link>
+          </div>
         </section>
       </main>
 
