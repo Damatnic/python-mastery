@@ -30,7 +30,7 @@ That's all you need to get started. Everything else builds on top.
 - \`pygame.init()\` to initialize all modules
 - Testing with a simple window to confirm it works
 
-**Rectangles vs Vectors (5:39)** — this is important!
+**Rectangles vs Vectors (5:39)**
 - When to use \`pygame.Rect\` vs \`pygame.math.Vector2\`
 - Rects are great for collision detection and positioning
 - Vectors are better for physics and smooth movement
@@ -3101,7 +3101,7 @@ highlighted = font.render("NEW HIGH SCORE!", True, (255, 255, 0), (0, 0, 100))
 
 ## Positioning Text
 
-The tricky part. \`font.render()\` gives you a surface. You need to position it yourself.
+\`font.render()\` returns a surface. Positioning it on the screen is a separate step.
 
 ### Basic Positioning
 \`\`\`python

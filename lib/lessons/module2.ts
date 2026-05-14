@@ -69,7 +69,6 @@ Once data is in a DataFrame you can:
 Almost every pandas operation you'll learn starts with a DataFrame.
 `,
     starterCode: `# The 'students' DataFrame is pre-loaded
-# Let's explore it
 
 print("First few rows:")
 print(students.head())

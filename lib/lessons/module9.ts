@@ -11,7 +11,7 @@ export const lessonsModule9: Lesson[] = [
     theory: `
 ## The str Accessor
 
-Pandas has this thing called the \`str\` accessor that lets you call string methods on entire columns at once. It's honestly one of the most useful features once you figure out it exists.
+Pandas exposes a \`str\` accessor that lets you call string methods across an entire column at once. It's one of the most useful features once you know it's there.
 
 \`\`\`python
 df["name"].str.upper()   # uppercase everything
@@ -195,7 +195,7 @@ df.info()          # types plus null counts
 Common types you'll see:
 - \`int64\` — integers
 - \`float64\` — decimals
-- \`object\` — usually strings (this one's confusing honestly)
+- \`object\` — usually strings (the label is misleading)
 - \`bool\` — True/False
 - \`datetime64\` — dates
 
@@ -398,7 +398,7 @@ df["date"].dt.day_name() # "Monday", "Tuesday", etc
 df["date"].dt.month_name() # "January", "February", etc
 \`\`\`
 
-Honestly \`dt.weekday\` returning 0 for Monday tripped me up at first. Just gotta remember it.
+\`dt.weekday\` returns 0 for Monday, which is the part that's easy to forget.
 
 ## Date Arithmetic
 
@@ -599,7 +599,7 @@ pd.merge(df1, df2, on="id", how="right")
 pd.merge(df1, df2, on="id", how="outer")
 \`\`\`
 
-Inner is the default and honestly it's what you want most of the time. Left join is second most common — "give me all my orders, and whatever customer info exists."
+Inner is the default and what you want most of the time. Left join is second most common — "give me all my orders, and whatever customer info exists."
 
 ## Handling Duplicate Column Names
 
@@ -644,7 +644,7 @@ df1.join(df2)
 df1.join(df2.set_index("key"), on="key")
 \`\`\`
 
-I don't use join as much as merge honestly. It's less explicit about what's happening.
+\`merge\` gets used more often than \`join\` because it's more explicit about what's happening.
 
 ## When to Use What
 
@@ -871,7 +871,7 @@ pd.pivot_table(
 )
 \`\`\`
 
-Honestly str.contains is way more useful than I expected. Wait wrong lesson. Pivot tables with margins are super helpful for reports though.
+Pivot tables with margins are useful for reports — you get row and column totals in one call.
 `,
     starterCode: `# Using the sales data
 print("Sales data:")
