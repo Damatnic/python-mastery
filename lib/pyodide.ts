@@ -35,6 +35,32 @@ interface UsePyodideReturn {
 }
 
 const PYODIDE_CDN = "https://cdn.jsdelivr.net/pyodide/v0.27.0/full/";
+const EXECUTION_TIMEOUT_MS = 10_000;
+
+class ExecutionTimeoutError extends Error {
+  constructor() {
+    super(
+      `execution exceeded ${EXECUTION_TIMEOUT_MS / 1000}s. likely an infinite loop. refresh the tab to recover.`,
+    );
+    this.name = "ExecutionTimeoutError";
+  }
+}
+
+function withWatchdog<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new ExecutionTimeoutError()), ms);
+    promise.then(
+      (v) => {
+        clearTimeout(timer);
+        resolve(v);
+      },
+      (e) => {
+        clearTimeout(timer);
+        reject(e);
+      },
+    );
+  });
+}
 
 export function usePyodide(): UsePyodideReturn {
   const [isLoading, setIsLoading] = useState(true);
@@ -136,8 +162,8 @@ def _df_repr(self):
     return f"<!--DATAFRAME_HTML-->{html}<!--/DATAFRAME_HTML-->"
 `);
 
-      // Run user code
-      const result = await pyodide.runPythonAsync(code);
+      // Run user code with watchdog timeout
+      const result = await withWatchdog(pyodide.runPythonAsync(code), EXECUTION_TIMEOUT_MS);
 
       // If the result is a DataFrame or Series, add its HTML representation
       if (result !== undefined && result !== null) {
@@ -192,7 +218,7 @@ json_str
         try {
           locals = JSON.parse(localsJson);
         } catch {
-          // NaN or other non-JSON values slipped through — safe to ignore
+          // NaN or other non-JSON values slipped through; safe to ignore
           locals = {};
         }
       }

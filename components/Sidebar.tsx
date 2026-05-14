@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Module } from "@/lib/types";
 import { getStreakData, getRank } from "@/lib/streak";
+import { safeJsonParse, safeReadNumber } from "@/lib/storage";
 
 interface SidebarProps {
   modules: Module[];
@@ -25,35 +26,30 @@ export function Sidebar({ modules, completedLessons: initialCompleted }: Sidebar
   const completedCount = localCompleted.size;
 
   useEffect(() => {
-    const savedXp = localStorage.getItem("python-mastery-xp");
-    if (savedXp) setXp(parseInt(savedXp, 10) || 0);
-
-    const savedLessons = localStorage.getItem("python-mastery-completed");
-    if (savedLessons) setLocalCompleted(new Set(JSON.parse(savedLessons)));
+    setXp(safeReadNumber(localStorage.getItem("python-mastery-xp"), 0));
+    setLocalCompleted(new Set(safeJsonParse<string[]>(localStorage.getItem("python-mastery-completed"), [])));
 
     const streakData = getStreakData();
     setStreak(streakData.currentStreak);
 
     const handleStorage = (e: StorageEvent) => {
       if (e.key === "python-mastery-xp" && e.newValue) {
-        setXp(parseInt(e.newValue, 10) || 0);
+        setXp(safeReadNumber(e.newValue, 0));
       }
       if (e.key === "python-mastery-completed" && e.newValue) {
-        setLocalCompleted(new Set(JSON.parse(e.newValue)));
+        setLocalCompleted(new Set(safeJsonParse<string[]>(e.newValue, [])));
       }
       if (e.key === "python-mastery-streak" && e.newValue) {
-        setStreak(parseInt(e.newValue, 10) || 0);
+        setStreak(safeReadNumber(e.newValue, 0));
       }
     };
 
     const handleXpUpdate = () => {
-      const currentXp = localStorage.getItem("python-mastery-xp");
-      if (currentXp) setXp(parseInt(currentXp, 10) || 0);
+      setXp(safeReadNumber(localStorage.getItem("python-mastery-xp"), 0));
     };
 
     const handleLessonsUpdate = () => {
-      const savedLessons = localStorage.getItem("python-mastery-completed");
-      if (savedLessons) setLocalCompleted(new Set(JSON.parse(savedLessons)));
+      setLocalCompleted(new Set(safeJsonParse<string[]>(localStorage.getItem("python-mastery-completed"), [])));
     };
 
     const handleStreakUpdate = () => {

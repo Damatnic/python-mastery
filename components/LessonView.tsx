@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { CodeEditor } from "./CodeEditor";
 import { OutputPanel } from "./OutputPanel";
 import { CopyButton } from "./CopyButton";
 import { TheoryContent } from "./TheoryContent";
 import { usePyodide } from "@/lib/pyodide";
+import { safeJsonParse, safeReadNumber } from "@/lib/storage";
 import type { Lesson, Example, Challenge, ProjectChallenge } from "@/lib/types";
 import { PROJECT_THREAD_INFO } from "@/lib/project-threads";
 
@@ -400,6 +401,7 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
   const [showProjectHint, setShowProjectHint] = useState(false);
   const [totalXP, setTotalXP] = useState(0);
   const [showCompletionToast, setShowCompletionToast] = useState(false);
+  const projectXpAwardedRef = useRef(false);
 
   const cheatSheetItems = useMemo(() => generateCheatSheet(lesson.moduleSlug), [lesson.moduleSlug]);
 
@@ -430,18 +432,13 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
     setShowProjectSolution(false);
     setShowProjectHint(false);
 
-    const savedCompletions = localStorage.getItem("python-mastery-project-completed");
-    if (savedCompletions) {
-      const completed = new Set(JSON.parse(savedCompletions));
-      setProjectCompleted(completed.has(`${lesson.moduleSlug}/${lesson.slug}`));
-    } else {
-      setProjectCompleted(false);
-    }
+    const completed = new Set(
+      safeJsonParse<string[]>(localStorage.getItem("python-mastery-project-completed"), []),
+    );
+    setProjectCompleted(completed.has(`${lesson.moduleSlug}/${lesson.slug}`));
+    projectXpAwardedRef.current = false;
 
-    const savedXP = localStorage.getItem("python-mastery-xp");
-    if (savedXP) {
-      setTotalXP(parseInt(savedXP, 10));
-    }
+    setTotalXP(safeReadNumber(localStorage.getItem("python-mastery-xp"), 0));
   }, [lesson.slug, lesson.starterCode, lesson.projectChallenge, lesson.moduleSlug]);
 
   // Save code to localStorage on change
@@ -515,8 +512,13 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
             onComplete();
           }
         }
-      } catch {
-        // Validation error
+      } catch (err) {
+        console.warn(`[LessonView] validateFn threw for challenge ${activeChallenge.id}:`, err);
+        setOutput(
+          (prev) =>
+            prev +
+            "\n\n# validator error in this challenge. open devtools to see the cause and please report.",
+        );
       }
     }
 
@@ -565,7 +567,8 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
       try {
         const validateFn = createValidator(lesson.projectChallenge.validateFn);
         const isValid = validateFn(result.output, result.locals);
-        if (isValid && !projectCompleted) {
+        if (isValid && !projectCompleted && !projectXpAwardedRef.current) {
+          projectXpAwardedRef.current = true;
           setProjectCompleted(true);
           const xpGained = lesson.projectChallenge.xpReward;
           const newXP = totalXP + xpGained;
@@ -573,8 +576,9 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
           localStorage.setItem("python-mastery-xp", String(newXP));
           window.dispatchEvent(new Event("xp-updated"));
 
-          const savedCompletions = localStorage.getItem("python-mastery-project-completed");
-          const completed = savedCompletions ? new Set(JSON.parse(savedCompletions)) : new Set();
+          const completed = new Set(
+            safeJsonParse<string[]>(localStorage.getItem("python-mastery-project-completed"), []),
+          );
           completed.add(`${lesson.moduleSlug}/${lesson.slug}`);
           localStorage.setItem("python-mastery-project-completed", JSON.stringify([...completed]));
 
@@ -583,8 +587,14 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
           setProjectFailedAttempts((prev) => prev + 1);
           setProjectOutput((prev) => prev + "\n\n# validation failed · check the output and try again");
         }
-      } catch {
+      } catch (err) {
+        console.warn(`[LessonView] project validateFn threw:`, err);
         setProjectFailedAttempts((prev) => prev + 1);
+        setProjectOutput(
+          (prev) =>
+            prev +
+            "\n\n# validator error in this project challenge. open devtools to see the cause and please report.",
+        );
       }
     } else {
       setProjectFailedAttempts((prev) => prev + 1);

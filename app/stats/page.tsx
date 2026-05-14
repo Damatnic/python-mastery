@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { getAllModules } from "@/lib/lessons";
 import { getAllProjects } from "@/lib/projects";
 import { getRank, getRankLadder, getStreakData, type StreakData } from "@/lib/streak";
+import { safeJsonParse, safeReadNumber } from "@/lib/storage";
 
 function bar(pct: number, width = 12): string {
   const filled = Math.round((pct / 100) * width);
@@ -36,17 +37,16 @@ export default function StatsPage() {
   });
 
   useEffect(() => {
-    const savedXp = localStorage.getItem("python-mastery-xp");
-    if (savedXp) setXp(parseInt(savedXp, 10) || 0);
-
-    const savedLessons = localStorage.getItem("python-mastery-completed");
-    if (savedLessons) setCompletedLessons(new Set(JSON.parse(savedLessons)));
-
-    const savedProjectSteps = localStorage.getItem("python-mastery-project-progress");
-    if (savedProjectSteps) setCompletedProjectSteps(new Set(JSON.parse(savedProjectSteps)));
-
-    const savedProjectChallenges = localStorage.getItem("python-mastery-project-completed");
-    if (savedProjectChallenges) setCompletedProjectChallenges(new Set(JSON.parse(savedProjectChallenges)));
+    setXp(safeReadNumber(localStorage.getItem("python-mastery-xp"), 0));
+    setCompletedLessons(
+      new Set(safeJsonParse<string[]>(localStorage.getItem("python-mastery-completed"), [])),
+    );
+    setCompletedProjectSteps(
+      new Set(safeJsonParse<string[]>(localStorage.getItem("python-mastery-project-progress"), [])),
+    );
+    setCompletedProjectChallenges(
+      new Set(safeJsonParse<string[]>(localStorage.getItem("python-mastery-project-completed"), [])),
+    );
 
     setStreakInfo(getStreakData());
     setMounted(true);
@@ -57,6 +57,12 @@ export default function StatsPage() {
 
   const totalLessons = modules.reduce((s, m) => s + m.lessons.length, 0);
   const totalProjectSteps = projects.reduce((s, p) => s + p.steps.length, 0);
+
+  // Filter out stale slugs from localStorage that no longer match current lesson data
+  const validLessonKeys = new Set(modules.flatMap((m) => m.lessons.map((l) => `${m.slug}/${l.slug}`)));
+  const validProjectStepIds = new Set(projects.flatMap((p) => p.steps.map((s) => s.id)));
+  const liveCompletedLessons = new Set([...completedLessons].filter((k) => validLessonKeys.has(k)));
+  const liveCompletedProjectSteps = new Set([...completedProjectSteps].filter((s) => validProjectStepIds.has(s)));
 
   const rank = getRank(xp);
   const ladder = getRankLadder();
@@ -177,12 +183,12 @@ export default function StatsPage() {
               <div className="mt-2 text-sm space-y-1">
                 <p>
                   lessons{"    "}
-                  <span className="text-foreground">{completedLessons.size}</span>
+                  <span className="text-foreground">{liveCompletedLessons.size}</span>
                   <span className="text-muted-foreground"> / {totalLessons}</span>
                 </p>
                 <p>
                   project steps{"  "}
-                  <span className="text-foreground">{completedProjectSteps.size}</span>
+                  <span className="text-foreground">{liveCompletedProjectSteps.size}</span>
                   <span className="text-muted-foreground"> / {totalProjectSteps}</span>
                 </p>
                 <p>

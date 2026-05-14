@@ -409,46 +409,6 @@ pre, code {
   color: #d4d4d4;
 }
 
-/* Callout boxes */
-.callout {
-  transition: transform 150ms ease, box-shadow 150ms ease;
-}
-
-.callout:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-/* Key concept cards */
-.key-concept-card {
-  transition: transform 150ms ease, box-shadow 150ms ease;
-}
-
-.key-concept-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(251, 191, 36, 0.1);
-}
-
-/* Theory content headings */
-.theory-heading {
-  scroll-margin-top: 2rem;
-}
-
-/* Theory list items */
-.theory-list li,
-.theory-list-numbered li {
-  position: relative;
-}
-
-/* Challenge cards */
-.challenge-card {
-  transition: transform 150ms ease, box-shadow 150ms ease;
-}
-
-.challenge-card:hover {
-  transform: translateY(-1px);
-}
-
 /* Project challenge section */
 .project-challenge {
   transition: box-shadow 200ms ease;
@@ -477,16 +437,6 @@ button[class*="border-b-2"] {
   transition: border-color 150ms ease, color 150ms ease;
 }
 
-/* Cheat sheet card hover */
-.cheat-sheet-card {
-  transition: border-color 150ms ease, transform 150ms ease;
-}
-
-.cheat-sheet-card:hover {
-  border-color: rgba(168, 85, 247, 0.3);
-  transform: translateY(-1px);
-}
-
 /* Line numbers styling */
 .line-numbers {
   user-select: none;
@@ -500,28 +450,6 @@ button[class*="border-b-2"] {
 /* Breadcrumb hover */
 nav a:hover {
   text-decoration: none;
-}
-
-/* Learning objectives animation */
-.learning-objectives li {
-  animation: fadeInUp 300ms ease forwards;
-  opacity: 0;
-}
-
-.learning-objectives li:nth-child(1) { animation-delay: 0ms; }
-.learning-objectives li:nth-child(2) { animation-delay: 50ms; }
-.learning-objectives li:nth-child(3) { animation-delay: 100ms; }
-.learning-objectives li:nth-child(4) { animation-delay: 150ms; }
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 /* Terminal cursor blink */

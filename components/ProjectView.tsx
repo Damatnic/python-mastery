@@ -75,8 +75,13 @@ export function ProjectView({
           onStepComplete(currentStep.id);
           setOutput((prev) => prev + "\n\n# step validated · exit 0");
         }
-      } catch {
-        // Validation error, ignore
+      } catch (err) {
+        console.warn(`[ProjectView] validateFn threw for step ${currentStep.id}:`, err);
+        setOutput(
+          (prev) =>
+            prev +
+            "\n\n# validator error in this step. open devtools to see the cause and please report.",
+        );
       }
     }
 
