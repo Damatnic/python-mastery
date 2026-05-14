@@ -599,7 +599,7 @@ pd.merge(df1, df2, on="id", how="right")
 pd.merge(df1, df2, on="id", how="outer")
 \`\`\`
 
-Inner is the default and what you want most of the time. Left join is second most common — "give me all my orders, and whatever customer info exists."
+Inner is the default and what you want most of the time. Left join is second most common, the "give me all my orders, and whatever customer info exists" pattern.
 
 ## Handling Duplicate Column Names
 
@@ -871,7 +871,7 @@ pd.pivot_table(
 )
 \`\`\`
 
-Pivot tables with margins are useful for reports — you get row and column totals in one call.
+Pivot tables with margins are useful for reports. You get row and column totals in one call.
 `,
     starterCode: `# Using the sales data
 print("Sales data:")
