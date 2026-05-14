@@ -97,14 +97,15 @@ export function isActiveToday(): boolean {
 export interface Rank {
   name: string;
   threshold: number;
+  blurb: string;
 }
 
 const RANKS: Rank[] = [
-  { name: "user", threshold: 0 },
-  { name: "apprentice", threshold: 100 },
-  { name: "contributor", threshold: 500 },
-  { name: "engineer", threshold: 1500 },
-  { name: "architect", threshold: 4000 },
+  { name: "script kid", threshold: 0, blurb: "variables, loops, functions. you read errors instead of panicking." },
+  { name: "pandas reader", threshold: 100, blurb: "DataFrame, Series, .loc/.iloc. you stop reaching for Excel for everything." },
+  { name: "cleaner", threshold: 500, blurb: "NaN handling, type coercion, dedup, datetime parsing. you trust the data you ship." },
+  { name: "groupby fluent", threshold: 1500, blurb: "groupby + agg, merge, pivot. you reshape without printing the intermediate frame ten times." },
+  { name: "pipeline operator", threshold: 4000, blurb: "all lessons cleared. you write functions that take a frame and return a frame and that's the whole job." },
 ];
 
 export function getRank(xp: number): Rank {

@@ -317,16 +317,17 @@ export default function StatsPage() {
 
             <section className="mt-10">
               <p className="text-xs uppercase tracking-widest text-muted-foreground"># rank ladder</p>
-              <ul className="mt-3 text-xs space-y-1">
+              <ul className="mt-3 text-xs space-y-2">
                 {ladder.map((r) => {
                   const reached = xp >= r.threshold;
                   return (
-                    <li key={r.name} className="grid grid-cols-[auto_1fr_auto] gap-4 items-baseline">
+                    <li key={r.name} className="grid grid-cols-[1.25rem_1fr_auto] gap-3 items-baseline">
                       <span className={reached ? "text-emerald-400" : "text-muted-foreground"}>
                         {reached ? "✓" : "·"}
                       </span>
                       <span className={reached ? "text-foreground" : "text-muted-foreground"}>
-                        {r.name}
+                        <span>{r.name}</span>
+                        <span className="ml-2 text-muted-foreground">{r.blurb}</span>
                       </span>
                       <span className="text-muted-foreground tabular-nums">
                         {r.threshold} xp

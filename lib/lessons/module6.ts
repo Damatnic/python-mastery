@@ -9,184 +9,163 @@ export const lessonsModule6: Lesson[] = [
     title: "Requests Basics",
     badge: "concept",
     theory: `
-## Making HTTP Requests
+## Two Ways to Fetch Data
 
-The \`requests\` library is the standard way to fetch data from the web:
+In a regular Python script you use the \`requests\` library:
 
 \`\`\`python
 import requests
 
 response = requests.get("https://api.example.com/data")
-print(response.status_code)  # 200 for success
-print(response.text)         # Raw text content
-print(response.json())       # Parse as JSON
+print(response.status_code)
+print(response.json())
 \`\`\`
 
-## HTTP Methods
+This site runs Python in a browser Web Worker via Pyodide, so the network goes through the browser's fetch instead. The Pyodide-native wrapper is \`pyodide.http.pyfetch\`:
 
 \`\`\`python
-requests.get(url)      # Read data
-requests.post(url)     # Create data
-requests.put(url)      # Update data
-requests.delete(url)   # Delete data
+from pyodide.http import pyfetch
+
+response = await pyfetch("https://jsonplaceholder.typicode.com/users/1")
+print(response.status)
+data = await response.json()
+print(data)
 \`\`\`
 
-## Common Response Properties
+Same shape, two differences worth knowing:
+- It's async. You must \`await\` both the fetch and \`.json()\`.
+- It runs from the browser, so the target API has to send CORS headers. Sites that don't, you can't reach directly.
+
+When you ship a real script you'll write \`requests.get\`. The patterns translate.
+
+## Status, JSON, and Errors
 
 \`\`\`python
-response.status_code  # HTTP status (200, 404, 500, etc.)
-response.ok           # True if status < 400
-response.text         # Response as string
-response.json()       # Parse JSON response
-response.headers      # Response headers
-response.url          # Final URL (after redirects)
+response = await pyfetch(url)
+
+response.status     # 200, 404, 500 ...
+response.ok         # True if status < 400
+await response.string()  # raw text
+await response.json()    # parsed JSON
 \`\`\`
 
-## Adding Headers and Parameters
-
-\`\`\`python
-# Query parameters
-response = requests.get(
-    "https://api.example.com/search",
-    params={"q": "python", "limit": 10}
-)
-# URL becomes: ...?q=python&limit=10
-
-# Custom headers
-response = requests.get(
-    "https://api.example.com/data",
-    headers={"Authorization": "Bearer token123"}
-)
-\`\`\`
-
-## Handling Errors
+Handle failures explicitly. Network errors raise; bad status codes don't:
 
 \`\`\`python
 try:
-    response = requests.get(url, timeout=10)
-    response.raise_for_status()  # Raises exception for 4xx/5xx
-    data = response.json()
-except requests.exceptions.RequestException as e:
-    print(f"Request failed: {e}")
+    response = await pyfetch(url)
+    if response.status >= 400:
+        print(f"HTTP {response.status}")
+    else:
+        data = await response.json()
+except Exception as e:
+    print(f"request failed: {e}")
 \`\`\`
 
-**Note:** In this browser environment, we'll simulate HTTP responses since we can't make real network requests.
+## Adding Params
+
+\`pyfetch\` doesn't have a \`params=\` keyword like \`requests\` does. Build the query string yourself:
+
+\`\`\`python
+from urllib.parse import urlencode
+
+params = {"userId": 1}
+url = f"https://jsonplaceholder.typicode.com/posts?{urlencode(params)}"
+response = await pyfetch(url)
+posts = await response.json()
+print(f"{len(posts)} posts for user 1")
+\`\`\`
+
+## Public test API
+
+Examples below hit **jsonplaceholder.typicode.com**. It's a free, CORS-friendly fake API with users, posts, comments, todos. Real HTTP, real JSON, no auth required. Good for practice without spinning up your own backend.
 `,
-    starterCode: `# In browser, we simulate API responses
-# Real code would use: import requests
+    starterCode: `from pyodide.http import pyfetch
 
-# Simulated API response
-api_response = {
-    "status": 200,
-    "data": {
-        "users": [
-            {"id": 1, "name": "Alice", "email": "alice@example.com"},
-            {"id": 2, "name": "Bob", "email": "bob@example.com"}
-        ],
-        "total": 2
-    }
-}
+# Fetch a single user from jsonplaceholder
+response = await pyfetch("https://jsonplaceholder.typicode.com/users/1")
+print(f"status: {response.status}")
 
-# Process the response
-if api_response["status"] == 200:
-    users = api_response["data"]["users"]
-    print(f"Found {len(users)} users:")
-    for user in users:
-        print(f"  {user['name']}: {user['email']}")
+if response.ok:
+    user = await response.json()
+    print(f"name: {user['name']}")
+    print(f"email: {user['email']}")
+    print(f"company: {user['company']['name']}")
 `,
     examples: [
       {
-        title: "Processing API Response",
-        explanation: "Parse and use JSON data from an API",
-        code: `# Simulated weather API response
-weather_response = {
-    "city": "New York",
-    "temperature": 72,
-    "conditions": "Sunny",
-    "forecast": [
-        {"day": "Mon", "high": 75, "low": 60},
-        {"day": "Tue", "high": 78, "low": 62},
-        {"day": "Wed", "high": 73, "low": 58}
-    ]
-}
+        title: "Fetch a real JSON response",
+        explanation: "Hit a public CORS-friendly API and read the response. Real HTTP, real status code, real JSON.",
+        code: `from pyodide.http import pyfetch
 
-print(f"Weather in {weather_response['city']}:")
-print(f"Currently: {weather_response['temperature']}°F, {weather_response['conditions']}")
-print("\\nForecast:")
-for day in weather_response["forecast"]:
-    print(f"  {day['day']}: High {day['high']}°, Low {day['low']}°")`,
+response = await pyfetch("https://jsonplaceholder.typicode.com/users/1")
+print(f"status: {response.status}")
+
+user = await response.json()
+print(f"id: {user['id']}")
+print(f"name: {user['name']}")
+print(f"city: {user['address']['city']}")
+print(f"website: {user['website']}")`,
       },
       {
-        title: "Error Handling Pattern",
-        explanation: "Handle different response status codes",
-        code: `def process_api_response(response):
-    status = response.get("status", 0)
+        title: "Fetch a list and aggregate",
+        explanation: "GET a collection, parse it, do real work on it. Same pattern you'd use with a paginated production API.",
+        code: `from pyodide.http import pyfetch
 
-    if status == 200:
-        return response["data"]
-    elif status == 404:
-        print("Resource not found")
-        return None
-    elif status >= 500:
-        print("Server error")
-        return None
-    else:
-        print(f"Unexpected status: {status}")
-        return None
+response = await pyfetch("https://jsonplaceholder.typicode.com/posts")
+if not response.ok:
+    print(f"HTTP {response.status}")
+else:
+    posts = await response.json()
+    print(f"got {len(posts)} posts")
 
-# Test with different responses
-good_response = {"status": 200, "data": {"message": "Success!"}}
-not_found = {"status": 404}
+    # Count posts per user
+    by_user = {}
+    for p in posts:
+        by_user[p["userId"]] = by_user.get(p["userId"], 0) + 1
 
-result = process_api_response(good_response)
-print(f"Result: {result}")
-
-result = process_api_response(not_found)
-print(f"Result: {result}")`,
+    print("posts per user:")
+    for user_id in sorted(by_user):
+        print(f"  user {user_id}: {by_user[user_id]} posts")`,
       },
       {
-        title: "Building Request Parameters",
-        explanation: "Construct API queries",
-        code: `# Build query parameters for an API request
-def build_search_url(base_url, **params):
-    if not params:
-        return base_url
-    query = "&".join(f"{k}={v}" for k, v in params.items())
-    return f"{base_url}?{query}"
+        title: "Handle an explicit 404",
+        explanation: "Hit a URL that returns 404. response.ok is False; nothing raises. You check.",
+        code: `from pyodide.http import pyfetch
 
-url = build_search_url(
-    "https://api.example.com/search",
-    query="python",
-    page=1,
-    limit=25
-)
-print(f"Request URL: {url}")`,
+response = await pyfetch("https://jsonplaceholder.typicode.com/users/999999")
+print(f"status: {response.status}")
+print(f"ok: {response.ok}")
+
+if response.ok:
+    user = await response.json()
+    print(user)
+else:
+    print("user not found, falling back to default behavior")`,
       },
     ],
     challenges: [
       {
         id: "m6l1c1",
-        prompt: "Given response = {'status': 200, 'data': {'count': 42}}, extract and print the count value.",
-        hint: "Navigate the nested dictionary structure",
-        validateFn: `return output.includes("42")`,
-        solution: `response = {'status': 200, 'data': {'count': 42}}
-count = response['data']['count']
-print(f"Count: {count}")`,
+        prompt: "Fetch https://jsonplaceholder.typicode.com/users/2 and print exactly the user's email address (the value of the 'email' field, no extra prefix).",
+        hint: "await pyfetch, then await response.json(), then index into 'email'.",
+        validateFn: `return /\\S+@\\S+\\.\\S+/.test(output) && !output.toLowerCase().includes("error") && !output.includes("404")`,
+        solution: `from pyodide.http import pyfetch
+
+response = await pyfetch("https://jsonplaceholder.typicode.com/users/2")
+user = await response.json()
+print(user["email"])`,
       },
       {
         id: "m6l1c2",
-        prompt: "Write a function that checks if response['status'] is 200 and returns response['data'] or None.",
-        hint: "Check status, return data if 200, else None",
-        validateFn: `return output.includes("Success") && output.includes("None")`,
-        solution: `def get_data(response):
-    if response.get("status") == 200:
-        return response.get("data")
-    return None
+        prompt: "Fetch all posts from https://jsonplaceholder.typicode.com/posts and print exactly one line: 'total posts: N' where N is the actual count.",
+        hint: "Get the list with pyfetch + .json(), then len(). The endpoint returns 100 posts.",
+        validateFn: `return output.includes("total posts: 100")`,
+        solution: `from pyodide.http import pyfetch
 
-good = {"status": 200, "data": "Success"}
-bad = {"status": 404}
-print(get_data(good))
-print(get_data(bad))`,
+response = await pyfetch("https://jsonplaceholder.typicode.com/posts")
+posts = await response.json()
+print(f"total posts: {len(posts)}")`,
       },
     ],
     projectChallenge: {
