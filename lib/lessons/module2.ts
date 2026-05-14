@@ -27,7 +27,7 @@ df = pd.DataFrame(data)
 
 ## What is a Series?
 
-A Series is a single column — a 1D array with labels (the index):
+A Series is a single column; a 1D array with labels (the index):
 
 \`\`\`python
 ages = df["age"]  # This is a Series
@@ -789,7 +789,7 @@ print(permits[["Permit Number", "Status", "is_active"]])`,
     theory: `
 ## Reading CSV Files
 
-The most common operation — loading data from a CSV:
+The most common operation; loading data from a CSV:
 
 \`\`\`python
 df = pd.read_csv("data.csv")

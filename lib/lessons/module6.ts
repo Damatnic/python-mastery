@@ -863,7 +863,7 @@ print(f"\\nTotal Revenue: \${total:,.2f}")`,
     title: "Scraping Tables",
     badge: "practice",
     theory: `
-## pd.read_html() — The Easy Way
+## pd.read_html(): The Easy Way
 
 Pandas can automatically parse HTML tables:
 
@@ -1114,9 +1114,9 @@ print(f"\\nTop Performer: {top_rep} with \${top_rev:,.2f}")`,
 
 A pipeline is a series of steps that transform raw data into useful output:
 
-1. **Extract** — Get data from source (API, file, database)
-2. **Transform** — Clean, reshape, enrich the data
-3. **Load** — Save to destination (file, database, dashboard)
+1. **Extract**: Get data from source (API, file, database)
+2. **Transform**: Clean, reshape, enrich the data
+3. **Load**: Save to destination (file, database, dashboard)
 
 ## Pipeline Pattern
 

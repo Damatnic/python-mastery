@@ -73,9 +73,9 @@ while running:
 pygame.quit()
 \`\`\`
 
-Those three steps — **handle events → update → draw** — repeat every frame. That's the whole pattern.
+Those three steps (**handle events → update → draw**) repeat every frame. That's the whole pattern.
 
-## Delta Time — Frame-Rate Independence
+## Delta Time: Frame-Rate Independence
 
 This tripped me up at first. If you just do \`x += 5\` every frame, your game runs at different speeds on different computers. A faster computer runs more frames per second, so things move faster. That's bad.
 
@@ -94,15 +94,15 @@ while running:
 **Gerber tip:** Always multiply velocity by dt. It's the difference between "5 pixels per frame" (inconsistent) and "300 pixels per second" (consistent on every machine).
 
 \`\`\`python
-# BAD — frame-dependent
+# BAD; frame-dependent
 x += 5
 
-# GOOD — frame-independent
+# GOOD; frame-independent
 SPEED = 300  # pixels per second
 x += SPEED * dt
 \`\`\`
 
-## Rect vs Vector2 — When to Use Each
+## Rect vs Vector2: When to Use Each
 
 Gerber makes an entire video about this because students get confused:
 
@@ -117,7 +117,7 @@ Gerber makes an entire video about this because students get confused:
 - You need distance calculations
 - You're doing physics with velocity/acceleration
 
-**Common pattern — use both:**
+**Common pattern; use both:**
 \`\`\`python
 class Ball(pygame.sprite.Sprite):
     def __init__(self):
@@ -165,41 +165,41 @@ pygame.draw.circle(screen, BLUE, (400, 300), 30)
 pygame.draw.line(screen, WHITE, (0, 0), (800, 600), 2)
 \`\`\`
 
-The order matters — things drawn later appear on top.
+The order matters; things drawn later appear on top.
 
 ## 🎨 Asset Creation Tips
 
 Where to find free sprites and tilesets:
-- **Kenney.nl** — amazing free assets, super polished, great for prototyping
-- **itch.io** — search "free sprites" or "free tileset", tons of options
-- **OpenGameArt.org** — community-contributed art, check licenses
+- **Kenney.nl**: amazing free assets, super polished, great for prototyping
+- **itch.io**: search "free sprites" or "free tileset", tons of options
+- **OpenGameArt.org**: community-contributed art, check licenses
 
 Tools for making your own:
-- **Aseprite** (paid but worth it) — pixel art and animation
-- **Piskel** (free, browser-based) — simple pixel art
-- **Tiled** — tilemap editor, exports JSON your game can load
+- **Aseprite** (paid but worth it); pixel art and animation
+- **Piskel** (free, browser-based); simple pixel art
+- **Tiled**: tilemap editor, exports JSON your game can load
 
 ---
 
 ## 💡 Tips & Tricks
 
-- **Gerber tip:** Keep all constants in a \`settings.py\` file — way easier to tune the game later
-- **Gerber tip:** Always call \`pygame.quit()\` at the end — prevents the window from hanging
+- **Gerber tip:** Keep all constants in a \`settings.py\` file; way easier to tune the game later
+- **Gerber tip:** Always call \`pygame.quit()\` at the end; prevents the window from hanging
 - **Tip:** Use \`pygame.display.set_caption("Game Title")\` to set the window title
-- **Tip:** \`clock.tick(60)\` returns milliseconds since last call — divide by 1000 for seconds
+- **Tip:** \`clock.tick(60)\` returns milliseconds since last call; divide by 1000 for seconds
 
 ---
 
 ## ⚠️ Common Mistakes
 
-- **Forgetting pygame.quit()** — the window hangs when you close it
-- **Not calling pygame.display.flip()** — nothing shows up, you just stare at a black screen wondering why
-- **Using pygame.QUIT instead of pygame.quit()** — QUIT is an event type, quit() is a function
-- **Hardcoding frame rate assumptions** — use delta time instead of assuming 60fps
-- **Putting draw calls before update** — you'll draw the old state, not the new one
+- **Forgetting pygame.quit()**: the window hangs when you close it
+- **Not calling pygame.display.flip()**: nothing shows up, you just stare at a black screen wondering why
+- **Using pygame.QUIT instead of pygame.quit()**: QUIT is an event type, quit() is a function
+- **Hardcoding frame rate assumptions**: use delta time instead of assuming 60fps
+- **Putting draw calls before update**: you'll draw the old state, not the new one
 `,
     starterCode: `# This runs in a real Pygame environment, not the browser
-# Use this as a reference — copy it into your local Python setup
+# Use this as a reference; copy it into your local Python setup
 
 import pygame
 pygame.init()
@@ -260,7 +260,7 @@ pygame.quit()`,
       },
       {
         title: "Settings File Pattern",
-        explanation: "Gerber's recommended structure — all constants in one place",
+        explanation: "Gerber's recommended structure; all constants in one place",
         code: `# settings.py
 WIDTH, HEIGHT = 800, 600
 FPS = 60
@@ -333,7 +333,7 @@ def validate(answer):
 
 ---
 
-## Delta Time Movement — The Right Way
+## Delta Time Movement: The Right Way
 
 Gerber teaches this early because it's foundational. Here's the pattern:
 
@@ -383,13 +383,13 @@ if player_rect.right > WIDTH:
     player_rect.right = WIDTH
 \`\`\`
 
-**Using clamp_ip() — cleaner:**
+**Using clamp_ip(); cleaner:**
 \`\`\`python
 # Clamp rect to stay within screen bounds
 player_rect.clamp_ip(screen.get_rect())
 \`\`\`
 
-The \`_ip\` suffix means "in place" — it modifies the rect directly instead of returning a new one.
+The \`_ip\` suffix means "in place"; it modifies the rect directly instead of returning a new one.
 
 ## Bouncing Off Walls
 
@@ -455,20 +455,20 @@ while running:
     x += vx * dt
 \`\`\`
 
-**Gerber tip:** Friction below 1.0 means velocity shrinks each frame when you're not pressing anything — that's the "sliding to a stop" feel.
+**Gerber tip:** Friction below 1.0 means velocity shrinks each frame when you're not pressing anything; that's the "sliding to a stop" feel.
 
-## Vector Normalization — Diagonal Movement Fix
+## Vector Normalization: Diagonal Movement Fix
 
 Without normalization, diagonal movement is ~41% faster than horizontal/vertical. That's because you're adding two velocities together:
 
 \`\`\`python
-# BAD — diagonal is faster
+# BAD; diagonal is faster
 if keys[pygame.K_RIGHT]: vx = SPEED
 if keys[pygame.K_DOWN]:  vy = SPEED
 # Moving right+down = sqrt(SPEED^2 + SPEED^2) = SPEED * 1.414
 \`\`\`
 
-**The fix — normalize the direction:**
+**The fix; normalize the direction:**
 \`\`\`python
 from pygame.math import Vector2
 
@@ -521,13 +521,13 @@ class Player(pygame.sprite.Sprite):
 
 ## ⚠️ Common Mistakes
 
-- **Not using delta time** — game runs at different speeds on different machines
-- **Using integer division** on rect positions — causes visible jitter
-- **Forgetting to check direction.length() > 0** before normalizing — divides by zero
-- **Just flipping velocity on wall bounce** — ball can get stuck, use abs() instead
-- **Diagonal movement 41% faster** — forgot to normalize the direction vector
+- **Not using delta time**: game runs at different speeds on different machines
+- **Using integer division** on rect positions; causes visible jitter
+- **Forgetting to check direction.length() > 0** before normalizing; divides by zero
+- **Just flipping velocity on wall bounce**: ball can get stuck, use abs() instead
+- **Diagonal movement 41% faster**: forgot to normalize the direction vector
 `,
-    starterCode: `# Ball bouncing with delta time — run this locally
+    starterCode: `# Ball bouncing with delta time; run this locally
 
 import pygame
 pygame.init()
@@ -681,7 +681,7 @@ def validate(answer):
     answer = answer.lower()
     return ("proportion" in answer or "percent" in answer or "smaller" in answer or "zero" in answer or "smooth" in answer or "relative" in answer)
 `,
-        solution: "Multiplying by friction (< 1.0) slows proportionally — it naturally approaches zero smoothly. Subtracting a fixed amount can cause jitter or overshoot past zero.",
+        solution: "Multiplying by friction (< 1.0) slows proportionally; it naturally approaches zero smoothly. Subtracting a fixed amount can cause jitter or overshoot past zero.",
       },
     ],
   },
@@ -698,8 +698,8 @@ def validate(answer):
 
 **User Platform Class and Attributes (Brick Breakaway Video 2)**
 - Creating a class that extends \`pygame.sprite.Sprite\`
-- \`self.image\` — the Surface to draw
-- \`self.rect\` — position and collision bounds
+- \`self.image\`; the Surface to draw
+- \`self.rect\`; position and collision bounds
 - Speed as an attribute
 
 **Surface Handler (Sprite Game Video 4)**
@@ -738,9 +738,9 @@ class Player(pygame.sprite.Sprite):
 \`\`\`
 
 The key things every sprite needs:
-- **\`self.image\`** — what to draw (Surface or loaded image)
-- **\`self.rect\`** — position and size (a Rect object)
-- **\`update()\`** method — called every frame
+- **\`self.image\`**: what to draw (Surface or loaded image)
+- **\`self.rect\`**: position and size (a Rect object)
+- **\`update()\`** method; called every frame
 
 ## Sprite Groups
 
@@ -756,7 +756,7 @@ all_sprites.update(dt)        # calls update(dt) on every sprite
 all_sprites.draw(screen)      # draws every sprite to the screen
 \`\`\`
 
-**Gerber tip:** Use sprite groups — \`all_sprites.update()\` and \`all_sprites.draw()\` handle everything. Way cleaner than manually looping through every object.
+**Gerber tip:** Use sprite groups; \`all_sprites.update()\` and \`all_sprites.draw()\` handle everything. Way cleaner than manually looping through every object.
 
 ## Loading Real Images
 
@@ -819,7 +819,7 @@ walk_frames = handler.get_animation(row=0, num_frames=4)  # frames 0-3 on row 0
 attack_frames = handler.get_animation(row=1, num_frames=3)  # frames 0-2 on row 1
 \`\`\`
 
-## Sprite Sheet Frame Extraction — The Math
+## Sprite Sheet Frame Extraction: The Math
 
 If your sprite sheet has 64x64 pixel frames arranged in a grid:
 
@@ -885,11 +885,11 @@ if not self.facing_right:
     self.image = pygame.transform.flip(self.frames[self.frame_index], True, False)
 \`\`\`
 
-## Rect Properties — Your Best Friends
+## Rect Properties: Your Best Friends
 
 \`\`\`python
 rect.x, rect.y         # top-left corner
-rect.center            # (center_x, center_y) — set position by center!
+rect.center            # (center_x, center_y); set position by center!
 rect.centerx, rect.centery
 rect.top, rect.bottom, rect.left, rect.right
 rect.width, rect.height
@@ -903,7 +903,7 @@ rect.midleft, rect.midright, rect.midtop, rect.midbottom
 
 ## 💡 Tips & Tricks
 
-- **Gerber tip:** Use sprite groups — \`all_sprites.update()\` and \`all_sprites.draw()\` handle everything
+- **Gerber tip:** Use sprite groups; \`all_sprites.update()\` and \`all_sprites.draw()\` handle everything
 - **Tip:** Kenney.nl has free sprite sheets that work great for prototyping
 - **Tip:** Use \`pygame.SRCALPHA\` when creating surfaces for transparent sprites
 - **Tip:** Pixel art looks best scaled at integer multiples (2x, 3x, not 1.5x)
@@ -913,13 +913,13 @@ rect.midleft, rect.midright, rect.midtop, rect.midbottom
 
 ## ⚠️ Common Mistakes
 
-- **Forgetting \`super().__init__()\`** — sprite doesn't work properly with groups
-- **Not setting both self.image AND self.rect** — sprite won't draw
-- **Loading images inside update()** — loads every frame, kills performance
-- **Modifying self.image directly** — messes up animation, keep original frames separate
-- **Using convert() instead of convert_alpha()** — loses transparency
+- **Forgetting \`super().__init__()\`**: sprite doesn't work properly with groups
+- **Not setting both self.image AND self.rect**: sprite won't draw
+- **Loading images inside update()**: loads every frame, kills performance
+- **Modifying self.image directly**: messes up animation, keep original frames separate
+- **Using convert() instead of convert_alpha()**: loses transparency
 `,
-    starterCode: `# Sprite example — copy to local Pygame environment
+    starterCode: `# Sprite example; copy to local Pygame environment
 
 import pygame
 pygame.init()
@@ -976,7 +976,7 @@ pygame.quit()
 `,
     examples: [
       {
-        title: "Surface Handler — Sprite Sheet Loader",
+        title: "Surface Handler · Sprite Sheet Loader",
         explanation: "Gerber's pattern for extracting frames from a sprite sheet",
         code: `class SurfaceHandler:
     def __init__(self, sheet_path, frame_width, frame_height):
@@ -1111,7 +1111,7 @@ Without it, things pass through each other. Bullets don't hit enemies. The ball 
 
 ## Rect Collision (Fastest)
 
-The simplest method — check if two rectangles overlap:
+The simplest method; check if two rectangles overlap:
 
 \`\`\`python
 # Two rect objects
@@ -1257,7 +1257,7 @@ if ball_rect.colliderect(paddle_rect) and ball_vy > 0:
     ball_vy *= -1
 \`\`\`
 
-**Why?** If you don't check, the ball can get stuck inside the paddle and bounce back and forth rapidly. \`vy > 0\` means the ball is moving downward — only then should we bounce it up.
+**Why?** If you don't check, the ball can get stuck inside the paddle and bounce back and forth rapidly. \`vy > 0\` means the ball is moving downward; only then should we bounce it up.
 
 ## Side-Aware Bounce (Which Side Did I Hit?)
 
@@ -1289,9 +1289,9 @@ def bounce_off_rect(ball_rect, ball_vel, target_rect):
 
 ## 💡 Tips & Tricks
 
-- **Gerber tip:** Check \`vy > 0\` on paddle collision — prevents ball getting stuck
-- **Tip:** \`math.atan2(dy, dx)\` gives angle from point A to point B — essential for Tower Defense
-- **Tip:** Use \`math.dist()\` instead of manual sqrt — cleaner and just as fast
+- **Gerber tip:** Check \`vy > 0\` on paddle collision; prevents ball getting stuck
+- **Tip:** \`math.atan2(dy, dx)\` gives angle from point A to point B; essential for Tower Defense
+- **Tip:** Use \`math.dist()\` instead of manual sqrt; cleaner and just as fast
 - **Tip:** Keep a reference to the target, not just its position, for tracking projectiles
 - **Tip:** Process only one brick collision per frame to prevent weird double-bounces
 
@@ -1299,13 +1299,13 @@ def bounce_off_rect(ball_rect, ball_vel, target_rect):
 
 ## ⚠️ Common Mistakes
 
-- **Not checking vy > 0 on paddle** — ball gets stuck and vibrates
-- **Using position-at-fire instead of tracking** — projectiles miss moving targets
-- **Bouncing off multiple bricks in one frame** — causes erratic behavior
-- **Forgetting to check if target is still alive** — crashes or weird behavior
-- **Using atan instead of atan2** — wrong angles in some quadrants
+- **Not checking vy > 0 on paddle**: ball gets stuck and vibrates
+- **Using position-at-fire instead of tracking**: projectiles miss moving targets
+- **Bouncing off multiple bricks in one frame**: causes erratic behavior
+- **Forgetting to check if target is still alive**: crashes or weird behavior
+- **Using atan instead of atan2**: wrong angles in some quadrants
 `,
-    starterCode: `# Collision demo — rect-based
+    starterCode: `# Collision demo; rect-based
 
 import pygame
 pygame.init()
@@ -1423,7 +1423,7 @@ def validate(answer):
     answer = answer.lower()
     return ("down" in answer or "stuck" in answer or "through" in answer or "direction" in answer or "moving" in answer)
 `,
-        solution: "If you don't check, the ball can get stuck inside the paddle and bounce rapidly. vy > 0 means the ball is moving downward — only then do we reverse it.",
+        solution: "If you don't check, the ball can get stuck inside the paddle and bounce rapidly. vy > 0 means the ball is moving downward; only then do we reverse it.",
       },
       {
         id: "collision-2",
@@ -1658,8 +1658,8 @@ class Brick(pygame.sprite.Sprite):
 
 ## 💡 Tips & Tricks
 
-- **Gerber tip:** Keep all constants in settings.py — way easier to tune
-- **Gerber tip:** Check \`vy > 0\` before paddle bounce — prevents stuck ball
+- **Gerber tip:** Keep all constants in settings.py; way easier to tune
+- **Gerber tip:** Check \`vy > 0\` before paddle bounce; prevents stuck ball
 - **Tip:** Use float positions for smooth movement, sync to rect each frame
 - **Tip:** Process only one brick collision per frame to prevent double-bounces
 
@@ -1667,22 +1667,22 @@ class Brick(pygame.sprite.Sprite):
 
 ## ⚠️ Common Mistakes
 
-- **Forgetting vy > 0 check** — ball gets stuck in paddle
-- **Integer positions causing jitter** — use floats, convert to int for rect
-- **Not clamping paddle to screen** — paddle escapes the window
-- **Multiple brick collisions per frame** — break after first hit
+- **Forgetting vy > 0 check**: ball gets stuck in paddle
+- **Integer positions causing jitter**: use floats, convert to int for rect
+- **Not clamping paddle to screen**: paddle escapes the window
+- **Multiple brick collisions per frame**: break after first hit
 
 ---
 
-## Step 2 — Improvement Ideas (20+ points required)
+## Step 2: Improvement Ideas (20+ points required)
 
-- **Informative Text (5pts)** — spacebar prompt + game over message
-- **Randomized Ball Start (5pts)** — random angle on launch
-- **Player Life (10pts)** — 3 lives, reset ball on fall
-- **Additional Levels (10pts)** — new brick layout after clearing
-- **Power Up Bricks (15pts)** — special bricks drop power-ups
+- **Informative Text (5pts)**: spacebar prompt + game over message
+- **Randomized Ball Start (5pts)**: random angle on launch
+- **Player Life (10pts)**: 3 lives, reset ball on fall
+- **Additional Levels (10pts)**: new brick layout after clearing
+- **Power Up Bricks (15pts)**: special bricks drop power-ups
 `,
-    starterCode: `# Brick Breakaway — complete starter with delta time
+    starterCode: `# Brick Breakaway; complete starter with delta time
 import pygame
 pygame.init()
 
@@ -1790,7 +1790,7 @@ pygame.quit()
     examples: [
       {
         title: "Player Lives System",
-        explanation: "Step 2 option (10pts) — track lives, reset ball on fall",
+        explanation: "Step 2 option (10pts); track lives, reset ball on fall",
         code: `lives = 3
 
 # When ball falls:
@@ -1810,7 +1810,7 @@ screen.blit(lives_text, (10, 10))`,
       },
       {
         title: "Randomized Ball Launch",
-        explanation: "Step 2 option (5pts) — random angle on spacebar",
+        explanation: "Step 2 option (5pts); random angle on spacebar",
         code: `import math, random
 
 def launch_ball():
@@ -1836,7 +1836,7 @@ def validate(answer):
     answer = answer.lower()
     return ("stuck" in answer or "through" in answer or "down" in answer or "moving" in answer)
 `,
-        solution: "Without the check, the ball can get stuck inside the paddle and vibrate. vy > 0 means it's moving down — only then should we bounce it up.",
+        solution: "Without the check, the ball can get stuck inside the paddle and vibrate. vy > 0 means it's moving down; only then should we bounce it up.",
       },
       {
         id: "breakaway-2",
@@ -2027,32 +2027,32 @@ class Projectile:
 
 ## 💡 Tips & Tricks
 
-- **Gerber tip:** Store enemy reference in projectile, not just position — tracks moving targets
-- **Tip:** \`math.atan2(dy, dx)\` gives angle in radians — essential for aiming
-- **Tip:** Check \`enemy.alive\` before targeting — prevents crashes
+- **Gerber tip:** Store enemy reference in projectile, not just position; tracks moving targets
+- **Tip:** \`math.atan2(dy, dx)\` gives angle in radians; essential for aiming
+- **Tip:** Check \`enemy.alive\` before targeting; prevents crashes
 - **Tip:** Wave scaling: increase enemy HP/speed each wave for difficulty curve
 
 ---
 
 ## ⚠️ Common Mistakes
 
-- **Storing position instead of reference** — projectiles miss moving enemies
-- **Not checking if target is alive** — crashes when enemy dies mid-flight
-- **Forgetting to normalize direction** — speed varies with distance
-- **Spawning too many enemies at once** — overwhelms player immediately
+- **Storing position instead of reference**: projectiles miss moving enemies
+- **Not checking if target is alive**: crashes when enemy dies mid-flight
+- **Forgetting to normalize direction**: speed varies with distance
+- **Spawning too many enemies at once**: overwhelms player immediately
 
 ---
 
 ## Step 2 Options (20+ points required)
 
-- **Tower Sprite (5pts)** — load image instead of drawing shape
-- **Projectile Rotation (5pts)** — rotate sprite to face target
-- **Wave Balance (5pts)** — enemies scale with waves
-- **Enemy HP Bar (10pts)** — draw health above enemies
-- **Additional Levels (10pts)** — new maps after X waves
-- **New Tower Type (15pts)** — subclass with splash damage or slow
+- **Tower Sprite (5pts)**: load image instead of drawing shape
+- **Projectile Rotation (5pts)**: rotate sprite to face target
+- **Wave Balance (5pts)**: enemies scale with waves
+- **Enemy HP Bar (10pts)**: draw health above enemies
+- **Additional Levels (10pts)**: new maps after X waves
+- **New Tower Type (15pts)**: subclass with splash damage or slow
 `,
-    starterCode: `# Tower Defense — complete starter with delta time
+    starterCode: `# Tower Defense; complete starter with delta time
 import pygame
 import math
 pygame.init()
@@ -2214,7 +2214,7 @@ pygame.quit()
     examples: [
       {
         title: "Enemy HP Bar",
-        explanation: "Step 2 option (10pts) — health bar above enemies",
+        explanation: "Step 2 option (10pts); health bar above enemies",
         code: `def draw_hp_bar(screen, enemy):
     bar_w, bar_h = 40, 6
     x = int(enemy.pos.x) - bar_w // 2
@@ -2235,7 +2235,7 @@ for e in enemies:
       },
       {
         title: "Splash Tower (New Type)",
-        explanation: "Step 2 option (15pts) — damages all enemies near target",
+        explanation: "Step 2 option (15pts); damages all enemies near target",
         code: `class SplashTower(Tower):
     def __init__(self, x, y):
         super().__init__(x, y)
@@ -2303,7 +2303,7 @@ def validate(answer):
     theory: `
 ## What You're Building
 
-A character-based game with animated sprites, NPCs that move around, and collision interactions. The foundation for RPGs, platformers, or action games. The big new thing is sprite sheets — multiple animation frames from a single image.
+A character-based game with animated sprites, NPCs that move around, and collision interactions. The foundation for RPGs, platformers, or action games. The big new thing is sprite sheets; multiple animation frames from a single image.
 
 ---
 
@@ -2482,23 +2482,23 @@ class Runner(Character):
 
 ## ⚠️ Common Mistakes
 
-- **Loading sprites inside update()** — kills performance
-- **Modifying self.image directly** — keep original frames separate
-- **Forgetting to sync float position to rect** — jittery movement
-- **Not checking direction.length() > 0** before normalize — division by zero
+- **Loading sprites inside update()**: kills performance
+- **Modifying self.image directly**: keep original frames separate
+- **Forgetting to sync float position to rect**: jittery movement
+- **Not checking direction.length() > 0** before normalize; division by zero
 
 ---
 
 ## Step 2 Options (20+ points required)
 
-- **Background Change (5pts)** — swap on score threshold
-- **Multiple Sprite Sheets (5pts)** — random NPC appearances
-- **Win/Lose Mechanic (5pts)** — timer or catch goal
-- **Additional Action (10pts)** — jump or attack animation
-- **Character Select (20pts)** — choose character at start
-- **Acceleration/Friction (20pts)** — smooth physics for both player and NPCs
+- **Background Change (5pts)**: swap on score threshold
+- **Multiple Sprite Sheets (5pts)**: random NPC appearances
+- **Win/Lose Mechanic (5pts)**: timer or catch goal
+- **Additional Action (10pts)**: jump or attack animation
+- **Character Select (20pts)**: choose character at start
+- **Acceleration/Friction (20pts)**: smooth physics for both player and NPCs
 `,
-    starterCode: `# Sprite Game — complete starter with delta time
+    starterCode: `# Sprite Game; complete starter with delta time
 import pygame
 import random
 pygame.init()
@@ -2639,7 +2639,7 @@ pygame.quit()
     examples: [
       {
         title: "Acceleration & Friction",
-        explanation: "Step 2 option (20pts) — smooth physics movement",
+        explanation: "Step 2 option (20pts); smooth physics movement",
         code: `class PlayerPhysics(Character):
     def __init__(self, x, y):
         super().__init__(x, y, (100, 150, 200), 250)
@@ -2670,7 +2670,7 @@ pygame.quit()
       },
       {
         title: "Character Select Screen",
-        explanation: "Step 2 option (20pts) — choose before playing",
+        explanation: "Step 2 option (20pts); choose before playing",
         code: `def character_select(screen, clock, font):
     chars = [
         {"name": "Blue Knight", "color": (100, 150, 200)},
@@ -2757,8 +2757,8 @@ pygame.mixer.init()  # already called by pygame.init(), but good to know it exis
 \`\`\`
 
 There are two separate systems and they work differently:
-- **Sound effects** — short clips, multiple can play at once
-- **Music** — one track at a time, streams from disk (good for long files)
+- **Sound effects**: short clips, multiple can play at once
+- **Music**: one track at a time, streams from disk (good for long files)
 
 ---
 
@@ -2827,7 +2827,7 @@ pygame.mixer.music.fadeout(2000)
 
 ---
 
-## Channels — Playing Multiple Sounds
+## Channels: Playing Multiple Sounds
 
 Pygame has 8 channels by default. Each channel can play one sound at a time. When you call \`sound.play()\`, it grabs a free channel automatically.
 
@@ -2845,7 +2845,7 @@ If all channels are busy when you play a sound, the oldest sound gets cut off. R
 
 ---
 
-## Common Pattern — Sound Manager
+## Common Pattern: Sound Manager
 
 Most games wrap their sounds in a simple manager:
 
@@ -2892,7 +2892,7 @@ sfx.play("coin", volume=0.5)
 
 Stick with \`.ogg\` for most things. Use \`.wav\` for tiny effects where loading speed matters.
 `,
-    starterCode: `# Sound & Music Demo — run this locally with pygame installed
+    starterCode: `# Sound & Music Demo; run this locally with pygame installed
 # You'll need some .wav or .ogg files in an "assets" folder
 
 import pygame
@@ -2995,7 +2995,7 @@ def validate(answer):
     answer = answer.lower()
     return ("memory" in answer or "effect" in answer or "short" in answer or "one" in answer or "stream" in answer or "background" in answer or "loop" in answer)
 `,
-        solution: "Sound loads the entire file into memory — good for short effects. You can play many at once. Music streams from disk — good for long tracks. Only one music track plays at a time.",
+        solution: "Sound loads the entire file into memory; good for short effects. You can play many at once. Music streams from disk; good for long tracks. Only one music track plays at a time.",
       },
       {
         id: "sound-2",
@@ -3147,16 +3147,16 @@ class HUD:
         self.level = 1
 
     def draw(self, screen):
-        # Score — top left
+        # Score; top left
         score_text = self.font.render(f"Score: {self.score}", True, (255, 255, 255))
         screen.blit(score_text, (10, 10))
 
-        # Lives — top right
+        # Lives; top right
         lives_text = self.font.render(f"Lives: {self.lives}", True, (255, 100, 100))
         lives_rect = lives_text.get_rect(topright=(screen.get_width() - 10, 10))
         screen.blit(lives_text, lives_rect)
 
-        # Level — top center
+        # Level; top center
         level_text = self.font.render(f"Level {self.level}", True, (200, 200, 200))
         level_rect = level_text.get_rect(midtop=(screen.get_width() // 2, 10))
         screen.blit(level_text, level_rect)
@@ -3187,7 +3187,7 @@ while running:
 
 ---
 
-## Performance Tip — Cache Rendered Text
+## Performance Tip: Cache Rendered Text
 
 Re-rendering text every frame is wasteful if the text hasn't changed. Cache it:
 
@@ -3234,7 +3234,7 @@ timer_text = font.render(f"{minutes:02d}:{display_seconds:02d}", True, WHITE)
 
 The \`:02d\` format pads with zeros: "01:05" instead of "1:5".
 `,
-    starterCode: `# Text & HUD Demo — run this locally with pygame installed
+    starterCode: `# Text & HUD Demo; run this locally with pygame installed
 
 import pygame
 pygame.init()
@@ -3348,7 +3348,7 @@ def validate(answer):
     answer = answer.lower()
     return ("render" in answer or "surface" in answer or "blit" in answer)
 `,
-        solution: "Step 1: Render the text onto a surface with font.render(). Step 2: Blit that surface onto the screen. Pygame doesn't have a text box — everything is drawn as pixel surfaces.",
+        solution: "Step 1: Render the text onto a surface with font.render(). Step 2: Blit that surface onto the screen. Pygame doesn't have a text box; everything is drawn as pixel surfaces.",
       },
       {
         id: "hud-2",
@@ -3544,7 +3544,7 @@ def draw_game_over(screen):
 
 ---
 
-## reset_game() — The Restart Function
+## reset_game(): The Restart Function
 
 When transitioning from Game Over back to Playing, you need to reset everything:
 
@@ -3563,13 +3563,13 @@ def reset_game():
 
 ---
 
-## Gerber Tip — Keep It Simple
+## Gerber Tip: Keep It Simple
 
 You don't need a fancy state machine library. A string variable and some if/elif blocks is all most games need. Don't over-engineer it. The pattern above handles menus, pausing, game over, and win screens for any Pygame project.
 
 If your game gets really complex (multiple levels, cutscenes, shops), you might want to use a class-based approach where each state is its own class with \`handle_input()\`, \`update()\`, and \`draw()\` methods. But for the projects in this course, the simple approach works perfectly.
 `,
-    starterCode: `# Game State Management Demo — run this locally
+    starterCode: `# Game State Management Demo; run this locally
 # Shows menu, playing, paused, and game over states
 
 import pygame
@@ -3799,10 +3799,10 @@ def validate(answer):
     moduleSlug: "game-dev-pygame",
     lessonNumber: 46,
     slug: "pygame-project-breakaway-deep-dive",
-    title: "Brick Breakaway — Deep Dive & Demo Prep",
+    title: "Brick Breakaway · Deep Dive & Demo Prep",
     badge: "challenge",
     theory: `
-## Your Brick Breakaway — How Everything Works
+## Your Brick Breakaway: How Everything Works
 
 This is a deep breakdown of the Brick Breakaway game you built. Everything here maps to your actual code. Know this inside and out for the Zoom demo with Gerber.
 
@@ -3811,17 +3811,17 @@ This is a deep breakdown of the Brick Breakaway game you built. Everything here 
 ## The Big Picture
 
 The game has 5 core systems working together:
-1. **Platform** — keyboard-controlled paddle at the bottom
-2. **Ball** — bounces around, destroys bricks, uses delta time
-3. **Bricks** — grid of targets with variable health + power-ups
-4. **Power-Ups** — special drops that modify gameplay (wider paddle, extra life, slow ball, multi-ball)
-5. **Levels** — 3 different brick layouts with increasing difficulty
+1. **Platform**: keyboard-controlled paddle at the bottom
+2. **Ball**: bounces around, destroys bricks, uses delta time
+3. **Bricks**: grid of targets with variable health + power-ups
+4. **Power-Ups**: special drops that modify gameplay (wider paddle, extra life, slow ball, multi-ball)
+5. **Levels**: 3 different brick layouts with increasing difficulty
 
 Everything runs inside one game loop doing **events → update → draw** at 60fps.
 
 ---
 
-## Delta Time — Why It Matters
+## Delta Time: Why It Matters
 
 \`\`\`python
 dt = clock.tick(60) / 1000.0  # seconds since last frame
@@ -3833,16 +3833,16 @@ Every movement in the game multiplies by \`dt\`. This is frame-rate independence
 **Your answer:** "So the game runs the same speed on every machine. Without dt, faster computers would make the ball move faster. Multiplying by dt converts from pixels-per-frame to pixels-per-second."
 
 \`\`\`python
-# BAD — frame dependent
+# BAD; frame dependent
 self.x += 5  # 5 pixels per frame = different speeds at different framerates
 
-# GOOD — frame independent
+# GOOD; frame independent
 self.x += self.speed * dt  # 500 pixels per second = same speed everywhere
 \`\`\`
 
 ---
 
-## Ball Physics — Launch and Bounce
+## Ball Physics: Launch and Bounce
 
 ### Random Launch
 \`\`\`python
@@ -3957,11 +3957,11 @@ Spawns a second ball at the same position going the opposite horizontal directio
 
 Three level functions return different brick layouts:
 
-**Level 1 — Standard Grid:** 10×5 bricks, top rows have more HP (row 0 = 5HP, row 4 = 1HP)
+**Level 1; Standard Grid:** 10×5 bricks, top rows have more HP (row 0 = 5HP, row 4 = 1HP)
 
-**Level 2 — Diamond Pattern:** Bricks arranged in a diamond shape. Center bricks have higher health. Uses a \`rows_config = [2, 4, 6, 8, 10, 8, 6, 4, 2]\` array to define width per row.
+**Level 2; Diamond Pattern:** Bricks arranged in a diamond shape. Center bricks have higher health. Uses a \`rows_config = [2, 4, 6, 8, 10, 8, 6, 4, 2]\` array to define width per row.
 
-**Level 3 — Alternating Gaps:** 8 rows, odd rows skip every other brick creating a gap pattern. Higher health in lower rows. Harder because the gaps make precision bounces more important.
+**Level 3; Alternating Gaps:** 8 rows, odd rows skip every other brick creating a gap pattern. Higher health in lower rows. Harder because the gaps make precision bounces more important.
 
 Each level randomly places 4-6 power-up bricks. Ball speed increases by 30 px/sec per level. Clearing all bricks gives a 100-point level bonus.
 
@@ -3970,7 +3970,7 @@ Each level randomly places 4-6 power-up bricks. Ball speed increases by 30 px/se
 
 ---
 
-## Background — Procedural Generation
+## Background: Procedural Generation
 
 Instead of loading an image file, the background is generated with code:
 
@@ -4003,7 +4003,7 @@ background = pygame.transform.scale(background, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
 ---
 
-## Brick Sprites — Cached Rendering
+## Brick Sprites: Cached Rendering
 
 \`\`\`python
 BRICK_SPRITES = {}  # cache
@@ -4027,10 +4027,10 @@ Each unique brick appearance (health level + power-up type) gets rendered once a
 
 ---
 
-## Common Gerber Questions — Quick Answers
+## Common Gerber Questions: Quick Answers
 
 **"Walk me through the game loop."**
-"Events first — check for quit, spacebar launch, spacebar restart. Then update — move platform, move ball, check collisions, check if ball fell off screen. Then draw — background, platform, ball, bricks, HUD. Then flip the display."
+"Events first; check for quit, spacebar launch, spacebar restart. Then update; move platform, move ball, check collisions, check if ball fell off screen. Then draw; background, platform, ball, bricks, HUD. Then flip the display."
 
 **"What happens when the ball falls off screen?"**
 "I check \`ball.is_off_screen()\` which returns true if the ball's y position is below the screen height. If so, decrement lives. If lives hit 0, game over. Otherwise reset the ball to follow the platform and reset paddle width."
@@ -4150,7 +4150,7 @@ def validate(answer):
     answer = answer.lower()
     return ("two" in answer or "double" in answer or "cancel" in answer or "twice" in answer or "corner" in answer or "multiple" in answer or "multi" in answer)
 `,
-        solution: "If the ball hits the corner where two bricks meet, processing both collisions in the same frame would flip the velocity twice — once for each brick — which cancels out and the ball passes through. Breaking after one collision avoids this bug.",
+        solution: "If the ball hits the corner where two bricks meet, processing both collisions in the same frame would flip the velocity twice; once for each brick; which cancels out and the ball passes through. Breaking after one collision avoids this bug.",
       },
       {
         id: "breakaway-deep-4",
@@ -4161,7 +4161,7 @@ def validate(answer):
     answer = answer.lower()
     return ("main" in answer or "list" in answer or "separate" in answer or "extra" in answer or "only" in answer or "primary" in answer or "track" in answer)
 `,
-        solution: "Extra balls are stored in a separate list (game_state['extra_balls']). Only the main ball is tracked for lives — when the main ball falls off screen, you lose a life. Extra balls just get removed from the list when they fall off. This keeps the game fair while still being chaotic with multiple balls.",
+        solution: "Extra balls are stored in a separate list (game_state['extra_balls']). Only the main ball is tracked for lives; when the main ball falls off screen, you lose a life. Extra balls just get removed from the list when they fall off. This keeps the game fair while still being chaotic with multiple balls.",
       },
     ],
   },

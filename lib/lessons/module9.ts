@@ -59,7 +59,7 @@ df[df["name"].str.contains("bob", case=False)]
 df[df["email"].str.contains(r"@gmail\\.com$", regex=True)]
 \`\`\`
 
-Watch out though — \`contains\` throws errors if you have NaN values. Use \`na=False\` to avoid that:
+Watch out though; \`contains\` throws errors if you have NaN values. Use \`na=False\` to avoid that:
 
 \`\`\`python
 df[df["name"].str.contains("son", na=False)]
@@ -105,7 +105,7 @@ print(students["name"].str.upper())
     examples: [
       {
         title: "Cleaning Messy Text",
-        explanation: "Strip whitespace and standardize case — happens all the time with real data",
+        explanation: "Strip whitespace and standardize case; happens all the time with real data",
         code: `import io
 csv_data = """name,email
   Alice  ,ALICE@GMAIL.COM
@@ -193,11 +193,11 @@ df.info()          # types plus null counts
 \`\`\`
 
 Common types you'll see:
-- \`int64\` — integers
-- \`float64\` — decimals
-- \`object\` — usually strings (the label is misleading)
-- \`bool\` — True/False
-- \`datetime64\` — dates
+- \`int64\`; integers
+- \`float64\`; decimals
+- \`object\`; usually strings (the label is misleading)
+- \`bool\`; True/False
+- \`datetime64\`; dates
 
 ## Converting Types with astype
 
@@ -214,7 +214,7 @@ If the conversion isn't possible (like turning "hello" into an int), it'll throw
 
 ## pd.to_numeric for Messy Data
 
-Here's the thing — \`astype\` is strict. If you have even one bad value, it fails. \`pd.to_numeric\` is more forgiving.
+Here's the thing; \`astype\` is strict. If you have even one bad value, it fails. \`pd.to_numeric\` is more forgiving.
 
 \`\`\`python
 # errors='coerce' turns bad values into NaN instead of crashing
@@ -378,7 +378,7 @@ Pandas doesn't automatically recognize dates. You gotta tell it.
 df["date"] = pd.to_datetime(df["date"])
 \`\`\`
 
-It's pretty smart about formats — it can figure out "2024-01-15", "01/15/2024", "Jan 15, 2024" and more. But if it's something weird, specify the format:
+It's pretty smart about formats; it can figure out "2024-01-15", "01/15/2024", "Jan 15, 2024" and more. But if it's something weird, specify the format:
 
 \`\`\`python
 # For dates like "15-01-2024"
@@ -448,12 +448,12 @@ df["date"].dt.strftime("%A")          # Monday
 \`\`\`
 
 Common format codes:
-- \`%Y\` — 4-digit year
-- \`%m\` — 2-digit month
-- \`%d\` — 2-digit day
-- \`%B\` — full month name
-- \`%A\` — full day name
-- \`%H:%M:%S\` — time
+- \`%Y\`; 4-digit year
+- \`%m\`; 2-digit month
+- \`%d\`; 2-digit day
+- \`%B\`; full month name
+- \`%A\`; full day name
+- \`%H:%M:%S\`; time
 
 ## Filtering by Date
 
@@ -571,7 +571,7 @@ print(sales.head(3))`,
 
 Real data is almost never in one table. You've got customers in one place, orders in another, products somewhere else. Combining them is like half the job.
 
-## merge — SQL-style Joins
+## merge: SQL-style Joins
 
 \`merge\` is the main one. It's basically SQL joins.
 
@@ -586,16 +586,16 @@ result = pd.merge(orders, customers, left_on="cust_id", right_on="customer_id")
 ## Types of Joins
 
 \`\`\`python
-# Inner join (default) — only matching rows
+# Inner join (default); only matching rows
 pd.merge(df1, df2, on="id", how="inner")
 
-# Left join — all rows from left, matching from right
+# Left join; all rows from left, matching from right
 pd.merge(df1, df2, on="id", how="left")
 
-# Right join — all rows from right, matching from left
+# Right join; all rows from right, matching from left
 pd.merge(df1, df2, on="id", how="right")
 
-# Outer join — all rows from both
+# Outer join; all rows from both
 pd.merge(df1, df2, on="id", how="outer")
 \`\`\`
 
@@ -614,7 +614,7 @@ pd.merge(df1, df2, on="id")
 pd.merge(df1, df2, on="id", suffixes=("_left", "_right"))
 \`\`\`
 
-## concat — Stacking DataFrames
+## concat: Stacking DataFrames
 
 Use \`concat\` when you want to stack DataFrames on top of each other (or side by side).
 
@@ -626,13 +626,13 @@ combined = pd.concat([df1, df2])
 combined = pd.concat([df1, df2], axis=1)
 \`\`\`
 
-Watch the index though — by default it keeps the original indexes. Use \`ignore_index=True\` to reset:
+Watch the index though; by default it keeps the original indexes. Use \`ignore_index=True\` to reset:
 
 \`\`\`python
 combined = pd.concat([df1, df2], ignore_index=True)
 \`\`\`
 
-## join — Quick Index-Based Merging
+## join: Quick Index-Based Merging
 
 \`join\` is basically merge but uses the index by default.
 
@@ -648,9 +648,9 @@ df1.join(df2.set_index("key"), on="key")
 
 ## When to Use What
 
-- **merge** — Most cases. When you have a column to match on.
-- **concat** — Stacking identical structure data (like monthly files).
-- **join** — When you're working with indexes specifically.
+- **merge**: Most cases. When you have a column to match on.
+- **concat**: Stacking identical structure data (like monthly files).
+- **join**: When you're working with indexes specifically.
 `,
     starterCode: `# Let's create some related data to merge
 import io
@@ -677,7 +677,7 @@ print(customers)
     examples: [
       {
         title: "Inner vs Left Join",
-        explanation: "See the difference — inner drops unmatched, left keeps all from left side",
+        explanation: "See the difference; inner drops unmatched, left keeps all from left side",
         code: `import io
 
 orders_csv = """order_id,customer_id,amount
@@ -774,7 +774,7 @@ print(result)`,
     title: "Pivot Tables & Reshaping",
     badge: "concept",
     theory: `
-## pivot_table — Excel-Style Summaries
+## pivot_table: Excel-Style Summaries
 
 If you've used pivot tables in Excel, this is the same idea but way more powerful.
 
@@ -809,7 +809,7 @@ df.groupby(["region", "product"])["sales"].sum().unstack()
 
 The result looks exactly like a pivot table. I actually prefer this approach sometimes because it's more explicit about what's happening.
 
-## melt — Unpivoting (Wide to Long)
+## melt: Unpivoting (Wide to Long)
 
 Sometimes data comes in wide format and you need it long. \`melt\` fixes that.
 
@@ -835,11 +835,11 @@ This is super useful when you need to plot data or do time series analysis.
 These are for reshaping multi-index data.
 
 \`\`\`python
-# unstack — move inner index to columns
+# unstack; move inner index to columns
 grouped = df.groupby(["region", "year"])["sales"].sum()
 grouped.unstack()  # years become columns
 
-# stack — move columns to index (opposite of unstack)
+# stack; move columns to index (opposite of unstack)
 pivoted.stack()
 \`\`\`
 
@@ -912,7 +912,7 @@ print(pivot)`,
       },
       {
         title: "Using melt to Reshape",
-        explanation: "Convert wide data to long format — happens a lot with imported spreadsheets",
+        explanation: "Convert wide data to long format; happens a lot with imported spreadsheets",
         code: `import io
 # Wide format data (common in spreadsheets)
 csv_data = """product,Q1,Q2,Q3,Q4
@@ -976,7 +976,7 @@ print(pivot)`,
       {
         id: "m9l5c2",
         prompt: "Use groupby and unstack to show total quantity sold by category. This gives the same result as a pivot table but using a different approach.",
-        hint: "Use df.groupby('category')['quantity'].sum() — no unstack needed for a single group",
+        hint: "Use df.groupby('category')['quantity'].sum(); no unstack needed for a single group",
         validateFn: `return output.includes("Electronics") && output.includes("Tools") && (output.includes("275") || output.includes("620"))`,
         solution: `result = sales.groupby("category")["quantity"].sum()
 print(result)`,

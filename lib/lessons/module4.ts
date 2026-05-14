@@ -371,7 +371,7 @@ print(language_counts)`,
     title: "Merge & Join",
     badge: "concept",
     theory: `
-## pd.merge() — Combining DataFrames
+## pd.merge(): Combining DataFrames
 
 Think of merge like a SQL JOIN. You combine two tables based on matching values.
 
@@ -606,7 +606,7 @@ print(enriched[["RespondentID", "Country", "Region", "Salary"]].head(10))`,
     title: "Concat & Pivot",
     badge: "practice",
     theory: `
-## pd.concat() — Stacking DataFrames
+## pd.concat(): Stacking DataFrames
 
 Stack DataFrames vertically (add more rows):
 
@@ -660,7 +660,7 @@ df.pivot_table(index="region", values="sales", aggfunc=["sum", "mean", "count"])
 df.pivot_table(..., fill_value=0)
 \`\`\`
 
-## Melt — Opposite of Pivot
+## Melt: Opposite of Pivot
 
 Unpivot from wide to long format:
 

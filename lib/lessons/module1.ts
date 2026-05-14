@@ -42,7 +42,7 @@ print(f"Total: \${price * quantity:.2f}")
 # Output: Total: $59.97
 \`\`\`
 
-The \`:.2f\` is a format specifier — it means "show 2 decimal places."
+The \`:.2f\` is a format specifier; it means "show 2 decimal places."
 
 ## Common Format Specifiers
 
