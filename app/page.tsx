@@ -1,399 +1,89 @@
 import Link from "next/link";
 
+const modules = [
+  { num: "01", slug: "python-basics", firstLesson: "variables-fstrings", title: "Python Basics", desc: "Variables, lists, dicts, loops, functions.", lessons: 5 },
+  { num: "02", slug: "pandas-fundamentals", firstLesson: "dataframes-series", title: "Pandas Fundamentals", desc: "DataFrames, selecting, filtering, sorting.", lessons: 5 },
+  { num: "03", slug: "data-cleaning", firstLesson: "missing-data", title: "Data Cleaning", desc: "Missing data, type conversion, duplicates.", lessons: 5 },
+  { num: "04", slug: "grouping-combining", firstLesson: "groupby-basics", title: "Grouping & Combining", desc: "GroupBy, merging, pivot tables.", lessons: 5 },
+  { num: "05", slug: "string-file-ops", firstLesson: "string-methods-deep", title: "Strings & Files", desc: "String methods, regex, file I/O, JSON.", lessons: 5 },
+  { num: "06", slug: "web-apis", firstLesson: "requests-basics", title: "Web & APIs", desc: "HTTP requests, JSON parsing, pipelines.", lessons: 5 },
+  { num: "07", slug: "functions-apply", firstLesson: "lambda-functions", title: "Functions & Apply", desc: "Lambda, apply/map, vectorization.", lessons: 5 },
+  { num: "08", slug: "game-dev-pygame", firstLesson: "pygame-basics", title: "Pygame", desc: "Game loops, sprites, collisions, sound.", lessons: 11 },
+  { num: "09", slug: "data-manipulation-school", firstLesson: "string-methods", title: "Data Manipulation (WCTC)", desc: "Course notes: strings, dates, combining, pivots.", lessons: 5 },
+];
+
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">🐍</span>
-            <span className="font-bold text-xl">Python Mastery</span>
-          </div>
-          <nav className="flex items-center gap-6">
-            <Link
-              href="/learn"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Lessons
-            </Link>
-            <Link
-              href="/projects"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Projects
-            </Link>
-            <Link href="/learn" className="btn-primary">
-              Start Learning
-            </Link>
+    <div className="min-h-screen flex flex-col bg-background text-foreground">
+      <header className="border-b border-border/50">
+        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+          <span className="font-mono text-sm font-medium">python-mastery</span>
+          <nav className="flex items-center gap-5 text-sm text-muted-foreground">
+            <Link href="/learn" className="hover:text-foreground transition-colors">Lessons</Link>
+            <Link href="/projects" className="hover:text-foreground transition-colors">Projects</Link>
           </nav>
         </div>
       </header>
 
-      {/* Hero with Gradient */}
-      <main className="relative pt-24 flex-1 flex flex-col">
-        {/* Gradient Orbs */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-gradient-to-br from-accent/30 via-accent/10 to-transparent rounded-full blur-3xl" />
-          <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-tr from-purple-500/20 via-accent/5 to-transparent rounded-full blur-3xl" />
-        </div>
+      <main className="flex-1 max-w-5xl mx-auto w-full px-6 py-12 sm:py-16">
+        <section className="max-w-2xl">
+          <h1 className="font-mono text-xl text-foreground">python-mastery</h1>
+          <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+            Lessons I built while picking up Python and pandas. Code runs in
+            the browser via Pyodide so I can come back to my own examples on
+            any machine without setting up an environment first.
+          </p>
+          <p className="mt-3 text-base leading-relaxed text-muted-foreground">
+            Nine modules, fifty-one lessons, three guided projects. Some
+            modules mirror WCTC coursework, others I added when I wanted to
+            drill on something.
+          </p>
+        </section>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-6 py-20 lg:py-32 grid lg:grid-cols-2 gap-16 items-center">
-          {/* Left: Text Content */}
-          <div className="space-y-8">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-accent/30 bg-accent/10 text-sm text-accent">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
-              </span>
-              No installation required
-            </div>
-
-            <h1 className="text-5xl lg:text-6xl font-bold leading-tight">
-              Master Python
-              <br />
-              <span className="bg-gradient-to-r from-accent via-purple-400 to-accent bg-clip-text text-transparent">
-                Through Practice
-              </span>
-            </h1>
-
-            <p className="text-xl text-muted-foreground max-w-lg">
-              Write real Python and pandas code directly in your browser.
-              51 interactive lessons across 9 modules, 3 guided projects, and instant feedback
-              to take you from basics to data analysis and game development.
-            </p>
-
-            <div className="flex flex-wrap gap-4">
-              <Link
-                href="/learn"
-                className="btn-primary px-8 py-3.5 text-lg font-semibold shadow-lg shadow-accent/25 hover:shadow-accent/40 transition-shadow"
-              >
-                Start Learning Free
-              </Link>
-              <Link
-                href="/projects"
-                className="btn-secondary px-8 py-3.5 text-lg font-semibold"
-              >
-                View Projects
-              </Link>
-            </div>
-
-            {/* Stats */}
-            <div className="flex items-center gap-8 pt-4">
-              <div>
-                <div className="text-3xl font-bold text-foreground">51</div>
-                <div className="text-sm text-muted-foreground">Lessons</div>
-              </div>
-              <div className="w-px h-10 bg-border" />
-              <div>
-                <div className="text-3xl font-bold text-foreground">9</div>
-                <div className="text-sm text-muted-foreground">Modules</div>
-              </div>
-              <div className="w-px h-10 bg-border" />
-              <div>
-                <div className="text-3xl font-bold text-foreground">3</div>
-                <div className="text-sm text-muted-foreground">Projects</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right: Code Preview */}
-          <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-accent/20 to-purple-500/20 rounded-2xl blur-xl" />
-            <div className="relative rounded-2xl border border-border bg-card overflow-hidden shadow-2xl">
-              {/* Window Header */}
-              <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-background/50">
-                <div className="flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-red-500/80" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
-                  <div className="w-3 h-3 rounded-full bg-green-500/80" />
-                </div>
-                <span className="text-xs text-muted-foreground ml-2">lesson_1.py</span>
-                <div className="ml-auto flex items-center gap-2">
-                  <span className="px-2 py-0.5 text-xs rounded bg-success/20 text-success">Python Ready</span>
-                </div>
-              </div>
-              {/* Code */}
-              <div className="p-6 font-mono text-sm">
-                <pre className="text-foreground leading-relaxed">
-                  <code>
-                    <span className="text-purple-400">import</span>{" "}
-                    <span className="text-blue-400">pandas</span>{" "}
-                    <span className="text-purple-400">as</span>{" "}
-                    <span className="text-blue-400">pd</span>{"\n\n"}
-                    <span className="text-muted-foreground"># Load your data</span>{"\n"}
-                    <span className="text-blue-300">df</span>{" "}
-                    <span className="text-accent">=</span>{" "}
-                    <span className="text-blue-400">pd</span>
-                    <span className="text-accent">.</span>
-                    <span className="text-yellow-300">read_csv</span>
-                    <span className="text-foreground">(</span>
-                    <span className="text-green-400">&quot;sales.csv&quot;</span>
-                    <span className="text-foreground">)</span>{"\n\n"}
-                    <span className="text-muted-foreground"># Quick analysis</span>{"\n"}
-                    <span className="text-yellow-300">print</span>
-                    <span className="text-foreground">(</span>
-                    <span className="text-blue-300">df</span>
-                    <span className="text-accent">.</span>
-                    <span className="text-yellow-300">describe</span>
-                    <span className="text-foreground">())</span>
-                  </code>
-                </pre>
-              </div>
-              {/* Output */}
-              <div className="border-t border-border bg-background/50 p-4">
-                <div className="text-xs text-muted-foreground mb-2">Output:</div>
-                <pre className="text-xs text-foreground font-mono leading-relaxed">
-                  {`       price    quantity
-count  1000.00    1000.00
-mean    49.99       5.32
-std     28.86       3.21
-min      5.00       1.00
-max     99.99      15.00`}
-                </pre>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
-
-      {/* Why Python Mastery */}
-      <section className="py-20 border-t border-border">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Why Python Mastery?</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Built for people who want to actually write code, not just read about it
-            </p>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            {[
-              { icon: "🐍", text: "Run real Python in your browser (no install)" },
-              { icon: "🎓", text: "Built for WCTC coursework" },
-              { icon: "🎮", text: "Game development with Pygame" },
-              { icon: "💾", text: "Track progress across sessions" },
-              { icon: "🔥", text: "Streak tracking keeps you motivated" },
-              { icon: "💯", text: "Free forever, no signup required" },
-            ].map((feature, i) => (
-              <div
-                key={i}
-                className="flex items-center gap-3 p-4 rounded-xl border border-success/30 bg-success/5"
-              >
-                <span className="text-2xl">{feature.icon}</span>
-                <span className="text-foreground font-medium">{feature.text}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Features */}
-      <section id="features" className="py-24 border-t border-border bg-card/50">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">
-              Complete Learning Path
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              9 modules covering everything from Python basics to game development
-            </p>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              {
-                num: "01",
-                icon: "🐍",
-                slug: "python-basics",
-                firstLesson: "variables-fstrings",
-                title: "Python Basics",
-                desc: "Variables, lists, dicts, loops, functions",
-                lessons: 5,
-              },
-              {
-                num: "02",
-                icon: "🐼",
-                slug: "pandas-fundamentals",
-                firstLesson: "dataframes-series",
-                title: "Pandas Fundamentals",
-                desc: "DataFrames, selecting, filtering, sorting",
-                lessons: 5,
-              },
-              {
-                num: "03",
-                icon: "🧹",
-                slug: "data-cleaning",
-                firstLesson: "missing-data",
-                title: "Data Cleaning",
-                desc: "Missing data, type conversion, duplicates",
-                lessons: 5,
-              },
-              {
-                num: "04",
-                icon: "🔗",
-                slug: "grouping-combining",
-                firstLesson: "groupby-basics",
-                title: "Grouping & Combining",
-                desc: "GroupBy, merging, pivot tables",
-                lessons: 5,
-              },
-              {
-                num: "05",
-                icon: "📝",
-                slug: "string-file-ops",
-                firstLesson: "string-methods-deep",
-                title: "String & File Ops",
-                desc: "String methods, regex, file I/O, JSON",
-                lessons: 5,
-              },
-              {
-                num: "06",
-                icon: "🌐",
-                slug: "web-apis",
-                firstLesson: "requests-basics",
-                title: "Web & APIs",
-                desc: "HTTP requests, JSON parsing, pipelines",
-                lessons: 5,
-              },
-              {
-                num: "07",
-                icon: "λ",
-                slug: "functions-apply",
-                firstLesson: "lambda-functions",
-                title: "Functions & Apply",
-                desc: "Lambda, apply/map, vectorization",
-                lessons: 5,
-              },
-              {
-                num: "08",
-                icon: "🎮",
-                slug: "game-dev-pygame",
-                firstLesson: "pygame-basics",
-                title: "Game Dev with Pygame",
-                desc: "Game loops, sprites, collision, physics, sound, HUD, state management",
-                lessons: 11,
-              },
-              {
-                num: "09",
-                icon: "📊",
-                slug: "data-manipulation-school",
-                firstLesson: "string-methods",
-                title: "Data Manipulation (WCTC)",
-                desc: "Strings, dates, combining, pivots",
-                lessons: 5,
-              },
-            ].map((feature) => (
-              <Link
-                key={feature.title}
-                href={`/learn/${feature.slug}/${feature.firstLesson}`}
-                className="group p-6 rounded-2xl border border-border bg-background hover:border-accent/50 hover:shadow-lg hover:shadow-accent/5 transition-all duration-300"
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent/20 to-purple-500/20 flex items-center justify-center text-xl">
-                    {feature.icon}
+        <section className="mt-12">
+          <h2 className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-4">
+            Modules
+          </h2>
+          <ul className="divide-y divide-border/50 border-y border-border/50">
+            {modules.map((m) => (
+              <li key={m.slug}>
+                <Link
+                  href={`/learn/${m.slug}/${m.firstLesson}`}
+                  className="grid grid-cols-[3rem_1fr_auto] gap-4 py-3 items-baseline hover:bg-card/50 -mx-3 px-3 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                >
+                  <span className="font-mono text-xs text-accent">{m.num}</span>
+                  <div className="min-w-0">
+                    <p className="text-foreground font-medium">{m.title}</p>
+                    <p className="text-sm text-muted-foreground">{m.desc}</p>
                   </div>
-                  <span className="text-xs font-mono text-accent">Module {feature.num}</span>
-                </div>
-                <h3 className="font-semibold text-lg mb-2 group-hover:text-accent transition-colors">{feature.title}</h3>
-                <p className="text-sm text-muted-foreground mb-4">{feature.desc}</p>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">{feature.lessons} lessons</span>
-                  <span className="text-xs text-accent opacity-0 group-hover:opacity-100 transition-opacity">Start →</span>
-                </div>
-              </Link>
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">{m.lessons} lessons</span>
+                </Link>
+              </li>
             ))}
-            {/* Projects Card */}
-            <div className="p-6 rounded-2xl border-2 border-dashed border-accent/30 bg-accent/5 flex flex-col items-center justify-center text-center">
-              <span className="text-3xl mb-3">🚀</span>
-              <h3 className="font-semibold text-lg mb-2">3 Real Projects</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Apply your skills with guided data projects
-              </p>
-              <Link href="/projects" className="text-sm text-accent hover:underline">
-                View projects
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+          </ul>
+        </section>
 
-      {/* How It Works */}
-      <section className="py-24 border-t border-border">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">How It Works</h2>
-            <p className="text-xl text-muted-foreground">
-              Learn by doing, not watching
-            </p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-12">
-            <div className="text-center">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent to-purple-500 flex items-center justify-center text-3xl mx-auto mb-6 shadow-lg shadow-accent/30">
-                1
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Read the Concept</h3>
-              <p className="text-muted-foreground">
-                Each lesson has a short theory section with examples before you touch the editor
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent to-purple-500 flex items-center justify-center text-3xl mx-auto mb-6 shadow-lg shadow-accent/30">
-                2
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Write Code</h3>
-              <p className="text-muted-foreground">
-                Practice in the built-in editor with pandas and numpy pre-loaded
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent to-purple-500 flex items-center justify-center text-3xl mx-auto mb-6 shadow-lg shadow-accent/30">
-                3
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Get Feedback</h3>
-              <p className="text-muted-foreground">
-                Run your code instantly and see results with automatic validation
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="py-24 border-t border-border relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-accent/10 via-purple-500/10 to-accent/10" />
-        <div className="relative z-10 max-w-3xl mx-auto px-6 text-center">
-          <h2 className="text-4xl font-bold mb-6">Ready to Start?</h2>
-          <p className="text-xl text-muted-foreground mb-10">
-            No signup required. Jump in and write your first Python code in under a minute.
+        <section className="mt-10">
+          <h2 className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-4">
+            Projects
+          </h2>
+          <p className="text-sm text-muted-foreground max-w-2xl">
+            Three guided projects sit alongside the lessons. They&apos;re
+            longer-form practice that reuses what the modules cover.
           </p>
           <Link
-            href="/learn"
-            className="btn-primary px-10 py-4 text-xl font-semibold shadow-lg shadow-accent/25 hover:shadow-accent/40 transition-shadow"
+            href="/projects"
+            className="mt-3 inline-block text-sm text-accent hover:underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded"
           >
-            Start Lesson 1
+            Open the project list →
           </Link>
-        </div>
-      </section>
+        </section>
+      </main>
 
-      {/* Footer */}
-      <footer className="border-t border-border py-12 bg-card/50">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">🐍</span>
-              <span className="font-bold text-lg">Python Mastery</span>
-            </div>
-            <div className="flex items-center gap-8 text-sm text-muted-foreground">
-              <Link href="/learn" className="hover:text-foreground transition-colors">
-                Lessons
-              </Link>
-              <Link href="/projects" className="hover:text-foreground transition-colors">
-                Projects
-              </Link>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Built with Next.js + Pyodide
-            </p>
-          </div>
+      <footer className="border-t border-border/50 py-6">
+        <div className="max-w-5xl mx-auto px-6 flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
+          <span className="font-mono">python-mastery</span>
+          <span>Personal practice. Next.js + Pyodide.</span>
         </div>
       </footer>
     </div>

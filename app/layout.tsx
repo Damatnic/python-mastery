@@ -4,31 +4,21 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://damato-python.vercel.app"),
-  title: "Python Mastery | Interactive Python Learning",
+  title: "python-mastery",
   description:
-    "Write real Python and pandas code in your browser. 51 interactive lessons covering variables, data cleaning, APIs, and game development. No install required.",
-  keywords: [
-    "Python",
-    "learn Python",
-    "interactive Python",
-    "pandas tutorial",
-    "Python tutorial",
-    "coding bootcamp",
-    "data science",
-  ],
+    "Personal Python and pandas practice. Lessons I built while learning, kept here so I can come back to them. Runs in the browser via Pyodide.",
   authors: [{ name: "Nicholas D'Amato" }],
+  robots: { index: false, follow: false },
   openGraph: {
-    title: "Python Mastery | Interactive Python Learning",
-    description:
-      "Write real Python and pandas code in your browser. 51 interactive lessons, instant feedback, no install required.",
+    title: "python-mastery",
+    description: "Personal Python and pandas practice. Runs in the browser via Pyodide.",
     type: "website",
     url: "https://damato-python.vercel.app",
   },
   twitter: {
-    card: "summary_large_image",
-    title: "Python Mastery | Interactive Python Learning",
-    description:
-      "Write real Python and pandas code in your browser. 51 interactive lessons, instant feedback, no install required.",
+    card: "summary",
+    title: "python-mastery",
+    description: "Personal Python and pandas practice. Runs in the browser via Pyodide.",
   },
 };
 

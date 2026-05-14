@@ -29,7 +29,7 @@ export const MODULE_METADATA: Omit<Module, "lessons">[] = [
     slug: "string-file-ops",
     title: "String & File Ops",
     description:
-      "Master string manipulation, regular expressions, file I/O, and JSON handling.",
+      "String methods, regular expressions, file I/O, and JSON handling.",
   },
   {
     slug: "web-apis",

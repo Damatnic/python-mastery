@@ -786,7 +786,7 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
               <div>
                 <h2 className="text-xl font-semibold text-foreground mb-2">Challenges</h2>
                 <p className="text-muted-foreground text-sm mb-4">
-                  Complete all challenges to master this lesson.
+                  Finish the challenges to mark the lesson done.
                 </p>
                 <ChallengeProgressBar
                   completed={completedChallenges.size}
