@@ -1,89 +1,114 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 const modules = [
-  { num: "01", slug: "python-basics", firstLesson: "variables-fstrings", title: "Python Basics", desc: "Variables, lists, dicts, loops, functions.", lessons: 5 },
-  { num: "02", slug: "pandas-fundamentals", firstLesson: "dataframes-series", title: "Pandas Fundamentals", desc: "DataFrames, selecting, filtering, sorting.", lessons: 5 },
-  { num: "03", slug: "data-cleaning", firstLesson: "missing-data", title: "Data Cleaning", desc: "Missing data, type conversion, duplicates.", lessons: 5 },
-  { num: "04", slug: "grouping-combining", firstLesson: "groupby-basics", title: "Grouping & Combining", desc: "GroupBy, merging, pivot tables.", lessons: 5 },
-  { num: "05", slug: "string-file-ops", firstLesson: "string-methods-deep", title: "Strings & Files", desc: "String methods, regex, file I/O, JSON.", lessons: 5 },
-  { num: "06", slug: "web-apis", firstLesson: "requests-basics", title: "Web & APIs", desc: "HTTP requests, JSON parsing, pipelines.", lessons: 5 },
-  { num: "07", slug: "functions-apply", firstLesson: "lambda-functions", title: "Functions & Apply", desc: "Lambda, apply/map, vectorization.", lessons: 5 },
-  { num: "08", slug: "game-dev-pygame", firstLesson: "pygame-basics", title: "Pygame", desc: "Game loops, sprites, collisions, sound.", lessons: 11 },
-  { num: "09", slug: "data-manipulation-school", firstLesson: "string-methods", title: "Data Manipulation (WCTC)", desc: "Course notes: strings, dates, combining, pivots.", lessons: 5 },
+  { num: "01", slug: "python-basics", firstLesson: "variables-fstrings", title: "python-basics", desc: "Variables, lists, dicts, loops, functions.", lessons: 5 },
+  { num: "02", slug: "pandas-fundamentals", firstLesson: "dataframes-series", title: "pandas-fundamentals", desc: "DataFrames, selecting, filtering, sorting.", lessons: 5 },
+  { num: "03", slug: "data-cleaning", firstLesson: "missing-data", title: "data-cleaning", desc: "Missing data, type conversion, duplicates.", lessons: 5 },
+  { num: "04", slug: "grouping-combining", firstLesson: "groupby-basics", title: "grouping-combining", desc: "GroupBy, merging, pivot tables.", lessons: 5 },
+  { num: "05", slug: "string-file-ops", firstLesson: "string-methods-deep", title: "string-file-ops", desc: "String methods, regex, file I/O, JSON.", lessons: 5 },
+  { num: "06", slug: "web-apis", firstLesson: "requests-basics", title: "web-apis", desc: "HTTP requests, JSON parsing, pipelines.", lessons: 5 },
+  { num: "07", slug: "functions-apply", firstLesson: "lambda-functions", title: "functions-apply", desc: "Lambda, apply/map, vectorization.", lessons: 5 },
+  { num: "08", slug: "game-dev-pygame", firstLesson: "pygame-basics", title: "game-dev-pygame", desc: "Game loops, sprites, collisions, sound.", lessons: 11 },
+  { num: "09", slug: "data-manipulation-school", firstLesson: "string-methods", title: "data-manipulation-school", desc: "Course notes: strings, dates, combining, pivots.", lessons: 5 },
 ];
 
 export default function Home() {
-  return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
-      <header className="border-b border-border/50">
-        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-          <span className="font-mono text-sm font-medium">python-mastery</span>
-          <nav className="flex items-center gap-5 text-sm text-muted-foreground">
-            <Link href="/learn" className="hover:text-foreground transition-colors">Lessons</Link>
-            <Link href="/projects" className="hover:text-foreground transition-colors">Projects</Link>
-          </nav>
-        </div>
-      </header>
+  const [completed, setCompleted] = useState<Set<string>>(new Set());
+  const [lastTouched, setLastTouched] = useState<string | null>(null);
 
-      <main className="flex-1 max-w-5xl mx-auto w-full px-6 py-12 sm:py-16">
-        <section className="max-w-2xl">
-          <h1 className="font-mono text-xl text-foreground">python-mastery</h1>
-          <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-            Lessons I built while picking up Python and pandas. Code runs in
-            the browser via Pyodide so I can come back to my own examples on
-            any machine without setting up an environment first.
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("python-mastery-completed");
+      if (saved) setCompleted(new Set(JSON.parse(saved)));
+      const ts = localStorage.getItem("python-mastery-last-active");
+      if (ts) {
+        const d = new Date(parseInt(ts, 10));
+        if (!Number.isNaN(d.getTime())) {
+          setLastTouched(d.toISOString().slice(0, 10));
+        }
+      }
+    } catch {}
+  }, []);
+
+  return (
+    <div className="min-h-screen flex flex-col bg-background text-foreground font-mono text-sm">
+      <main className="flex-1 max-w-3xl mx-auto w-full px-6 py-12 sm:py-16">
+        <section className="flex flex-wrap items-baseline justify-between gap-3">
+          <p className="text-foreground">
+            <span className="text-accent">damato@python</span>
+            <span className="text-muted-foreground">:</span>
+            <span className="text-muted-foreground">~/lessons$</span>{" "}
+            <span>ls</span>
+            <span className="ml-1 inline-block w-2 h-4 align-text-bottom bg-foreground terminal-cursor" aria-hidden="true" />
           </p>
-          <p className="mt-3 text-base leading-relaxed text-muted-foreground">
-            Nine modules, fifty-one lessons, three guided projects. Some
-            modules mirror WCTC coursework, others I added when I wanted to
-            drill on something.
+          <p className="text-xs text-muted-foreground">
+            {lastTouched ? `// personal practice. last touched ${lastTouched}.` : "// personal practice."}
           </p>
         </section>
 
-        <section className="mt-12">
-          <h2 className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-4">
-            Modules
-          </h2>
-          <ul className="divide-y divide-border/50 border-y border-border/50">
-            {modules.map((m) => (
-              <li key={m.slug}>
-                <Link
-                  href={`/learn/${m.slug}/${m.firstLesson}`}
-                  className="grid grid-cols-[3rem_1fr_auto] gap-4 py-3 items-baseline hover:bg-card/50 -mx-3 px-3 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                >
-                  <span className="font-mono text-xs text-accent">{m.num}</span>
-                  <div className="min-w-0">
-                    <p className="text-foreground font-medium">{m.title}</p>
-                    <p className="text-sm text-muted-foreground">{m.desc}</p>
-                  </div>
-                  <span className="text-xs text-muted-foreground whitespace-nowrap">{m.lessons} lessons</span>
-                </Link>
-              </li>
-            ))}
+        <section className="mt-8">
+          <p className="text-xs uppercase tracking-widest text-muted-foreground"># modules</p>
+          <ul className="mt-3 border-y border-border/60 divide-y divide-border/40">
+            {modules.map((m) => {
+              const doneCount = (() => {
+                try {
+                  return Array.from(completed).filter((k) => k.startsWith(`${m.slug}/`)).length;
+                } catch { return 0; }
+              })();
+              const status = doneCount === 0
+                ? "─"
+                : doneCount === m.lessons
+                ? "✓ complete"
+                : `${doneCount}/${m.lessons}`;
+              const statusClass = doneCount === m.lessons
+                ? "text-success"
+                : doneCount > 0
+                ? "text-accent"
+                : "text-muted-foreground";
+              return (
+                <li key={m.slug}>
+                  <Link
+                    href={`/learn/${m.slug}/${m.firstLesson}`}
+                    className="group grid grid-cols-[2.5rem_minmax(0,1fr)_5rem_7rem_1rem] gap-3 items-center py-2 px-2 -mx-2 rounded hover:bg-card/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    aria-label={`Open module ${m.title}`}
+                  >
+                    <span className="text-muted-foreground">{m.num}</span>
+                    <span className="min-w-0 truncate">
+                      <span className="text-foreground">modules/{m.title}/</span>
+                      <span className="text-muted-foreground hidden md:inline">  {m.desc}</span>
+                    </span>
+                    <span className="text-muted-foreground text-xs">{m.lessons} lessons</span>
+                    <span className={`text-xs ${statusClass}`}>{status}</span>
+                    <span className="text-muted-foreground group-hover:text-accent transition-colors">→</span>
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </section>
 
         <section className="mt-10">
-          <h2 className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-4">
-            Projects
-          </h2>
-          <p className="text-sm text-muted-foreground max-w-2xl">
-            Three guided projects sit alongside the lessons. They&apos;re
-            longer-form practice that reuses what the modules cover.
-          </p>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground"># projects</p>
           <Link
             href="/projects"
-            className="mt-3 inline-block text-sm text-accent hover:underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded"
+            className="mt-3 inline-block py-2 px-2 -mx-2 rounded hover:bg-card/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
-            Open the project list →
+            <span className="text-foreground">projects/</span>
+            <span className="text-muted-foreground">  three guided projects that reuse what the modules cover</span>
+            <span className="ml-3 text-muted-foreground">→</span>
           </Link>
         </section>
       </main>
 
-      <footer className="border-t border-border/50 py-6">
-        <div className="max-w-5xl mx-auto px-6 flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
-          <span className="font-mono">python-mastery</span>
-          <span>Personal practice. Next.js + Pyodide.</span>
+      <footer className="border-t border-border/60 py-5 font-mono text-xs">
+        <div className="max-w-3xl mx-auto px-6 flex flex-wrap items-center justify-between gap-3 text-muted-foreground">
+          <span>
+            <span className="text-success">exit 0</span> · personal use · next.js + pyodide
+          </span>
+          <Link href="/projects" className="hover:text-foreground transition-colors">projects/</Link>
         </div>
       </footer>
     </div>

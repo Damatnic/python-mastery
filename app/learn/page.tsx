@@ -28,37 +28,38 @@ export default function LearnDashboard() {
   const completedCount = completedLessons.size;
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <header className="border-b border-border/50">
-        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="font-mono text-sm font-medium hover:text-accent transition-colors">
-            python-mastery
+    <div className="min-h-screen flex flex-col bg-background text-foreground">
+      <header className="border-b border-border/60">
+        <div className="max-w-5xl mx-auto px-6 py-3 flex items-center justify-between text-xs font-mono">
+          <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">
+            <span className="text-accent">$</span> cd ~
           </Link>
-          <nav className="flex items-center gap-5 text-sm">
-            <Link href="/learn" className="text-accent font-medium">Lessons</Link>
-            <Link href="/projects" className="text-muted-foreground hover:text-foreground transition-colors">Projects</Link>
+          <nav className="flex items-center gap-5">
+            <span className="text-foreground">&gt; lessons</span>
+            <Link href="/projects" className="text-muted-foreground hover:text-foreground transition-colors">projects</Link>
           </nav>
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-6 py-12">
-        <section className="flex flex-wrap items-baseline justify-between gap-3 mb-8">
-          <div>
-            <h1 className="font-mono text-xl">lessons</h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {completedCount} of {totalLessons} done across {modules.length} modules.
-            </p>
-          </div>
-          {(totalXP > 0 || streak > 0) && (
-            <div className="flex items-center gap-4 text-xs font-mono text-muted-foreground">
-              {streak > 0 && <span>🔥 {streak}d streak</span>}
-              {totalXP > 0 && <span>⚡ {totalXP} xp</span>}
-            </div>
-          )}
+      <main className="flex-1 max-w-5xl mx-auto w-full px-6 py-10">
+        <section className="font-mono text-sm">
+          <p>
+            <span className="text-accent">damato@python</span>
+            <span className="text-muted-foreground">:</span>
+            <span className="text-muted-foreground">~/lessons$</span>{" "}
+            <span>status</span>
+            <span className="ml-1 inline-block w-2 h-4 align-text-bottom bg-foreground terminal-cursor" aria-hidden="true" />
+          </p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            {completedCount} of {totalLessons} lessons done
+            {streak > 0 && <>{" · "}<span className="text-warning">{streak}d streak</span></>}
+            {totalXP > 0 && <>{" · "}<span className="text-accent">{totalXP} xp</span></>}
+          </p>
         </section>
 
-        <section>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <section className="mt-8">
+          <p className="text-xs uppercase tracking-widest text-muted-foreground font-mono"># modules</p>
+          <div className="mt-4 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {modules.map((module, index) => {
               const prevModule = index > 0 ? modules[index - 1] : null;
               const prevModuleCompletedCount = prevModule
@@ -82,6 +83,13 @@ export default function LearnDashboard() {
           </div>
         </section>
       </main>
+
+      <footer className="border-t border-border/60 py-5 font-mono text-xs">
+        <div className="max-w-5xl mx-auto px-6 flex flex-wrap items-center justify-between gap-3 text-muted-foreground">
+          <span><span className="text-success">exit 0</span> · personal use · next.js + pyodide</span>
+          <Link href="/" className="hover:text-foreground transition-colors">~ home</Link>
+        </div>
+      </footer>
     </div>
   );
 }
