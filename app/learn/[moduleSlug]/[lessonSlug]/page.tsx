@@ -62,16 +62,20 @@ export default function LessonPage({ params }: LessonPageProps) {
 
   if (!lesson) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-2">Lesson Not Found</h1>
-          <p className="text-muted-foreground mb-4">
-            The lesson you&apos;re looking for doesn&apos;t exist.
-          </p>
-          <Link href="/learn" className="btn-primary">
-            Back to Dashboard
-          </Link>
-        </div>
+      <div className="min-h-screen flex flex-col items-start justify-center bg-background text-foreground font-mono text-sm px-6 max-w-2xl mx-auto">
+        <p>
+          <span className="text-accent">damato@python</span>
+          <span className="text-muted-foreground">:</span>
+          <span className="text-muted-foreground">~$</span>{" "}
+          cat /learn/{moduleSlug}/{lessonSlug}
+        </p>
+        <p className="mt-2 text-error">cat: no such lesson</p>
+        <Link
+          href="/learn"
+          className="mt-6 inline-flex items-center gap-2 px-3 py-2 rounded border border-border hover:border-accent hover:text-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        >
+          <span className="text-accent">→</span> back to ~/lessons
+        </Link>
       </div>
     );
   }

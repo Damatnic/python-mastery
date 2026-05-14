@@ -21,102 +21,46 @@ export default function ProjectsPage() {
 
   const totalSteps = projects.reduce((sum, p) => sum + p.steps.length, 0);
   const completedCount = completedSteps.size;
-  const progressPercent = Math.round((completedCount / totalSteps) * 100);
-  const projectsComplete = projects.filter((p) =>
-    p.steps.every((s) => completedSteps.has(s.id))
-  ).length;
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl">🐍</span>
-            <span className="font-bold text-xl">Python Mastery</span>
+    <div className="min-h-screen flex flex-col bg-background text-foreground">
+      <header className="border-b border-border/50">
+        <div className="max-w-5xl mx-auto px-6 py-3 flex items-center justify-between text-xs font-mono">
+          <Link
+            href="/"
+            className="text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded"
+          >
+            <span className="text-accent">$</span> cd ~
           </Link>
-          <nav className="flex items-center gap-6">
+          <nav className="flex items-center gap-5">
             <Link
               href="/learn"
-              className="text-muted-foreground hover:text-foreground transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded"
             >
-              Lessons
+              lessons
             </Link>
-            <Link href="/projects" className="text-accent font-medium">
-              Projects
-            </Link>
+            <span className="text-foreground">&gt; projects</span>
           </nav>
         </div>
       </header>
 
-      {/* Content */}
-      <main className="max-w-7xl mx-auto px-6 py-12">
-        {/* Hero */}
-        <div className="mb-12">
-          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-8">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-accent/30 bg-accent/10 text-sm text-accent mb-4">
-                <span>🚀</span>
-                <span>Apply your skills</span>
-              </div>
-              <h1 className="text-4xl font-bold mb-3">Guided Projects</h1>
-              <p className="text-xl text-muted-foreground max-w-2xl">
-                Put your Python and pandas skills to work with real-world data
-                analysis projects
-              </p>
-            </div>
-            <Link href="/learn" className="btn-secondary inline-flex items-center gap-2">
-              <span>📚</span>
-              <span>Back to Lessons</span>
-            </Link>
-          </div>
+      <main className="flex-1 max-w-5xl mx-auto w-full px-6 py-10">
+        <section className="font-mono text-sm">
+          <p>
+            <span className="text-accent">damato@python</span>
+            <span className="text-muted-foreground">:</span>
+            <span className="text-muted-foreground">~/projects$</span>{" "}
+            <span>ls</span>
+            <span className="ml-1 inline-block w-2 h-4 align-text-bottom bg-foreground terminal-cursor" aria-hidden="true" />
+          </p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            {completedCount} of {totalSteps} steps done across {projects.length} projects
+          </p>
+        </section>
 
-          {/* Stats Card */}
-          <div className="p-8 rounded-2xl border border-border bg-gradient-to-br from-card to-card/50 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-purple-500/10 to-transparent rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-
-            <div className="relative">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
-                <div>
-                  <div className="text-4xl font-bold text-foreground mb-1">{projects.length}</div>
-                  <div className="text-sm text-muted-foreground">Projects</div>
-                </div>
-                <div>
-                  <div className="text-4xl font-bold text-foreground mb-1">{totalSteps}</div>
-                  <div className="text-sm text-muted-foreground">Total Steps</div>
-                </div>
-                <div>
-                  <div className="text-4xl font-bold text-foreground mb-1">{projectsComplete}</div>
-                  <div className="text-sm text-muted-foreground">Completed</div>
-                </div>
-                <div>
-                  <div className="text-4xl font-bold text-foreground mb-1">{progressPercent}%</div>
-                  <div className="text-sm text-muted-foreground">Progress</div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Overall Progress</span>
-                  <span className="text-accent font-medium">
-                    {completedCount} / {totalSteps} steps
-                  </span>
-                </div>
-                <div className="progress-bar h-3 rounded-full">
-                  <div
-                    className="progress-bar-fill rounded-full"
-                    style={{ width: `${progressPercent}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Projects Grid */}
-        <div className="mb-16">
-          <h2 className="text-2xl font-bold mb-6">Available Projects</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <section className="mt-8">
+          <p className="text-xs uppercase tracking-widest text-muted-foreground font-mono"># projects</p>
+          <div className="mt-4 grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {projects.map((project) => (
               <ProjectCard
                 key={project.slug}
@@ -125,45 +69,27 @@ export default function ProjectsPage() {
               />
             ))}
           </div>
-        </div>
+        </section>
 
-        {/* How It Works */}
-        <div className="p-8 rounded-2xl border border-border bg-card/50">
-          <h2 className="text-2xl font-bold mb-8 text-center">How Projects Work</h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent/20 to-purple-500/20 flex items-center justify-center text-3xl mx-auto mb-4">
-                📊
-              </div>
-              <h3 className="font-semibold text-lg mb-2">Real Datasets</h3>
-              <p className="text-sm text-muted-foreground">
-                Each project uses realistic datasets embedded directly in your browser.
-                No downloads or setup required.
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent/20 to-purple-500/20 flex items-center justify-center text-3xl mx-auto mb-4">
-                🎯
-              </div>
-              <h3 className="font-semibold text-lg mb-2">Step-by-Step Guidance</h3>
-              <p className="text-sm text-muted-foreground">
-                Work through each project one step at a time. Each step builds
-                on the previous one with clear goals and hints.
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent/20 to-purple-500/20 flex items-center justify-center text-3xl mx-auto mb-4">
-                ✅
-              </div>
-              <h3 className="font-semibold text-lg mb-2">Instant Validation</h3>
-              <p className="text-sm text-muted-foreground">
-                Run your code and get immediate feedback. The system validates your
-                output to verify you completed each step correctly.
-              </p>
-            </div>
-          </div>
-        </div>
+        <section className="mt-10 font-mono text-xs text-muted-foreground space-y-1">
+          <p># notes</p>
+          <p>each project runs from real datasets embedded in the page (no downloads).</p>
+          <p>steps validate on run. solutions unlock after a couple of failed attempts.</p>
+          <p>longer-form than lessons, useful when i want to apply what a module covers.</p>
+        </section>
       </main>
+
+      <footer className="border-t border-border/50 py-5 font-mono text-xs">
+        <div className="max-w-5xl mx-auto px-6 flex flex-wrap items-center justify-between gap-3 text-muted-foreground">
+          <span><span className="text-success">exit 0</span> · personal use · next.js + pyodide</span>
+          <Link
+            href="/"
+            className="hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded"
+          >
+            ~ home
+          </Link>
+        </div>
+      </footer>
     </div>
   );
 }

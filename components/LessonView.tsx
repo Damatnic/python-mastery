@@ -24,14 +24,17 @@ function createValidator(validateFnString: string): (output: string, locals: Rec
 
 function Breadcrumbs({ module, lessonTitle }: { module: string; lessonTitle: string }) {
   return (
-    <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-      <Link href="/learn" className="hover:text-foreground transition-colors">
-        Python Mastery
+    <nav className="flex items-center gap-1 text-xs font-mono text-muted-foreground mb-4" aria-label="Breadcrumb">
+      <Link
+        href="/learn"
+        className="hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded"
+      >
+        ~/lessons
       </Link>
-      <span className="text-border">/</span>
-      <span className="text-muted-foreground">{module}</span>
-      <span className="text-border">/</span>
-      <span className="text-foreground font-medium truncate max-w-[200px]">{lessonTitle}</span>
+      <span>/</span>
+      <span className="text-muted-foreground truncate">{module}</span>
+      <span>/</span>
+      <span className="text-foreground truncate max-w-[200px]">{lessonTitle}</span>
     </nav>
   );
 }
@@ -40,15 +43,15 @@ function ChallengeProgressBar({ completed, total }: { completed: number; total: 
   const percentage = total > 0 ? (completed / total) * 100 : 0;
 
   return (
-    <div className="flex items-center gap-3 mb-4">
-      <div className="flex-1 h-2 bg-border rounded-full overflow-hidden">
+    <div className="flex items-center gap-3 mb-4 font-mono text-xs">
+      <div className="flex-1 h-1 bg-border rounded-full overflow-hidden" role="progressbar" aria-valuenow={completed} aria-valuemin={0} aria-valuemax={total}>
         <div
-          className="h-full bg-gradient-to-r from-accent to-purple-400 rounded-full transition-all duration-500"
+          className="h-full bg-accent rounded-full transition-all duration-300"
           style={{ width: `${percentage}%` }}
         />
       </div>
-      <span className="text-sm text-muted-foreground whitespace-nowrap">
-        {completed}/{total} completed
+      <span className="text-muted-foreground whitespace-nowrap">
+        {completed}/{total}
       </span>
     </div>
   );
@@ -75,83 +78,58 @@ function ChallengeCard({
 }) {
   return (
     <div
-      className={`challenge-card p-4 rounded-xl border-2 transition-all ${
+      className={`p-4 rounded border transition-colors ${
         isActive
-          ? "border-accent bg-accent/5 shadow-lg shadow-accent/10"
+          ? "border-accent bg-accent/5"
           : isComplete
-          ? "border-success/50 bg-success/5"
-          : "border-border bg-card hover:border-border-hover"
+          ? "border-success/40 bg-success/5"
+          : "border-border bg-card"
       }`}
     >
-      <div className="flex items-start justify-between gap-3 mb-3">
-        <div className="flex items-center gap-3">
-          <div
-            className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-semibold ${
-              isComplete
-                ? "bg-success text-white"
-                : isActive
-                ? "bg-accent text-white"
-                : "bg-border text-muted-foreground"
-            }`}
-          >
-            {isComplete ? "✓" : index + 1}
-          </div>
-          <div>
-            <span className="text-xs text-muted-foreground">
-              Challenge {index + 1} of {total}
-            </span>
-          </div>
+      <div className="flex items-center justify-between gap-3 mb-3 font-mono text-xs">
+        <div className="flex items-baseline gap-2">
+          <span className={isComplete ? "text-success" : isActive ? "text-accent" : "text-muted-foreground"}>
+            {isComplete ? "✓" : ">"}
+          </span>
+          <span className="text-muted-foreground">
+            challenge {String(index + 1).padStart(2, "0")}/{String(total).padStart(2, "0")}
+          </span>
         </div>
         {!isComplete && (
           <button
             onClick={onStart}
-            className={`text-sm px-3 py-1.5 rounded-lg font-medium transition-all ${
+            className={`px-2 py-1 rounded border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
               isActive
-                ? "bg-accent text-white"
-                : "bg-card-hover text-foreground hover:bg-accent/20"
+                ? "border-accent text-accent bg-accent/10"
+                : "border-border text-muted-foreground hover:text-foreground hover:border-accent/50"
             }`}
           >
-            {isActive ? "Active" : "Start"}
+            {isActive ? "active" : "start"}
           </button>
         )}
       </div>
 
-      <div className="mb-3">
-        <p className="font-medium text-foreground leading-relaxed">{challenge.prompt}</p>
+      <p className="text-foreground leading-relaxed text-sm mb-3">{challenge.prompt}</p>
+
+      <div className="flex items-start gap-2 font-mono text-xs text-muted-foreground border-l-2 border-warning/40 pl-3">
+        <span className="text-warning">!</span>
+        <span>hint: {challenge.hint}</span>
       </div>
 
-      <div className="mb-3 p-3 rounded-lg bg-background/50 border border-border/50">
-        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
-          <span>🎯</span>
-          <span className="font-medium">What the validator checks:</span>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          Your code should produce output that demonstrates the task is complete.
-        </p>
-      </div>
-
-      <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-500/5 border border-amber-500/20">
-        <span className="text-amber-400 text-sm">💡</span>
-        <div>
-          <span className="text-xs text-amber-400 font-medium">Hint:</span>
-          <p className="text-sm text-muted-foreground mt-0.5">{challenge.hint}</p>
-        </div>
-      </div>
-
-      <div className="mt-3 pt-3 border-t border-border/50">
+      <div className="mt-3 pt-3 border-t border-border/40 font-mono text-xs">
         <button
           onClick={onToggleSolution}
-          className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+          className="text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded"
         >
-          <span>{showSolution ? "▼" : "▶"}</span>
-          <span>{showSolution ? "Hide" : "Show"} Solution</span>
+          <span aria-hidden="true">{showSolution ? "▼" : "▶"}</span>
+          <span>{showSolution ? "hide solution" : "show solution"}</span>
         </button>
         {showSolution && (
           <div className="mt-3 relative">
             <div className="absolute top-2 right-2 z-10">
               <CopyButton text={challenge.solution} />
             </div>
-            <pre className="p-4 pr-12 rounded-lg bg-[#1e1e1e] border border-border text-sm overflow-x-auto">
+            <pre className="p-4 pr-12 rounded bg-[#0f0f12] border border-border text-xs overflow-x-auto">
               <code className="text-foreground">{challenge.solution}</code>
             </pre>
           </div>
@@ -199,90 +177,56 @@ function ProjectChallengeDashboard({
   const threadInfo = PROJECT_THREAD_INFO[projectChallenge.threadId];
 
   return (
-    <div className="project-challenge mt-8 rounded-2xl border-2 border-amber-500/30 bg-gradient-to-b from-amber-500/5 to-transparent overflow-hidden">
-      <div className="px-5 py-4 bg-amber-500/10 border-b border-amber-500/20">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center text-2xl">
-              🏗️
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="font-bold text-lg text-foreground">Project Challenge</h3>
-                {isCompleted && (
-                  <span className="px-2 py-0.5 rounded-full text-xs bg-success/20 text-success font-medium">
-                    ✓ Complete
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground mt-0.5">
-                <span>{threadInfo.icon}</span>
-                <span>{projectChallenge.threadTitle}</span>
-              </div>
-            </div>
+    <div className="mt-8 rounded border border-warning/40 bg-warning/5">
+      <div className="px-4 py-3 border-b border-warning/20 font-mono text-xs">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-warning"># project-challenge</p>
+            <p className="mt-1 text-muted-foreground">
+              thread: {projectChallenge.threadTitle} · reward: {projectChallenge.xpReward} xp
+            </p>
           </div>
-          <div className="text-right">
-            <div className="text-2xl font-bold text-amber-400">+{projectChallenge.xpReward}</div>
-            <div className="text-xs text-amber-400/70">XP Reward</div>
-          </div>
+          {isCompleted && <span className="text-success">✓ done</span>}
         </div>
       </div>
 
       <div className="p-5">
-        <div className="mb-5 p-4 rounded-xl bg-card border border-border">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-              PM
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="font-semibold text-foreground">Project Manager</span>
-                <span className="text-xs text-muted-foreground">2:34 PM</span>
-              </div>
-              <p className="text-foreground/90 leading-relaxed">{projectChallenge.context}</p>
-            </div>
-          </div>
-        </div>
+        <p className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground mb-2"># brief</p>
+        <p className="text-sm text-foreground leading-relaxed mb-5">{projectChallenge.context}</p>
 
-        <h4 className="font-semibold text-foreground text-lg mb-4 flex items-center gap-2">
-          <span className="text-amber-400">📋</span>
-          {projectChallenge.taskTitle}
-        </h4>
+        <p className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground mb-2"># task</p>
+        <h4 className="font-medium text-foreground mb-4">{projectChallenge.taskTitle}</h4>
 
-        <div className="mb-4">
+        <div className="mb-4 font-mono text-xs">
           <button
             onClick={() => setShowHint(!showHint)}
-            className="text-sm text-amber-400 hover:text-amber-300 flex items-center gap-1 transition-colors"
+            className="text-warning hover:text-warning/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-warning focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded"
           >
-            <span>{showHint ? "▼" : "▶"}</span>
-            <span>{showHint ? "Hide Hint" : "Need a Hint?"}</span>
+            {showHint ? "▼" : "▶"} hint
           </button>
           {showHint && (
-            <div className="mt-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
-              <div className="flex items-start gap-2">
-                <span className="text-amber-400">💡</span>
-                <p className="text-sm text-foreground/80">{projectChallenge.hint}</p>
-              </div>
-            </div>
+            <p className="mt-2 text-muted-foreground border-l-2 border-warning/40 pl-3">
+              <span className="text-warning">!</span> {projectChallenge.hint}
+            </p>
           )}
         </div>
 
-        <div className="rounded-xl border border-amber-500/30 overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-2.5 bg-amber-500/10 border-b border-amber-500/30">
-            <span className="text-sm font-medium text-amber-400">Your Code</span>
+        <div className="rounded border border-border overflow-hidden">
+          <div className="flex items-center justify-between px-3 py-2 bg-card border-b border-border font-mono text-xs">
+            <span className="text-muted-foreground"># your code</span>
             <div className="flex items-center gap-2">
               <button
                 onClick={onResetProject}
-                className="text-xs px-3 py-1.5 rounded-lg bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 transition-colors"
+                className="px-2 py-1 rounded border border-border text-muted-foreground hover:text-foreground hover:border-accent/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
-                Reset
+                reset
               </button>
               <button
                 onClick={onRunProject}
                 disabled={!isReady || isRunningProject}
-                className="text-xs px-4 py-1.5 rounded-lg bg-amber-500 text-black font-semibold hover:bg-amber-400 transition-colors disabled:opacity-50"
+                className="px-2 py-1 rounded border border-warning text-warning hover:bg-warning/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-warning focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
-                {isRunningProject ? "Running..." : "Run & Check"}
+                {isRunningProject ? "running…" : "run & check"}
               </button>
             </div>
           </div>
@@ -294,7 +238,7 @@ function ProjectChallengeDashboard({
               disabled={!isReady}
             />
           </div>
-          <div className="h-36 border-t border-amber-500/30">
+          <div className="h-36 border-t border-border">
             <OutputPanel
               output={projectOutput}
               error={projectError}
@@ -305,20 +249,19 @@ function ProjectChallengeDashboard({
         </div>
 
         {(failedAttempts >= 3 || showSolution) && !isCompleted && (
-          <div className="mt-4">
+          <div className="mt-4 font-mono text-xs">
             <button
               onClick={() => setShowSolution(!showSolution)}
-              className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded"
             >
-              <span>{showSolution ? "▼" : "▶"}</span>
-              <span>{showSolution ? "Hide Solution" : "Show Solution"}</span>
+              {showSolution ? "▼" : "▶"} solution
             </button>
             {showSolution && (
               <div className="mt-3 relative">
                 <div className="absolute top-2 right-2 z-10">
                   <CopyButton text={projectChallenge.solution} />
                 </div>
-                <pre className="p-4 pr-12 rounded-lg bg-[#1e1e1e] border border-amber-500/20 text-sm overflow-x-auto">
+                <pre className="p-4 pr-12 rounded bg-[#0f0f12] border border-border overflow-x-auto">
                   <code className="text-foreground">{projectChallenge.solution}</code>
                 </pre>
               </div>
@@ -327,14 +270,9 @@ function ProjectChallengeDashboard({
         )}
 
         {isCompleted && (
-          <div className="mt-5 p-4 rounded-xl bg-success/10 border border-success/30 text-center">
-            <div className="text-success font-semibold text-lg mb-1">
-              ✅ Project Challenge Complete!
-            </div>
-            <div className="text-success/80 text-sm">
-              You earned +{projectChallenge.xpReward} XP
-            </div>
-          </div>
+          <p className="mt-5 font-mono text-xs text-success">
+            <span className="text-success">exit 0</span> · +{projectChallenge.xpReward} xp · {threadInfo.icon ? "" : ""}{projectChallenge.threadTitle}
+          </p>
         )}
       </div>
     </div>
@@ -351,20 +289,16 @@ function LessonNavigation({
   if (!prevLesson && !nextLesson) return null;
 
   return (
-    <div className="mt-8 pt-6 border-t border-border">
+    <div className="mt-8 pt-6 border-t border-border font-mono text-xs">
       <div className="flex items-center justify-between gap-4">
         {prevLesson ? (
           <Link
             href={`/learn/${prevLesson.moduleSlug}/${prevLesson.slug}`}
-            className="group flex items-center gap-3 p-3 rounded-lg border border-border hover:border-border-hover hover:bg-card-hover transition-colors"
+            className="group flex items-baseline gap-2 px-3 py-2 rounded border border-border hover:border-accent/50 hover:bg-card-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background min-w-0"
           >
-            <span className="text-muted-foreground group-hover:text-foreground transition-colors">←</span>
-            <div className="text-left">
-              <div className="text-xs text-muted-foreground">Previous</div>
-              <div className="text-sm font-medium text-foreground truncate max-w-[150px]">
-                {prevLesson.title}
-              </div>
-            </div>
+            <span className="text-muted-foreground group-hover:text-accent">←</span>
+            <span className="text-muted-foreground">prev:</span>
+            <span className="text-foreground truncate max-w-[180px]">{prevLesson.title}</span>
           </Link>
         ) : (
           <div />
@@ -372,26 +306,20 @@ function LessonNavigation({
         {nextLesson ? (
           <Link
             href={`/learn/${nextLesson.moduleSlug}/${nextLesson.slug}`}
-            className="group flex items-center gap-3 px-5 py-3 rounded-xl bg-accent hover:bg-accent-hover text-white transition-all shadow-lg shadow-accent/25 hover:shadow-accent/40"
+            className="group flex items-baseline gap-2 px-3 py-2 rounded border border-accent text-accent hover:bg-accent/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background min-w-0"
           >
-            <div className="text-right">
-              <div className="text-xs text-white/80">Next Lesson</div>
-              <div className="text-sm font-semibold truncate max-w-[180px]">
-                {nextLesson.title}
-              </div>
-            </div>
-            <span className="text-xl">→</span>
+            <span className="text-muted-foreground">next:</span>
+            <span className="truncate max-w-[180px]">{nextLesson.title}</span>
+            <span>→</span>
           </Link>
         ) : (
           <Link
             href="/learn"
-            className="group flex items-center gap-3 px-5 py-3 rounded-xl bg-success hover:bg-success/90 text-white transition-all shadow-lg shadow-success/25"
+            className="flex items-baseline gap-2 px-3 py-2 rounded border border-success text-success hover:bg-success/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
-            <div className="text-right">
-              <div className="text-xs text-white/80">Congratulations!</div>
-              <div className="text-sm font-semibold">Back to Dashboard</div>
-            </div>
-            <span className="text-xl">🎉</span>
+            <span>exit 0</span>
+            <span className="text-muted-foreground">·</span>
+            <span>back to ~/lessons</span>
           </Link>
         )}
       </div>
@@ -531,18 +459,21 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
 
   if (pyodideError) {
     return (
-      <div className="flex-1 flex items-center justify-center p-8 bg-card text-center">
-        <div className="max-w-md p-6 rounded-2xl border-2 border-red-500/30 bg-red-500/5">
-          <div className="text-4xl mb-4">⚠️</div>
-          <h2 className="text-xl font-bold text-foreground mb-2">Engine Failed to Load</h2>
-          <p className="text-muted-foreground text-sm mb-6">
-            We couldn't download the Python WebAssembly engine. This usually happens on slow or restricted networks.
+      <div className="flex-1 flex items-start justify-center p-8 bg-background font-mono text-sm">
+        <div className="max-w-md w-full">
+          <p>
+            <span className="text-accent">damato@python</span>
+            <span className="text-muted-foreground">:</span>
+            <span className="text-muted-foreground">~$</span> python --start
           </p>
-          <button 
+          <p className="mt-2 text-error">
+            error: failed to load pyodide. likely a slow or restricted network.
+          </p>
+          <button
             onClick={() => window.location.reload()}
-            className="px-6 py-2.5 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition-colors"
+            className="mt-4 px-3 py-2 rounded border border-error text-error hover:bg-error/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
-            Refresh & Retry
+            → refresh &amp; retry
           </button>
         </div>
       </div>
@@ -571,7 +502,7 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
             next.add(activeChallenge.id);
             return next;
           });
-          setOutput((prev) => prev + "\n\n✅ Challenge completed! Great work!");
+          setOutput((prev) => prev + "\n\n# challenge validated · exit 0");
 
           if (
             lesson.challenges.every(
@@ -647,10 +578,10 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
           completed.add(`${lesson.moduleSlug}/${lesson.slug}`);
           localStorage.setItem("python-mastery-project-completed", JSON.stringify([...completed]));
 
-          setProjectOutput((prev) => prev + `\n\n✅ Project Challenge completed! +${xpGained} XP`);
+          setProjectOutput((prev) => prev + `\n\n# project validated · exit 0 · +${xpGained} xp`);
         } else if (!isValid) {
           setProjectFailedAttempts((prev) => prev + 1);
-          setProjectOutput((prev) => prev + "\n\n❌ Not quite right. Check your output and try again.");
+          setProjectOutput((prev) => prev + "\n\n# validation failed · check the output and try again");
         }
       } catch {
         setProjectFailedAttempts((prev) => prev + 1);
@@ -675,59 +606,61 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
 
   return (
     <div className="flex flex-col lg:flex-row flex-1 h-full overflow-hidden relative">
-      {/* Completion Toast */}
       {showCompletionToast && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 animate-slide-down">
-          <div className="flex items-center gap-3 px-6 py-4 rounded-xl bg-success text-white shadow-2xl shadow-success/30">
-            <span className="text-2xl">✓</span>
-            <div>
-              <div className="font-bold text-lg">Lesson Complete!</div>
-              <div className="text-sm text-white/90">+10 XP earned</div>
-            </div>
+        <div
+          className="absolute top-4 left-1/2 -translate-x-1/2 z-50 animate-slide-down font-mono text-sm"
+          role="status"
+          aria-live="polite"
+        >
+          <div className="flex items-baseline gap-2 px-4 py-2 rounded border border-success bg-background/95 backdrop-blur">
+            <span className="text-success">exit 0</span>
+            <span className="text-muted-foreground">·</span>
+            <span className="text-foreground">lesson complete</span>
           </div>
         </div>
       )}
 
-      {/* Mobile pane toggle — only visible on small screens */}
-      <div className="flex lg:hidden border-b border-border bg-card">
+      <div className="flex lg:hidden border-b border-border bg-card font-mono text-xs">
         <button
           onClick={() => setMobilePane("content")}
-          className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+          className={`flex-1 px-4 py-3 transition-colors ${
             mobilePane === "content"
-              ? "text-accent border-b-2 border-accent"
+              ? "text-accent border-b border-accent"
               : "text-muted-foreground hover:text-foreground"
           }`}
         >
-          📖 Learn
+          {mobilePane === "content" ? "> " : "  "}learn
         </button>
         <button
           onClick={() => setMobilePane("editor")}
-          className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+          className={`flex-1 px-4 py-3 transition-colors ${
             mobilePane === "editor"
-              ? "text-accent border-b-2 border-accent"
+              ? "text-accent border-b border-accent"
               : "text-muted-foreground hover:text-foreground"
           }`}
         >
-          💻 Code
+          {mobilePane === "editor" ? "> " : "  "}code
         </button>
       </div>
 
       <div className={`w-full lg:w-1/2 flex flex-col border-r border-border overflow-hidden ${mobilePane !== "content" ? "hidden lg:flex" : "flex"}`}>
-        <div className="flex border-b border-border bg-card">
+        <div className="flex border-b border-border bg-card font-mono text-xs">
           {(["theory", "examples", "challenges", "cheatsheet"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-3 text-sm font-medium capitalize transition-colors ${
+              className={`px-3 py-2.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
                 activeTab === tab
-                  ? "text-accent border-b-2 border-accent"
+                  ? "text-accent"
                   : "text-muted-foreground hover:text-foreground"
               }`}
+              aria-current={activeTab === tab ? "page" : undefined}
             >
-              {tab === "cheatsheet" ? "Cheat Sheet" : tab}
+              <span className="text-muted-foreground">{activeTab === tab ? "> " : "  "}</span>
+              <span>{tab}</span>
               {tab === "challenges" && (
-                <span className="ml-2 text-xs">
-                  ({completedChallenges.size}/{lesson.challenges.length})
+                <span className="ml-1.5 text-muted-foreground">
+                  [{completedChallenges.size}/{lesson.challenges.length}]
                 </span>
               )}
             </button>
@@ -738,42 +671,41 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
           {activeTab === "theory" && (
             <div>
               <Breadcrumbs module={lesson.module} lessonTitle={lesson.title} />
-              <h1 className="text-2xl font-bold text-foreground mb-2">{lesson.title}</h1>
-              <div className="flex items-center gap-2 mb-6">
-                <span className={`inline-block px-2.5 py-1 text-xs rounded-full badge-${lesson.badge}`}>
-                  {lesson.badge}
-                </span>
-                <span className="inline-block px-2.5 py-1 text-xs rounded-full bg-muted/30 text-muted-foreground border border-border">
-                  ~{lesson.badge === "concept" ? "10" : lesson.badge === "practice" ? "12" : "18"} min
-                </span>
-              </div>
+              <h1 className="text-2xl font-semibold text-foreground mb-2">{lesson.title}</h1>
+              <p className="flex items-center gap-2 mb-6 font-mono text-xs text-muted-foreground">
+                <span>[{lesson.badge}]</span>
+                <span>·</span>
+                <span>~{lesson.badge === "concept" ? "10" : lesson.badge === "practice" ? "12" : "18"} min</span>
+              </p>
               <TheoryContent content={lesson.theory} />
               <LessonNavigation prevLesson={prevLesson} nextLesson={nextLesson} />
             </div>
           )}
 
           {activeTab === "examples" && (
-            <div className="space-y-6">
-              <h2 className="text-xl font-semibold text-foreground">Code Examples</h2>
-              <p className="text-muted-foreground text-sm">
-                Click &quot;Load in Editor&quot; to try any example in the code editor.
-              </p>
+            <div className="space-y-4">
+              <div>
+                <h2 className="text-xl font-semibold text-foreground"># examples</h2>
+                <p className="mt-1 font-mono text-xs text-muted-foreground">
+                  load any into the editor and modify.
+                </p>
+              </div>
               {lesson.examples.map((example, index) => (
-                <div key={index} className="p-4 rounded-xl border border-border bg-card">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-semibold text-foreground">{example.title}</h3>
-                    <div className="flex items-center gap-2">
+                <div key={index} className="p-4 rounded border border-border bg-card">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-mono text-sm text-foreground">{example.title}</h3>
+                    <div className="flex items-center gap-2 font-mono text-xs">
                       <CopyButton text={example.code} />
                       <button
                         onClick={() => loadExample(example)}
-                        className="text-xs btn-secondary"
+                        className="px-2 py-1 rounded border border-border text-muted-foreground hover:text-foreground hover:border-accent/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                       >
-                        Load in Editor
+                        load in editor
                       </button>
                     </div>
                   </div>
-                  <p className="text-sm text-muted-foreground mb-4">{example.explanation}</p>
-                  <pre className="p-4 rounded-lg bg-[#1e1e1e] border border-border text-sm overflow-x-auto">
+                  <p className="text-sm text-muted-foreground mb-3">{example.explanation}</p>
+                  <pre className="p-4 rounded bg-[#0f0f12] border border-border text-xs overflow-x-auto">
                     <code className="text-foreground">{example.code}</code>
                   </pre>
                 </div>
@@ -784,9 +716,9 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
           {activeTab === "challenges" && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-xl font-semibold text-foreground mb-2">Challenges</h2>
-                <p className="text-muted-foreground text-sm mb-4">
-                  Finish the challenges to mark the lesson done.
+                <h2 className="text-xl font-semibold text-foreground"># challenges</h2>
+                <p className="mt-1 font-mono text-xs text-muted-foreground mb-3">
+                  finish the challenges to mark the lesson done.
                 </p>
                 <ChallengeProgressBar
                   completed={completedChallenges.size}
@@ -834,38 +766,30 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
           )}
 
           {activeTab === "cheatsheet" && (
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div>
-                <h2 className="text-xl font-semibold text-foreground mb-2">Quick Reference</h2>
-                <p className="text-muted-foreground text-sm">
-                  Key syntax and methods for this module.
+                <h2 className="text-xl font-semibold text-foreground"># cheatsheet</h2>
+                <p className="mt-1 font-mono text-xs text-muted-foreground">
+                  key syntax and methods for this module.
                 </p>
               </div>
 
               {cheatSheetItems.length > 0 ? (
-                <div className="grid gap-3">
+                <ul className="divide-y divide-border/40 border-y border-border/40">
                   {cheatSheetItems.map((item, index) => (
-                    <div
-                      key={index}
-                      className="p-4 rounded-xl border border-border bg-card hover:border-accent/30 transition-colors"
-                    >
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <h4 className="font-medium text-foreground mb-1">{item.title}</h4>
-                          <p className="text-sm text-muted-foreground">{item.description}</p>
-                        </div>
-                        <code className="px-3 py-2 rounded-lg bg-[#1e1e1e] border border-border text-sm text-accent font-mono whitespace-nowrap">
-                          {item.code}
-                        </code>
+                    <li key={index} className="grid gap-2 py-3 sm:grid-cols-[1fr_auto] sm:items-center">
+                      <div className="min-w-0">
+                        <p className="text-sm text-foreground">{item.title}</p>
+                        <p className="text-xs text-muted-foreground">{item.description}</p>
                       </div>
-                    </div>
+                      <code className="px-3 py-1.5 rounded bg-[#0f0f12] border border-border text-xs text-accent font-mono whitespace-nowrap justify-self-start sm:justify-self-end">
+                        {item.code}
+                      </code>
+                    </li>
                   ))}
-                </div>
+                </ul>
               ) : (
-                <div className="p-8 text-center text-muted-foreground rounded-xl border border-border bg-card">
-                  <span className="text-3xl mb-3 block">📋</span>
-                  <p>No cheat sheet available for this module yet.</p>
-                </div>
+                <p className="font-mono text-xs text-muted-foreground"># no cheatsheet for this module yet</p>
               )}
             </div>
           )}
@@ -873,76 +797,56 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
       </div>
 
       <div className={`w-full lg:w-1/2 flex flex-col overflow-hidden ${mobilePane !== "editor" ? "hidden lg:flex" : "flex"}`}>
-        {/* Pygame lessons: show "Run Locally" banner instead of Pyodide status */}
         {isPygameLesson && (
-          <div className="px-4 py-3 border-b border-border bg-amber-500/10 text-sm">
-            <div className="flex items-center gap-2 mb-1">
-              <span>🎮</span>
-              <span className="font-semibold text-amber-400">Pygame — Run Locally</span>
-            </div>
-            <p className="text-muted-foreground text-xs mb-2">
-              Pygame needs a real window, so it can&apos;t run in the browser. Use the launcher or copy the code below to a .py file.
+          <div className="px-4 py-3 border-b border-border bg-warning/5 font-mono text-xs">
+            <p className="text-warning"># pygame: run locally</p>
+            <p className="mt-1 text-muted-foreground">
+              pygame needs a real window so it can&apos;t run in the browser. use the launcher or copy the code panel into a .py file.
             </p>
-            <div className="flex flex-col gap-1">
-              <code className="text-xs text-amber-300 bg-black/30 px-2 py-1 rounded">
-                cd ~/Projects/python-game-dev && python3 run.py
-              </code>
-              <span className="text-xs text-muted-foreground">or copy the code panel below into a .py file and run with python3</span>
-            </div>
+            <code className="mt-2 inline-block text-warning bg-background/60 px-2 py-1 rounded">
+              cd ~/Projects/python-game-dev && python3 run.py
+            </code>
           </div>
         )}
-        <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-card">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-card font-mono text-xs">
+          <div className="flex items-center gap-2">
             {isPygameLesson ? (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                <span className="text-sm">🎮</span>
-                <span className="text-sm text-amber-400 font-medium">Copy & Run Locally</span>
-              </div>
+              <>
+                <span className="inline-block w-2 h-2 rounded-full bg-warning" aria-hidden="true" />
+                <span className="text-warning">pygame: run locally</span>
+              </>
             ) : isLoading ? (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-warning/10 border border-warning/20">
-                <div className="relative w-4 h-4">
-                  <span className="absolute inset-0 flex items-center justify-center text-xs">🐍</span>
-                  <svg className="absolute inset-0 w-4 h-4 animate-spin" viewBox="0 0 16 16">
-                    <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="20 10" className="text-warning/50" />
-                  </svg>
-                </div>
-                <span className="text-sm text-warning font-medium">Loading Python...</span>
-              </div>
+              <>
+                <span className="inline-block w-2 h-2 rounded-full bg-warning animate-pulse" aria-hidden="true" />
+                <span className="text-warning">pyodide: loading…</span>
+              </>
             ) : pyodideError ? (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-error/10 border border-error/20">
-                <span className="w-2 h-2 rounded-full bg-error" />
-                <span className="text-sm text-error">Error: {pyodideError}</span>
-              </div>
+              <>
+                <span className="inline-block w-2 h-2 rounded-full bg-error" aria-hidden="true" />
+                <span className="text-error">pyodide: {pyodideError}</span>
+              </>
             ) : (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-success/10 border border-success/20">
-                <span className="w-2 h-2 rounded-full bg-success" />
-                <span className="text-sm text-success font-medium">Python Ready</span>
-              </div>
+              <>
+                <span className="inline-block w-2 h-2 rounded-full bg-success" aria-hidden="true" />
+                <span className="text-success">pyodide: ready</span>
+              </>
             )}
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={handleReset} className="btn-secondary text-sm">
-              Reset
+            <button
+              onClick={handleReset}
+              className="px-2 py-1 rounded border border-border text-muted-foreground hover:text-foreground hover:border-accent/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              reset
             </button>
             <button
               onClick={handleRun}
               disabled={!isReady || isRunning}
-              className="btn-primary text-sm flex items-center gap-2 disabled:opacity-50"
+              className="px-2 py-1 rounded border border-accent text-accent hover:bg-accent/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background flex items-center gap-1.5"
             >
-              {isRunning ? (
-                <>
-                  <svg className="w-3.5 h-3.5 animate-spin" viewBox="0 0 16 16" fill="none">
-                    <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="2" strokeDasharray="20 10" />
-                  </svg>
-                  Running...
-                </>
-              ) : (
-                <>
-                  Run
-                  <kbd className="hidden sm:inline text-xs opacity-70 bg-white/20 px-1.5 py-0.5 rounded">
-                    ⌘/Ctrl+Enter
-                  </kbd>
-                </>
+              {isRunning ? "running…" : "run"}
+              {!isRunning && (
+                <kbd className="hidden sm:inline text-[10px] opacity-60">⌘↵</kbd>
               )}
             </button>
           </div>
