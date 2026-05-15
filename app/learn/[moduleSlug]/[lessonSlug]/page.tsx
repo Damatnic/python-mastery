@@ -30,6 +30,7 @@ export default function LessonPage({ params }: LessonPageProps) {
   const lesson = getLessonBySlug(moduleSlug, lessonSlug);
   const nextLesson = lesson ? getNextLesson(moduleSlug, lessonSlug) : null;
   const prevLesson = lesson ? getPreviousLesson(moduleSlug, lessonSlug) : null;
+  const isAlreadyComplete = completedLessons.has(`${moduleSlug}/${lessonSlug}`);
 
   useEffect(() => {
     const list = safeJsonParse<string[]>(localStorage.getItem("python-mastery-completed"), []);
@@ -99,6 +100,7 @@ export default function LessonPage({ params }: LessonPageProps) {
           onComplete={handleComplete}
           prevLesson={prevLesson ? { slug: prevLesson.slug, moduleSlug: prevLesson.moduleSlug, title: prevLesson.title } : null}
           nextLesson={nextLesson ? { slug: nextLesson.slug, moduleSlug: nextLesson.moduleSlug, title: nextLesson.title } : null}
+          isAlreadyComplete={isAlreadyComplete}
           onOpenMobileNav={() => setMobileNavOpen(true)}
           onOpenTutorWithPrompt={handleAskTutor}
         />

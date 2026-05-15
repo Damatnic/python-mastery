@@ -132,7 +132,7 @@ export const TutorChat = forwardRef<TutorChatHandle, TutorChatProps>(function Tu
   if (!open) {
     return (
       <button
-        id="tutor-button"
+        data-tour-target="tutor"
         type="button"
         onClick={() => {
           setOpen(true);
@@ -144,7 +144,7 @@ export const TutorChat = forwardRef<TutorChatHandle, TutorChatProps>(function Tu
           }
         }}
         className={`fixed bottom-4 right-4 z-40 rounded-full border border-emerald-400/40 bg-stone-950/90 px-4 py-2 font-mono text-xs text-emerald-300 shadow-lg backdrop-blur hover:border-emerald-400 hover:text-emerald-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-950 ${
-          pulse ? "ring-2 ring-emerald-400/60 animate-pulse" : ""
+          pulse ? "ring-2 ring-emerald-400/60 animate-pulse motion-reduce:animate-none" : ""
         }`}
         aria-label="Open AI tutor"
       >
@@ -187,6 +187,9 @@ export const TutorChat = forwardRef<TutorChatHandle, TutorChatProps>(function Tu
       <div
         ref={scrollRef}
         className="flex-1 space-y-3 overflow-y-auto px-3 py-3 text-sm"
+        role="log"
+        aria-live="polite"
+        aria-label="tutor conversation"
       >
         {messages.length === 0 && (
           <p className="font-mono text-xs text-stone-500">
@@ -211,12 +214,16 @@ export const TutorChat = forwardRef<TutorChatHandle, TutorChatProps>(function Tu
           </div>
         ))}
         {busy && (
-          <p className="font-mono text-xs text-stone-500">
+          <p className="font-mono text-xs text-stone-500" role="status" aria-live="polite">
             <span className="text-emerald-400">tutor</span> thinking...
           </p>
         )}
         {errored && (
-          <p className="rounded border border-rose-400/30 bg-rose-400/[0.04] px-3 py-2 font-mono text-xs text-rose-300">
+          <p
+            className="rounded border border-rose-400/30 bg-rose-400/[0.04] px-3 py-2 font-mono text-xs text-rose-300"
+            role="alert"
+            aria-live="assertive"
+          >
             {errored}
           </p>
         )}

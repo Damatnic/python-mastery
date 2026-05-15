@@ -18,6 +18,7 @@ interface LessonViewProps {
   onComplete: () => void;
   prevLesson?: { slug: string; moduleSlug: string; title: string } | null;
   nextLesson?: { slug: string; moduleSlug: string; title: string } | null;
+  isAlreadyComplete?: boolean;
   onOpenMobileNav?: () => void;
   onOpenTutorWithPrompt?: (prompt: string) => void;
 }
@@ -397,6 +398,7 @@ export function LessonView({
   onComplete,
   prevLesson,
   nextLesson,
+  isAlreadyComplete = false,
   onOpenMobileNav,
   onOpenTutorWithPrompt,
 }: LessonViewProps) {
@@ -649,16 +651,18 @@ export function LessonView({
     return s;
   }, [lesson.examples.length, lesson.challenges.length, lesson.projectChallenge, completedChallenges.size, cheatSheetItems.length]);
 
-  const allChallengesDone =
+  const allChallengesDoneThisSession =
     lesson.challenges.length > 0 &&
     completedChallenges.size === lesson.challenges.length &&
     (!lesson.projectChallenge || projectCompleted);
+
+  const showNextLessonCard = allChallengesDoneThisSession || isAlreadyComplete;
 
   return (
     <div className="flex flex-col lg:flex-row flex-1 h-full overflow-hidden relative">
       {showCompletionToast && (
         <div
-          className="absolute top-4 left-1/2 -translate-x-1/2 z-50 animate-slide-down font-mono text-sm"
+          className="absolute top-4 left-1/2 -translate-x-1/2 z-50 animate-slide-down motion-reduce:animate-none font-mono text-sm"
           role="status"
           aria-live="polite"
         >
@@ -813,7 +817,7 @@ export function LessonView({
             </section>
           )}
 
-          {allChallengesDone && <NextLessonCard nextLesson={nextLesson} />}
+          {showNextLessonCard && <NextLessonCard nextLesson={nextLesson} />}
 
           {cheatSheetItems.length > 0 && (
             <section id="cheatsheet" className="scroll-mt-20 mt-10">
@@ -841,7 +845,7 @@ export function LessonView({
         </div>
       </div>
 
-      <div id="code-editor-pane" className={`w-full lg:w-1/2 flex flex-col overflow-hidden ${mobilePane !== "editor" ? "hidden lg:flex" : "flex"}`}>
+      <div data-tour-target="editor" className={`w-full lg:w-1/2 flex flex-col overflow-hidden ${mobilePane !== "editor" ? "hidden lg:flex" : "flex"}`}>
         {isPygameLesson && (
           <div className="px-4 py-3 border-b border-border bg-warning/5 font-mono text-xs">
             <p className="text-warning"># pygame: run locally</p>
@@ -862,7 +866,7 @@ export function LessonView({
               </>
             ) : isLoading ? (
               <>
-                <span className="inline-block w-2 h-2 rounded-full bg-warning animate-pulse" aria-hidden="true" />
+                <span className="inline-block w-2 h-2 rounded-full bg-warning animate-pulse motion-reduce:animate-none" aria-hidden="true" />
                 <span className="text-warning">pyodide: loading…</span>
               </>
             ) : pyodideError ? (

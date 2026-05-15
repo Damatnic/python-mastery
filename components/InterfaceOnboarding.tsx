@@ -12,21 +12,29 @@ interface Step {
 
 const STEPS: Step[] = [
   {
-    selector: "#lesson-anchor-nav",
+    selector: '[data-tour-target="anchor-nav"]',
     text: "theory teaches it. examples show it. challenges make you do it. project ties it together.",
     placement: "bottom",
   },
   {
-    selector: "#code-editor-pane",
+    selector: '[data-tour-target="editor"]',
     text: "your code runs here. live, no install. ⌘+enter runs.",
     placement: "left",
   },
   {
-    selector: "#tutor-button",
+    selector: '[data-tour-target="tutor"]',
     text: "stuck? this won't give you the answer — but it'll ask the question that gets you unstuck.",
     placement: "top",
   },
 ];
+
+function markSeen() {
+  try {
+    localStorage.setItem(STORAGE_KEY, "1");
+  } catch {
+    // ignore
+  }
+}
 
 export function InterfaceOnboarding() {
   const [step, setStep] = useState<number>(-1);
@@ -43,28 +51,37 @@ export function InterfaceOnboarding() {
   }, []);
 
   useEffect(() => {
-    if (step < 0 || step >= STEPS.length) return;
+    if (step < 0) return;
+    // If we've walked past every step (because targets were missing), flip the flag
+    // so the user doesn't get the tour again on next visit.
+    if (step >= STEPS.length) {
+      markSeen();
+      setRect(null);
+      return;
+    }
     const el = document.querySelector(STEPS[step].selector);
-    if (!el) {
+    const initialRect = el?.getBoundingClientRect();
+    // Skip steps whose target is missing or not visible (e.g. the editor pane
+    // is display:none behind the mobile pane toggle).
+    if (!el || !initialRect || initialRect.width === 0 || initialRect.height === 0) {
+      setRect(null);
       setStep((s) => s + 1);
       return;
     }
+    el.scrollIntoView({ behavior: "auto", block: "center" });
     const update = () => setRect(el.getBoundingClientRect());
-    update();
+    const raf = requestAnimationFrame(update);
     window.addEventListener("resize", update);
     window.addEventListener("scroll", update, true);
     return () => {
+      cancelAnimationFrame(raf);
       window.removeEventListener("resize", update);
       window.removeEventListener("scroll", update, true);
     };
   }, [step]);
 
   function done() {
-    try {
-      localStorage.setItem(STORAGE_KEY, "1");
-    } catch {
-      // ignore
-    }
+    markSeen();
     setStep(-1);
   }
 
@@ -83,10 +100,12 @@ export function InterfaceOnboarding() {
     left = Math.max(12, rect.left - 320);
   }
 
+  const clampedTop = Math.min(Math.max(12, top), window.innerHeight - 150);
+  const clampedLeft = Math.min(Math.max(12, left), window.innerWidth - 320);
   const tooltipStyle: React.CSSProperties = {
     position: "fixed",
-    top: `${Math.max(12, top)}px`,
-    left: `${Math.min(left, window.innerWidth - 320)}px`,
+    top: `${clampedTop}px`,
+    left: `${clampedLeft}px`,
     width: "300px",
     zIndex: 60,
   };
@@ -97,7 +116,6 @@ export function InterfaceOnboarding() {
     left: `${rect.left - 4}px`,
     width: `${rect.width + 8}px`,
     height: `${rect.height + 8}px`,
-    border: "2px solid var(--accent, #a855f7)",
     borderRadius: "8px",
     pointerEvents: "none",
     zIndex: 59,
@@ -106,30 +124,31 @@ export function InterfaceOnboarding() {
 
   return (
     <>
-      <div style={highlightStyle} />
+      <div style={highlightStyle} className="border-2 border-accent" />
       <div
         role="dialog"
+        aria-modal="true"
         aria-label="interface tour"
         style={tooltipStyle}
-        className="rounded border border-accent bg-stone-950 px-4 py-3 font-mono text-xs shadow-2xl"
+        className="rounded border border-accent bg-background px-4 py-3 font-mono text-xs shadow-2xl"
       >
-        <p className="text-stone-100 leading-relaxed">{current.text}</p>
-        <div className="mt-3 flex items-center justify-between text-[10px] text-stone-500">
-          <span>
+        <p className="text-foreground leading-relaxed">{current.text}</p>
+        <div className="mt-3 flex items-center justify-between text-[10px] text-muted-foreground">
+          <span aria-live="polite">
             step {step + 1} of {STEPS.length}
           </span>
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={done}
-              className="rounded px-2 py-1 text-stone-400 hover:text-stone-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              className="rounded px-2 py-1 text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               skip
             </button>
             <button
               type="button"
               onClick={() => (isLast ? done() : setStep(step + 1))}
-              className="rounded border border-accent px-2 py-1 text-accent hover:bg-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              className="rounded border border-accent px-2 py-1 text-accent hover:bg-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               {isLast ? "got it" : "next"}
             </button>

@@ -35,7 +35,7 @@ export function LessonAnchorNav({ sections }: LessonAnchorNavProps) {
 
   return (
     <nav
-      id="lesson-anchor-nav"
+      data-tour-target="anchor-nav"
       aria-label="lesson sections"
       className="sticky top-0 z-30 -mx-6 px-6 py-2 bg-background/95 backdrop-blur border-b border-border/60 font-mono text-xs"
     >
@@ -47,14 +47,14 @@ export function LessonAnchorNav({ sections }: LessonAnchorNavProps) {
               <a
                 href={`#${s.id}`}
                 className={`inline-flex items-baseline gap-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded ${
-                  active ? "text-accent" : "text-muted-foreground hover:text-foreground"
+                  active ? "text-accent" : "text-foreground/70 hover:text-foreground"
                 }`}
                 aria-current={active ? "true" : undefined}
               >
                 <span aria-hidden="true">{active ? ">" : " "}</span>
                 <span>{s.label}</span>
                 {s.badge && (
-                  <span className="text-[10px] text-muted-foreground">[{s.badge}]</span>
+                  <span className="text-[10px] text-foreground/60">[{s.badge}]</span>
                 )}
               </a>
             </li>
