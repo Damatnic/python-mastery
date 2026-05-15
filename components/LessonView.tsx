@@ -6,6 +6,8 @@ import { CodeEditor } from "./CodeEditor";
 import { OutputPanel } from "./OutputPanel";
 import { CopyButton } from "./CopyButton";
 import { TheoryContent } from "./TheoryContent";
+import { LessonAnchorNav, type AnchorSection } from "./LessonAnchorNav";
+import { NextLessonCard } from "./NextLessonCard";
 import { usePyodide } from "@/lib/pyodide";
 import { safeJsonParse, safeReadNumber } from "@/lib/storage";
 import type { Lesson, Example, Challenge, ProjectChallenge } from "@/lib/types";
@@ -16,6 +18,8 @@ interface LessonViewProps {
   onComplete: () => void;
   prevLesson?: { slug: string; moduleSlug: string; title: string } | null;
   nextLesson?: { slug: string; moduleSlug: string; title: string } | null;
+  onOpenMobileNav?: () => void;
+  onOpenTutorWithPrompt?: (prompt: string) => void;
 }
 
 // Validator for lesson challenges - evaluates predefined validation functions from lesson data
@@ -67,6 +71,7 @@ function ChallengeCard({
   showSolution,
   onStart,
   onToggleSolution,
+  onAskTutor,
 }: {
   challenge: Challenge;
   index: number;
@@ -76,6 +81,7 @@ function ChallengeCard({
   showSolution: boolean;
   onStart: () => void;
   onToggleSolution: () => void;
+  onAskTutor?: () => void;
 }) {
   return (
     <div
@@ -117,7 +123,7 @@ function ChallengeCard({
         <span>hint: {challenge.hint}</span>
       </div>
 
-      <div className="mt-3 pt-3 border-t border-border/40 font-mono text-xs">
+      <div className="mt-3 pt-3 border-t border-border/40 font-mono text-xs flex items-center justify-between gap-3">
         <button
           onClick={onToggleSolution}
           className="text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded"
@@ -125,17 +131,26 @@ function ChallengeCard({
           <span aria-hidden="true">{showSolution ? "▼" : "▶"}</span>
           <span>{showSolution ? "hide solution" : "show solution"}</span>
         </button>
-        {showSolution && (
-          <div className="mt-3 relative">
-            <div className="absolute top-2 right-2 z-10">
-              <CopyButton text={challenge.solution} />
-            </div>
-            <pre className="p-4 pr-12 rounded bg-[#0f0f12] border border-border text-xs overflow-x-auto">
-              <code className="text-foreground">{challenge.solution}</code>
-            </pre>
-          </div>
+        {onAskTutor && (
+          <button
+            type="button"
+            onClick={onAskTutor}
+            className="text-muted-foreground hover:text-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
+          >
+            &gt; stuck? ask the tutor
+          </button>
         )}
       </div>
+      {showSolution && (
+        <div className="mt-3 relative">
+          <div className="absolute top-2 right-2 z-10">
+            <CopyButton text={challenge.solution} />
+          </div>
+          <pre className="p-4 pr-12 rounded bg-[#0f0f12] border border-border text-xs overflow-x-auto">
+            <code className="text-foreground">{challenge.solution}</code>
+          </pre>
+        </div>
+      )}
     </div>
   );
 }
@@ -178,7 +193,7 @@ function ProjectChallengeDashboard({
   const threadInfo = PROJECT_THREAD_INFO[projectChallenge.threadId];
 
   return (
-    <div className="mt-8 rounded border border-warning/40 bg-warning/5">
+    <div className="rounded border border-warning/40 bg-warning/5">
       <div className="px-4 py-3 border-b border-warning/20 font-mono text-xs">
         <div className="flex items-center justify-between gap-3">
           <div>
@@ -377,7 +392,14 @@ function generateCheatSheet(moduleSlug: string): Array<{ title: string; code: st
   return cheatSheets[moduleSlug] || [];
 }
 
-export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: LessonViewProps) {
+export function LessonView({
+  lesson,
+  onComplete,
+  prevLesson,
+  nextLesson,
+  onOpenMobileNav,
+  onOpenTutorWithPrompt,
+}: LessonViewProps) {
   const { isLoading, isReady, error: pyodideError, runCode } = usePyodide();
   const isPygameLesson = lesson.moduleSlug === "game-dev-pygame";
   const [code, setCode] = useState(lesson.starterCode);
@@ -385,7 +407,6 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
   const [error, setError] = useState<string | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [executionTime, setExecutionTime] = useState<number>(0);
-  const [activeTab, setActiveTab] = useState<"theory" | "examples" | "challenges" | "cheatsheet">("theory");
   const [showSolution, setShowSolution] = useState<string | null>(null);
   const [completedChallenges, setCompletedChallenges] = useState<Set<string>>(new Set());
   const [activeChallenge, setActiveChallenge] = useState<Challenge | null>(null);
@@ -419,7 +440,6 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
     setShowSolution(null);
     setCompletedChallenges(new Set());
     setActiveChallenge(null);
-    setActiveTab("theory");
 
     if (lesson.projectChallenge) {
       const savedProject = localStorage.getItem(projectKey);
@@ -614,6 +634,26 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
 
   const [mobilePane, setMobilePane] = useState<"content" | "editor">("content");
 
+  const anchorSections: AnchorSection[] = useMemo(() => {
+    const s: AnchorSection[] = [{ id: "theory", label: "theory" }];
+    if (lesson.examples.length > 0) s.push({ id: "examples", label: "examples", badge: String(lesson.examples.length) });
+    if (lesson.challenges.length > 0) {
+      s.push({
+        id: "challenges",
+        label: "challenges",
+        badge: `${completedChallenges.size}/${lesson.challenges.length}`,
+      });
+    }
+    if (lesson.projectChallenge) s.push({ id: "project", label: "project" });
+    if (cheatSheetItems.length > 0) s.push({ id: "cheatsheet", label: "cheatsheet" });
+    return s;
+  }, [lesson.examples.length, lesson.challenges.length, lesson.projectChallenge, completedChallenges.size, cheatSheetItems.length]);
+
+  const allChallengesDone =
+    lesson.challenges.length > 0 &&
+    completedChallenges.size === lesson.challenges.length &&
+    (!lesson.projectChallenge || projectCompleted);
+
   return (
     <div className="flex flex-col lg:flex-row flex-1 h-full overflow-hidden relative">
       {showCompletionToast && (
@@ -631,6 +671,15 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
       )}
 
       <div className="flex lg:hidden border-b border-border bg-card font-mono text-xs">
+        {onOpenMobileNav && (
+          <button
+            onClick={onOpenMobileNav}
+            className="px-3 py-3 border-r border-border text-muted-foreground hover:text-foreground"
+            aria-label="open module nav"
+          >
+            ☰
+          </button>
+        )}
         <button
           onClick={() => setMobilePane("content")}
           className={`flex-1 px-4 py-3 transition-colors ${
@@ -654,159 +703,145 @@ export function LessonView({ lesson, onComplete, prevLesson, nextLesson }: Lesso
       </div>
 
       <div className={`w-full lg:w-1/2 flex flex-col border-r border-border overflow-hidden ${mobilePane !== "content" ? "hidden lg:flex" : "flex"}`}>
-        <div className="flex border-b border-border bg-card font-mono text-xs">
-          {(["theory", "examples", "challenges", "cheatsheet"] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-3 py-2.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
-                activeTab === tab
-                  ? "text-accent"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-              aria-current={activeTab === tab ? "page" : undefined}
-            >
-              <span className="text-muted-foreground">{activeTab === tab ? "> " : "  "}</span>
-              <span>{tab}</span>
-              {tab === "challenges" && (
-                <span className="ml-1.5 text-muted-foreground">
-                  [{completedChallenges.size}/{lesson.challenges.length}]
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
+        <div className="flex-1 overflow-y-auto px-6 py-6">
+          <Breadcrumbs module={lesson.module} lessonTitle={lesson.title} />
+          <h1 className="text-2xl font-semibold text-foreground mb-2">{lesson.title}</h1>
+          <p className="flex items-center gap-2 mb-4 font-mono text-xs text-muted-foreground">
+            <span>[{lesson.badge}]</span>
+            <span>·</span>
+            <span>~{lesson.badge === "concept" ? "10" : lesson.badge === "practice" ? "12" : "18"} min</span>
+          </p>
 
-        <div className="flex-1 overflow-y-auto p-6">
-          {activeTab === "theory" && (
-            <div>
-              <Breadcrumbs module={lesson.module} lessonTitle={lesson.title} />
-              <h1 className="text-2xl font-semibold text-foreground mb-2">{lesson.title}</h1>
-              <p className="flex items-center gap-2 mb-6 font-mono text-xs text-muted-foreground">
-                <span>[{lesson.badge}]</span>
-                <span>·</span>
-                <span>~{lesson.badge === "concept" ? "10" : lesson.badge === "practice" ? "12" : "18"} min</span>
+          <LessonAnchorNav sections={anchorSections} />
+
+          <section id="theory" className="scroll-mt-20 mt-6">
+            <p className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground mb-3"># theory</p>
+            <TheoryContent content={lesson.theory} />
+          </section>
+
+          {lesson.examples.length > 0 && (
+            <section id="examples" className="scroll-mt-20 mt-10">
+              <p className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground mb-3">
+                # examples <span className="text-muted-foreground/70">[{lesson.examples.length}]</span>
               </p>
-              <TheoryContent content={lesson.theory} />
-              <LessonNavigation prevLesson={prevLesson} nextLesson={nextLesson} />
-            </div>
-          )}
-
-          {activeTab === "examples" && (
-            <div className="space-y-4">
-              <div>
-                <h2 className="text-xl font-semibold text-foreground"># examples</h2>
-                <p className="mt-1 font-mono text-xs text-muted-foreground">
-                  load any into the editor and modify.
-                </p>
-              </div>
-              {lesson.examples.map((example, index) => (
-                <div key={index} className="p-4 rounded border border-border bg-card">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-mono text-sm text-foreground">{example.title}</h3>
-                    <div className="flex items-center gap-2 font-mono text-xs">
-                      <CopyButton text={example.code} />
-                      <button
-                        onClick={() => loadExample(example)}
-                        className="px-2 py-1 rounded border border-border text-muted-foreground hover:text-foreground hover:border-accent/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                      >
-                        load in editor
-                      </button>
-                    </div>
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-3">{example.explanation}</p>
-                  <pre className="p-4 rounded bg-[#0f0f12] border border-border text-xs overflow-x-auto">
-                    <code className="text-foreground">{example.code}</code>
-                  </pre>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {activeTab === "challenges" && (
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-xl font-semibold text-foreground"># challenges</h2>
-                <p className="mt-1 font-mono text-xs text-muted-foreground mb-3">
-                  finish the challenges to mark the lesson done.
-                </p>
-                <ChallengeProgressBar
-                  completed={completedChallenges.size}
-                  total={lesson.challenges.length}
-                />
-              </div>
-
-              {lesson.challenges.map((challenge, index) => (
-                <ChallengeCard
-                  key={challenge.id}
-                  challenge={challenge}
-                  index={index}
-                  total={lesson.challenges.length}
-                  isActive={activeChallenge?.id === challenge.id}
-                  isComplete={completedChallenges.has(challenge.id)}
-                  showSolution={showSolution === challenge.id}
-                  onStart={() => startChallenge(challenge)}
-                  onToggleSolution={() =>
-                    setShowSolution(showSolution === challenge.id ? null : challenge.id)
-                  }
-                />
-              ))}
-
-              {lesson.projectChallenge && (
-                <ProjectChallengeDashboard
-                  projectChallenge={lesson.projectChallenge}
-                  isCompleted={projectCompleted}
-                  onRunProject={handleRunProject}
-                  onResetProject={handleResetProject}
-                  projectCode={projectCode}
-                  setProjectCode={setProjectCode}
-                  projectOutput={projectOutput}
-                  projectError={projectError}
-                  projectExecutionTime={projectExecutionTime}
-                  isRunningProject={isRunningProject}
-                  isReady={isReady}
-                  showHint={showProjectHint}
-                  setShowHint={setShowProjectHint}
-                  showSolution={showProjectSolution}
-                  setShowSolution={setShowProjectSolution}
-                  failedAttempts={projectFailedAttempts}
-                />
-              )}
-            </div>
-          )}
-
-          {activeTab === "cheatsheet" && (
-            <div className="space-y-3">
-              <div>
-                <h2 className="text-xl font-semibold text-foreground"># cheatsheet</h2>
-                <p className="mt-1 font-mono text-xs text-muted-foreground">
-                  key syntax and methods for this module.
-                </p>
-              </div>
-
-              {cheatSheetItems.length > 0 ? (
-                <ul className="divide-y divide-border/40 border-y border-border/40">
-                  {cheatSheetItems.map((item, index) => (
-                    <li key={index} className="grid gap-2 py-3 sm:grid-cols-[1fr_auto] sm:items-center">
-                      <div className="min-w-0">
-                        <p className="text-sm text-foreground">{item.title}</p>
-                        <p className="text-xs text-muted-foreground">{item.description}</p>
+              <p className="font-mono text-xs text-muted-foreground mb-4">
+                load any into the editor and modify.
+              </p>
+              <div className="space-y-4">
+                {lesson.examples.map((example, index) => (
+                  <div key={index} className="p-4 rounded border border-border bg-card">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-mono text-sm text-foreground">{example.title}</h3>
+                      <div className="flex items-center gap-2 font-mono text-xs">
+                        <CopyButton text={example.code} />
+                        <button
+                          onClick={() => loadExample(example)}
+                          className="px-2 py-1 rounded border border-border text-muted-foreground hover:text-foreground hover:border-accent/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                        >
+                          load in editor
+                        </button>
                       </div>
-                      <code className="px-3 py-1.5 rounded bg-[#0f0f12] border border-border text-xs text-accent font-mono whitespace-nowrap justify-self-start sm:justify-self-end">
-                        {item.code}
-                      </code>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="font-mono text-xs text-muted-foreground"># no cheatsheet for this module yet</p>
-              )}
-            </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-3">{example.explanation}</p>
+                    <pre className="p-4 rounded bg-[#0f0f12] border border-border text-xs overflow-x-auto">
+                      <code className="text-foreground">{example.code}</code>
+                    </pre>
+                  </div>
+                ))}
+              </div>
+            </section>
           )}
+
+          {lesson.challenges.length > 0 && (
+            <section id="challenges" className="scroll-mt-20 mt-10">
+              <p className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground mb-3">
+                # challenges <span className="text-muted-foreground/70">[{lesson.challenges.length}]</span>
+              </p>
+              <p className="font-mono text-xs text-muted-foreground mb-3">
+                finish the challenges to mark the lesson done.
+              </p>
+              <ChallengeProgressBar
+                completed={completedChallenges.size}
+                total={lesson.challenges.length}
+              />
+              <div className="space-y-4">
+                {lesson.challenges.map((challenge, index) => (
+                  <ChallengeCard
+                    key={challenge.id}
+                    challenge={challenge}
+                    index={index}
+                    total={lesson.challenges.length}
+                    isActive={activeChallenge?.id === challenge.id}
+                    isComplete={completedChallenges.has(challenge.id)}
+                    showSolution={showSolution === challenge.id}
+                    onStart={() => startChallenge(challenge)}
+                    onToggleSolution={() =>
+                      setShowSolution(showSolution === challenge.id ? null : challenge.id)
+                    }
+                    onAskTutor={
+                      onOpenTutorWithPrompt
+                        ? () => onOpenTutorWithPrompt(`I'm stuck on this challenge: ${challenge.prompt}`)
+                        : undefined
+                    }
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {lesson.projectChallenge && (
+            <section id="project" className="scroll-mt-20 mt-10">
+              <p className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground mb-3"># project</p>
+              <ProjectChallengeDashboard
+                projectChallenge={lesson.projectChallenge}
+                isCompleted={projectCompleted}
+                onRunProject={handleRunProject}
+                onResetProject={handleResetProject}
+                projectCode={projectCode}
+                setProjectCode={setProjectCode}
+                projectOutput={projectOutput}
+                projectError={projectError}
+                projectExecutionTime={projectExecutionTime}
+                isRunningProject={isRunningProject}
+                isReady={isReady}
+                showHint={showProjectHint}
+                setShowHint={setShowProjectHint}
+                showSolution={showProjectSolution}
+                setShowSolution={setShowProjectSolution}
+                failedAttempts={projectFailedAttempts}
+              />
+            </section>
+          )}
+
+          {allChallengesDone && <NextLessonCard nextLesson={nextLesson} />}
+
+          {cheatSheetItems.length > 0 && (
+            <section id="cheatsheet" className="scroll-mt-20 mt-10">
+              <p className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground mb-3"># cheatsheet</p>
+              <p className="font-mono text-xs text-muted-foreground mb-3">
+                key syntax and methods for this module.
+              </p>
+              <ul className="divide-y divide-border/40 border-y border-border/40">
+                {cheatSheetItems.map((item, index) => (
+                  <li key={index} className="grid gap-2 py-3 sm:grid-cols-[1fr_auto] sm:items-center">
+                    <div className="min-w-0">
+                      <p className="text-sm text-foreground">{item.title}</p>
+                      <p className="text-xs text-muted-foreground">{item.description}</p>
+                    </div>
+                    <code className="px-3 py-1.5 rounded bg-[#0f0f12] border border-border text-xs text-accent font-mono whitespace-nowrap justify-self-start sm:justify-self-end">
+                      {item.code}
+                    </code>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          <LessonNavigation prevLesson={prevLesson} nextLesson={nextLesson} />
         </div>
       </div>
 
-      <div className={`w-full lg:w-1/2 flex flex-col overflow-hidden ${mobilePane !== "editor" ? "hidden lg:flex" : "flex"}`}>
+      <div id="code-editor-pane" className={`w-full lg:w-1/2 flex flex-col overflow-hidden ${mobilePane !== "editor" ? "hidden lg:flex" : "flex"}`}>
         {isPygameLesson && (
           <div className="px-4 py-3 border-b border-border bg-warning/5 font-mono text-xs">
             <p className="text-warning"># pygame: run locally</p>

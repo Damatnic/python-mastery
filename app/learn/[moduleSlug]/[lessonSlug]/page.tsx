@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback, use } from "react";
+import { useState, useEffect, useCallback, useRef, use } from "react";
 import Link from "next/link";
 import { Sidebar } from "@/components/Sidebar";
 import { LessonView } from "@/components/LessonView";
-import { TutorChat } from "@/components/TutorChat";
+import { TutorChat, type TutorChatHandle } from "@/components/TutorChat";
+import { MobileModuleNav } from "@/components/MobileModuleNav";
+import { InterfaceOnboarding } from "@/components/InterfaceOnboarding";
 import { getAllModules, getLessonBySlug, getNextLesson, getPreviousLesson } from "@/lib/lessons";
 import { updateStreak } from "@/lib/streak";
 import { safeJsonParse, markReviewed } from "@/lib/storage";
@@ -21,6 +23,8 @@ export default function LessonPage({ params }: LessonPageProps) {
   const [completedLessons, setCompletedLessons] = useState<Set<string>>(
     new Set()
   );
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const tutorRef = useRef<TutorChatHandle | null>(null);
 
   const modules = getAllModules();
   const lesson = getLessonBySlug(moduleSlug, lessonSlug);
@@ -32,7 +36,6 @@ export default function LessonPage({ params }: LessonPageProps) {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrating from localStorage
     setCompletedLessons(new Set(list));
 
-    // Track revisits to completed lessons (drives /stats review queue)
     const lessonKey = `${moduleSlug}/${lessonSlug}`;
     if (list.includes(lessonKey)) {
       markReviewed(lessonKey);
@@ -48,13 +51,16 @@ export default function LessonPage({ params }: LessonPageProps) {
         "python-mastery-completed",
         JSON.stringify([...next])
       );
-      // Notify sidebar to update in same-tab
       window.dispatchEvent(new Event("lessons-updated"));
       return next;
     });
 
     updateStreak();
   }, [moduleSlug, lessonSlug]);
+
+  const handleAskTutor = useCallback((prompt: string) => {
+    tutorRef.current?.openWithPrompt(prompt);
+  }, []);
 
   if (!lesson) {
     return (
@@ -81,19 +87,29 @@ export default function LessonPage({ params }: LessonPageProps) {
       <div className="hidden lg:block">
         <Sidebar modules={modules} completedLessons={completedLessons} />
       </div>
+      <MobileModuleNav
+        open={mobileNavOpen}
+        onClose={() => setMobileNavOpen(false)}
+        modules={modules}
+        completedLessons={completedLessons}
+      />
       <main className="flex-1 flex flex-col overflow-hidden">
         <LessonView
           lesson={lesson}
           onComplete={handleComplete}
           prevLesson={prevLesson ? { slug: prevLesson.slug, moduleSlug: prevLesson.moduleSlug, title: prevLesson.title } : null}
           nextLesson={nextLesson ? { slug: nextLesson.slug, moduleSlug: nextLesson.moduleSlug, title: nextLesson.title } : null}
+          onOpenMobileNav={() => setMobileNavOpen(true)}
+          onOpenTutorWithPrompt={handleAskTutor}
         />
       </main>
       <TutorChat
+        ref={tutorRef}
         lessonTitle={lesson.title}
         moduleSlug={moduleSlug}
         currentCode=""
       />
+      <InterfaceOnboarding />
     </div>
   );
 }

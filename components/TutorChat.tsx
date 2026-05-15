@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -11,6 +11,12 @@ interface TutorChatProps {
   errorMessage?: string;
 }
 
+export interface TutorChatHandle {
+  openWithPrompt: (prompt: string) => void;
+}
+
+const SEEN_KEY = "python-mastery-tutor-seen";
+
 interface Message {
   role: "user" | "assistant";
   content: string;
@@ -18,18 +24,44 @@ interface Message {
 
 const STORAGE_KEY = (slug: string) => `python-mastery-tutor-${slug}`;
 
-export function TutorChat({
-  lessonTitle,
-  moduleSlug,
-  currentCode,
-  errorMessage,
-}: TutorChatProps) {
+export const TutorChat = forwardRef<TutorChatHandle, TutorChatProps>(function TutorChat(
+  { lessonTitle, moduleSlug, currentCode, errorMessage }: TutorChatProps,
+  ref,
+) {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [errored, setErrored] = useState<string | null>(null);
+  const [pulse, setPulse] = useState(false);
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLTextAreaElement | null>(null);
+
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(SEEN_KEY) === "1") return;
+    } catch {
+      return;
+    }
+    setPulse(true);
+    const t = setTimeout(() => {
+      setPulse(false);
+      try {
+        localStorage.setItem(SEEN_KEY, "1");
+      } catch {
+        // ignore
+      }
+    }, 8000);
+    return () => clearTimeout(t);
+  }, []);
+
+  useImperativeHandle(ref, () => ({
+    openWithPrompt: (prompt: string) => {
+      setOpen(true);
+      setInput((prev) => (prev.trim().length ? prev : prompt));
+      setTimeout(() => inputRef.current?.focus(), 50);
+    },
+  }), []);
 
   useEffect(() => {
     try {
@@ -100,9 +132,20 @@ export function TutorChat({
   if (!open) {
     return (
       <button
+        id="tutor-button"
         type="button"
-        onClick={() => setOpen(true)}
-        className="fixed bottom-4 right-4 z-40 rounded-full border border-emerald-400/40 bg-stone-950/90 px-4 py-2 font-mono text-xs text-emerald-300 shadow-lg backdrop-blur hover:border-emerald-400 hover:text-emerald-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-950"
+        onClick={() => {
+          setOpen(true);
+          setPulse(false);
+          try {
+            localStorage.setItem(SEEN_KEY, "1");
+          } catch {
+            // ignore
+          }
+        }}
+        className={`fixed bottom-4 right-4 z-40 rounded-full border border-emerald-400/40 bg-stone-950/90 px-4 py-2 font-mono text-xs text-emerald-300 shadow-lg backdrop-blur hover:border-emerald-400 hover:text-emerald-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-950 ${
+          pulse ? "ring-2 ring-emerald-400/60 animate-pulse" : ""
+        }`}
         aria-label="Open AI tutor"
       >
         ✦ tutor
@@ -147,7 +190,7 @@ export function TutorChat({
       >
         {messages.length === 0 && (
           <p className="font-mono text-xs text-stone-500">
-            Ask a question about this lesson. The tutor will ask back, not solve it for you.
+            ask in your own words. i&apos;ll point at the next move, i won&apos;t write the solution.
           </p>
         )}
         {messages.map((m, i) => (
@@ -181,6 +224,7 @@ export function TutorChat({
 
       <div className="border-t border-stone-800 bg-stone-900/40 p-2">
         <textarea
+          ref={inputRef}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => {
@@ -211,4 +255,4 @@ export function TutorChat({
       </div>
     </div>
   );
-}
+});
