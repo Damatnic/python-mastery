@@ -71,7 +71,7 @@ print("Columns:", list(students.columns))
 `,
     examples: [
       {
-        title: "Creating a DataFrame",
+        title: "creating a DataFrame",
         explanation: "Build a DataFrame from a dictionary",
         code: `import pandas as pd
 
@@ -97,7 +97,7 @@ print(students["name"])
 print("\\nType of column:", type(students["name"]))`,
       },
       {
-        title: "Describe Statistics",
+        title: "describe statistics",
         explanation: "Get quick statistics for numeric columns",
         code: `print("Sales statistics:")
 print(sales.describe())
@@ -234,7 +234,7 @@ print(subset)
 `,
     examples: [
       {
-        title: "Column Selection",
+        title: "column selection",
         explanation: "Different ways to select columns",
         code: `# Single column as Series
 scores = students["score"]
@@ -247,7 +247,7 @@ print("\\nSubset DataFrame:")
 print(subset)`,
       },
       {
-        title: "Using loc",
+        title: "using loc",
         explanation: "Select by label (row index and column name)",
         code: `# Single cell
 print("First student name:", students.loc[0, "name"])
@@ -257,7 +257,7 @@ print("\\nFirst 3 students, name and score:")
 print(students.loc[0:2, ["name", "score"]])`,
       },
       {
-        title: "Using iloc",
+        title: "using iloc",
         explanation: "Select by integer position",
         code: `# First row
 print("First row:")
@@ -417,7 +417,7 @@ print(math_students)
 `,
     examples: [
       {
-        title: "Basic Filtering",
+        title: "basic filtering",
         explanation: "Filter rows based on a condition",
         code: `# Electronics products
 electronics = sales[sales["category"] == "Electronics"]
@@ -430,7 +430,7 @@ print("\\nHigh quantity:")
 print(high_qty)`,
       },
       {
-        title: "Multiple Conditions",
+        title: "multiple conditions",
         explanation: "Combine conditions with & (and) and | (or)",
         code: `# A grade AND score > 90
 top_students = students[(students["grade"] == "A") & (students["score"] > 90)]
@@ -443,7 +443,7 @@ print("\\nSTEM students:")
 print(stem)`,
       },
       {
-        title: "Using isin and between",
+        title: "using isin and between",
         explanation: "Convenient methods for common patterns",
         code: `# Students in specific subjects
 subjects = ["Math", "Science"]
@@ -605,7 +605,7 @@ print(students)
 `,
     examples: [
       {
-        title: "Sorting Examples",
+        title: "sorting examples",
         explanation: "Various ways to sort data",
         code: `# Sort by price descending
 by_price = sales.sort_values("price", ascending=False)
@@ -618,7 +618,7 @@ print("\\nBy category, then price:")
 print(sorted_sales)`,
       },
       {
-        title: "Calculated Columns",
+        title: "calculated columns",
         explanation: "Create new columns from existing data",
         code: `# Calculate total value
 sales["total_value"] = sales["price"] * sales["quantity"]
@@ -632,7 +632,7 @@ print("\\nWith percentage:")
 print(sales[["product", "total_value", "pct_of_total"]])`,
       },
       {
-        title: "Using apply",
+        title: "using apply",
         explanation: "Transform values with custom logic",
         code: `def grade_category(grade):
     if grade == "A":
@@ -808,7 +808,7 @@ print(cities.dtypes)
 `,
     examples: [
       {
-        title: "Reading with Options",
+        title: "reading with options",
         explanation: "Common read_csv parameters",
         code: `import io
 
@@ -823,7 +823,7 @@ print(df)
 print("\\nIndex name:", df.index.name)`,
       },
       {
-        title: "Reading Specific Columns",
+        title: "reading specific columns",
         explanation: "Only load the columns you need",
         code: `import io
 
@@ -837,7 +837,7 @@ df = pd.read_csv(io.StringIO(csv_data), usecols=["name", "salary"])
 print(df)`,
       },
       {
-        title: "Handling Missing Values",
+        title: "handling missing values",
         explanation: "Specify what values should be treated as NA",
         code: `import io
 

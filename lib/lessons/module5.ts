@@ -85,7 +85,7 @@ print(f"Rejoined: {rejoined}")
 `,
     examples: [
       {
-        title: "Cleaning User Input",
+        title: "cleaning user input",
         explanation: "Common pattern for processing user data",
         code: `user_input = "  john.doe@email.com  "
 
@@ -102,7 +102,7 @@ is_valid = "@" in email and "." in email
 print(f"Valid format: {is_valid}")`,
       },
       {
-        title: "Formatting Numbers",
+        title: "formatting numbers",
         explanation: "Pad and format numeric strings",
         code: `# Order numbers
 order_id = "42"
@@ -119,7 +119,7 @@ rate = 0.156
 print(f"Rate: {rate:.1%}")`,
       },
       {
-        title: "Search and Replace",
+        title: "search and replace",
         explanation: "Find and modify text content",
         code: `log_line = "ERROR: Connection failed at 14:32:01"
 
@@ -293,7 +293,7 @@ print(f"Found numbers: {numbers}")
 `,
     examples: [
       {
-        title: "Finding Patterns",
+        title: "finding patterns",
         explanation: "Use findall to get all matches",
         code: `import re
 
@@ -308,7 +308,7 @@ years = re.findall(r"\\d{4}", text)
 print(f"Years: {years}")`,
       },
       {
-        title: "Search and Groups",
+        title: "search and groups",
         explanation: "Extract specific parts of a match",
         code: `import re
 
@@ -323,7 +323,7 @@ if match:
     print(f"Time: {time}")`,
       },
       {
-        title: "Substitution",
+        title: "substitution",
         explanation: "Replace patterns with new text",
         code: `import re
 
@@ -557,7 +557,7 @@ print(lines)
 `,
     examples: [
       {
-        title: "Reading Line by Line",
+        title: "reading line by line",
         explanation: "Process each line individually",
         code: `import io
 
@@ -571,7 +571,7 @@ for line in f:
     print(f"Item: {parts[0]}, Qty: {parts[1]}")`,
       },
       {
-        title: "Writing Content",
+        title: "writing content",
         explanation: "Write text to a file-like object",
         code: `import io
 
@@ -586,7 +586,7 @@ output.seek(0)  # Go back to start
 print(output.read())`,
       },
       {
-        title: "CSV Operations",
+        title: "CSV operations",
         explanation: "Read and parse CSV data",
         code: `import io
 import csv
@@ -602,7 +602,7 @@ for row in reader:
     print(f"{row['name']} is {row['age']} from {row['city']}")`,
       },
       {
-        title: "Loading a real-size CSV via pyfetch",
+        title: "loading a real-size CSV via pyfetch",
         explanation: "Fetch a 768-row public dataset and load it straight into pandas. Same code you'd write against a local file, swap open() for pyfetch + StringIO.",
         code: `import io
 import pandas as pd
@@ -833,7 +833,7 @@ print(f"Color: {data['specs']['color']}")
 `,
     examples: [
       {
-        title: "Parsing and Navigating JSON",
+        title: "parsing and navigating JSON",
         explanation: "Work with nested JSON structures",
         code: `import json
 
@@ -854,7 +854,7 @@ for emp in data["employees"]:
     print(f"  {emp['name']} - {emp['role']}")`,
       },
       {
-        title: "Creating JSON",
+        title: "creating JSON",
         explanation: "Convert Python objects to JSON strings",
         code: `import json
 
@@ -1082,7 +1082,7 @@ print(get_value({"a": 1}, "b"))  # Key 'b' not found
 `,
     examples: [
       {
-        title: "Safe Type Conversion",
+        title: "safe type conversion",
         explanation: "Handle invalid input gracefully",
         code: `def safe_int(value, default=0):
     try:
@@ -1096,7 +1096,7 @@ print(safe_int("abc"))     # 0 (default)
 print(safe_int(None, -1))  # -1`,
       },
       {
-        title: "Dictionary Access with Default",
+        title: "dictionary access with default",
         explanation: "Handle missing keys gracefully",
         code: `data = {"name": "Alice", "age": 25}
 
@@ -1114,7 +1114,7 @@ print(get_field(data, "email"))  # N/A
 print(data.get("email", "N/A"))  # N/A`,
       },
       {
-        title: "Processing with Error Handling",
+        title: "processing with error handling",
         explanation: "Continue processing even when some items fail",
         code: `values = ["10", "20", "bad", "30", "oops"]
 total = 0

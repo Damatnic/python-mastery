@@ -44,7 +44,7 @@ print(f"Your score: {score}%")
 `,
     examples: [
       {
-        title: "Basic Variables",
+        title: "basic variables",
         explanation: "Creating different types of variables and printing them",
         code: `# Different types of variables
 city = "New York"
@@ -57,7 +57,7 @@ print(f"Area: {area_sq_miles} square miles")
 print(f"Is it the capital? {is_capital}")`,
       },
       {
-        title: "Calculations in F-Strings",
+        title: "calculations in f-strings",
         explanation: "You can do math right inside the curly braces",
         code: `base_price = 49.99
 tax_rate = 0.08
@@ -72,7 +72,7 @@ print(f"Tax ({tax_rate:.0%}): \${tax:.2f}")
 print(f"Total: \${total:.2f}")`,
       },
       {
-        title: "String Methods with Variables",
+        title: "string methods with variables",
         explanation: "Variables can be modified with string methods",
         code: `first_name = "alice"
 last_name = "SMITH"
@@ -244,7 +244,7 @@ print(f"Average: {sum(scores) / len(scores)}")
 `,
     examples: [
       {
-        title: "List Operations",
+        title: "list operations",
         explanation: "Common operations you'll use constantly",
         code: `grades = [85, 92, 78, 95, 88]
 
@@ -256,7 +256,7 @@ print(f"Lowest: {min(grades)}")
 print(f"Sorted: {sorted(grades)}")`,
       },
       {
-        title: "Slicing Examples",
+        title: "slicing examples",
         explanation: "Different ways to slice a list",
         code: `data = [10, 20, 30, 40, 50, 60, 70, 80]
 
@@ -267,7 +267,7 @@ print(f"Every other: {data[::2]}")
 print(f"Reversed: {data[::-1]}")`,
       },
       {
-        title: "Building Lists",
+        title: "building lists",
         explanation: "Adding and modifying list contents",
         code: `# Start empty and build up
 results = []
@@ -411,7 +411,7 @@ employees = {
 employees["emp001"]["name"]  # "Alice"
 \`\`\`
 
-Reach for a dict whenever you'd describe the relationship as "look this up by name" — counting occurrences, caching results, indexing rows by id.
+Reach for a dict whenever you'd describe the relationship as "look this up by name". Counting occurrences, caching results, indexing rows by id.
 `,
     starterCode: `# Create a student record as a dictionary
 student = {
@@ -430,7 +430,7 @@ print(f"Age: {student.get('age', 'Not specified')}")
 `,
     examples: [
       {
-        title: "Dictionary Basics",
+        title: "dictionary basics",
         explanation: "Creating and accessing dictionary values",
         code: `product = {
     "name": "Laptop",
@@ -444,7 +444,7 @@ print(f"Price: \${product['price']}")
 print(f"Avg Rating: {sum(product['ratings'])/len(product['ratings']):.1f}")`,
       },
       {
-        title: "Iterating Over Dictionaries",
+        title: "iterating over dictionaries",
         explanation: "Different ways to loop through dict contents",
         code: `scores = {"Alice": 95, "Bob": 87, "Carol": 92}
 
@@ -459,7 +459,7 @@ for name, score in scores.items():
     print(f"  {name}: {score}")`,
       },
       {
-        title: "Nested Dictionary Access",
+        title: "nested dictionary access",
         explanation: "Working with dictionaries inside dictionaries",
         code: `company = {
     "name": "TechCorp",
@@ -589,7 +589,7 @@ for fruit in fruits:
     print(fruit)
 \`\`\`
 
-\`range()\` makes integer sequences — \`range(5)\` is 0..4, \`range(2, 6)\` is 2..5, \`range(0, 10, 2)\` steps by 2.
+\`range()\` makes integer sequences. \`range(5)\` is 0..4, \`range(2, 6)\` is 2..5, \`range(0, 10, 2)\` steps by 2.
 
 \`enumerate()\` when you need the index alongside the value:
 
@@ -626,7 +626,7 @@ for score in scores:
 `,
     examples: [
       {
-        title: "Counting with Conditions",
+        title: "counting with conditions",
         explanation: "Loop through and count items meeting criteria",
         code: `numbers = [12, 45, 7, 23, 56, 89, 34]
 
@@ -639,7 +639,7 @@ for num in numbers:
 print(f"Numbers > 30: {count}")`,
       },
       {
-        title: "Using enumerate",
+        title: "using enumerate",
         explanation: "Track position and value together",
         code: `names = ["Alice", "Bob", "Carol", "Dave"]
 
@@ -648,7 +648,7 @@ for position, name in enumerate(names, start=1):
     print(f"  {position}. {name}")`,
       },
       {
-        title: "Building Results with Loops",
+        title: "building results with loops",
         explanation: "Create new lists based on conditions",
         code: `prices = [10.99, 25.50, 5.99, 42.00, 15.75]
 
@@ -825,7 +825,7 @@ print(f"Passing scores: {passing}")
 `,
     examples: [
       {
-        title: "Function with Default Parameter",
+        title: "function with default parameter",
         explanation: "Parameters can have default values",
         code: `def format_price(amount, currency="$", decimals=2):
     return f"{currency}{amount:.{decimals}f}"
@@ -835,7 +835,7 @@ print(format_price(19.99, currency="€"))
 print(format_price(19.99, decimals=0))`,
       },
       {
-        title: "List Comprehension Examples",
+        title: "list comprehension examples",
         explanation: "Various patterns for list comprehensions",
         code: `numbers = [1, 2, 3, 4, 5]
 
@@ -853,7 +853,7 @@ upper_names = [name.upper() for name in names]
 print(f"Uppercase: {upper_names}")`,
       },
       {
-        title: "Dictionary Comprehension",
+        title: "dictionary comprehension",
         explanation: "Build dictionaries with comprehension syntax",
         code: `# Word lengths
 words = ["apple", "banana", "cherry"]

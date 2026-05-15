@@ -104,7 +104,7 @@ print(students["name"].str.upper())
 `,
     examples: [
       {
-        title: "Cleaning Messy Text",
+        title: "cleaning messy text",
         explanation: "Strip whitespace and standardize case; happens all the time with real data",
         code: `import io
 csv_data = """name,email
@@ -124,7 +124,7 @@ print("\\nAfter:")
 print(df)`,
       },
       {
-        title: "Using contains to Filter",
+        title: "using contains to filter",
         explanation: "Find all rows where a column contains certain text",
         code: `# Filter students whose name contains 'a'
 has_a = students[students["name"].str.contains("a", case=False)]
@@ -137,7 +137,7 @@ print("\\nMath students:")
 print(math_students)`,
       },
       {
-        title: "Splitting and Extracting",
+        title: "splitting and extracting",
         explanation: "Pull apart strings when you need specific pieces",
         code: `import io
 csv_data = """full_name,email
@@ -281,7 +281,7 @@ print(f"Type: {students['score'].dtype}")
 `,
     examples: [
       {
-        title: "Converting and Cleaning Number Columns",
+        title: "converting and cleaning number columns",
         explanation: "Handle a column that has some non-numeric values mixed in",
         code: `import io
 csv_data = """product,price
@@ -301,7 +301,7 @@ print("\\nAfter to_numeric:")
 print(df)`,
       },
       {
-        title: "Rounding and Formatting",
+        title: "rounding and formatting",
         explanation: "Make numbers look nice for display",
         code: `import io
 csv_data = """item,price,quantity
@@ -320,7 +320,7 @@ df["price_display"] = df["price"].apply(lambda x: f"\${x:.2f}")
 print(df)`,
       },
       {
-        title: "Type Conversion Chain",
+        title: "type conversion chain",
         explanation: "Sometimes you need multiple conversions to get data right",
         code: `import io
 csv_data = """id,value,active
@@ -479,7 +479,7 @@ print("\\nDate type:", sales["date"].dtype)
 `,
     examples: [
       {
-        title: "Extracting Date Components",
+        title: "extracting date components",
         explanation: "Pull out year, month, day, weekday from dates",
         code: `import io
 csv_data = """order_id,order_date
@@ -497,7 +497,7 @@ df["day_name"] = df["order_date"].dt.day_name()
 print(df)`,
       },
       {
-        title: "Date Arithmetic",
+        title: "date arithmetic",
         explanation: "Calculate differences between dates and add offsets",
         code: `import io
 from datetime import timedelta
@@ -520,7 +520,7 @@ df["extended"] = df["end_date"] + timedelta(days=7)
 print(df[["task", "duration_days", "extended"]])`,
       },
       {
-        title: "Formatting for Display",
+        title: "formatting for display",
         explanation: "Convert dates to nice readable strings",
         code: `import io
 csv_data = """event,event_date
@@ -671,7 +671,7 @@ print(customers)
 `,
     examples: [
       {
-        title: "Inner vs Left Join",
+        title: "inner vs left join",
         explanation: "See the difference; inner drops unmatched, left keeps all from left side",
         code: `import io
 
@@ -696,7 +696,7 @@ left = pd.merge(orders, customers, on="customer_id", how="left")
 print(left)`,
       },
       {
-        title: "Concatenating DataFrames",
+        title: "concatenating dataframes",
         explanation: "Stack data from multiple sources together",
         code: `import io
 
@@ -719,7 +719,7 @@ combined = pd.concat([jan, feb], ignore_index=True)
 print(combined)`,
       },
       {
-        title: "Multiple Key Merge",
+        title: "multiple key merge",
         explanation: "Sometimes you need to match on more than one column",
         code: `import io
 
@@ -884,7 +884,7 @@ print(pivot)
 `,
     examples: [
       {
-        title: "Basic Pivot Table",
+        title: "basic pivot table",
         explanation: "Summarize sales by region and product",
         code: `import io
 csv_data = """region,product,sales
@@ -906,7 +906,7 @@ pivot = pd.pivot_table(
 print(pivot)`,
       },
       {
-        title: "Using melt to Reshape",
+        title: "using melt to reshape",
         explanation: "Convert wide data to long format; happens a lot with imported spreadsheets",
         code: `import io
 # Wide format data (common in spreadsheets)
@@ -929,7 +929,7 @@ print("\\nLong format:")
 print(long)`,
       },
       {
-        title: "Pivot with Margins (Totals)",
+        title: "pivot with margins (totals)",
         explanation: "Add row and column totals to your pivot table",
         code: `import io
 csv_data = """dept,year,budget

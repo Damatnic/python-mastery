@@ -81,7 +81,7 @@ print(f"Cubes: {cubed}")
 `,
     examples: [
       {
-        title: "Lambda with map()",
+        title: "lambda with map()",
         explanation: "Transform each element in a list",
         code: `prices = [10.99, 25.50, 5.99, 42.00]
 
@@ -95,7 +95,7 @@ formatted = list(map(lambda p: f"\${p:.2f}", prices))
 print(f"Formatted: {formatted}")`,
       },
       {
-        title: "Lambda with filter()",
+        title: "lambda with filter()",
         explanation: "Keep only elements meeting a condition",
         code: `numbers = [15, 22, 8, 45, 31, 9, 52]
 
@@ -108,7 +108,7 @@ evens = list(filter(lambda x: x % 2 == 0, numbers))
 print(f"Even numbers: {evens}")`,
       },
       {
-        title: "Lambda for Sorting",
+        title: "lambda for sorting",
         explanation: "Custom sort keys with lambda",
         code: `people = [
     {"name": "Alice", "age": 30},
@@ -297,7 +297,7 @@ print(students[["name", "score", "category"]])
 `,
     examples: [
       {
-        title: "Series.apply() Examples",
+        title: "Series.apply() examples",
         explanation: "Transform individual values",
         code: `# Apply lambda to clean names
 students["clean_name"] = students["name"].apply(lambda x: x.strip().title())
@@ -328,7 +328,7 @@ students["weighted"] = students.apply(weighted_score, axis=1)
 print(students[["name", "score", "grade", "weighted"]])`,
       },
       {
-        title: "Using map() with Dict",
+        title: "using map() with dict",
         explanation: "Translate values using a dictionary",
         code: `# Map grades to points
 grade_points = {"A": 4.0, "B": 3.0, "C": 2.0}
@@ -509,7 +509,7 @@ print(by_subject)
 `,
     examples: [
       {
-        title: "Custom Agg Functions",
+        title: "custom agg functions",
         explanation: "Define your own aggregation logic",
         code: `def coefficient_of_variation(x):
     """CV = std / mean - measures relative variability"""
@@ -526,7 +526,7 @@ print("Score variability by subject:")
 print(stats)`,
       },
       {
-        title: "Using transform()",
+        title: "using transform()",
         explanation: "Calculate group stats for each row",
         code: `# Add group mean to each row
 students["subject_avg"] = students.groupby("subject")["score"].transform("mean")
@@ -537,7 +537,7 @@ students["vs_avg"] = students["score"] - students["subject_avg"]
 print(students[["name", "subject", "score", "subject_avg", "vs_avg"]])`,
       },
       {
-        title: "Percentage of Group Total",
+        title: "percentage of group total",
         explanation: "Calculate relative contribution within groups",
         code: `# Calculate each sale's % of category total
 sales["category_total"] = sales.groupby("category")["quantity"].transform("sum")
@@ -740,7 +740,7 @@ print(students[["name", "score", "score_pct", "curved", "pass_fail"]])
 `,
     examples: [
       {
-        title: "Vectorized Math",
+        title: "vectorized math",
         explanation: "Column-wise calculations without loops",
         code: `# Calculate revenue and profit margin
 sales["revenue"] = sales["price"] * sales["quantity"]
@@ -751,7 +751,7 @@ print(sales[["product", "revenue", "total_profit"]])
 print(f"\\nTotal Revenue: \${sales['revenue'].sum():.2f}")`,
       },
       {
-        title: "np.where for Conditionals",
+        title: "np.where for conditionals",
         explanation: "Vectorized if-else",
         code: `import numpy as np
 
@@ -767,7 +767,7 @@ students["tier"] = np.where(
 print(students[["name", "score", "age", "level", "tier"]])`,
       },
       {
-        title: "pd.cut for Binning",
+        title: "pd.cut for binning",
         explanation: "Group continuous values into bins",
         code: `# Create score bins
 bins = [0, 60, 70, 80, 90, 100]
@@ -971,7 +971,7 @@ print(df.head(3))
 `,
     examples: [
       {
-        title: "Complete Pipeline Example",
+        title: "complete pipeline example",
         explanation: "Full end-to-end data analysis",
         code: `import numpy as np
 
@@ -1019,7 +1019,7 @@ print("ANALYSIS COMPLETE")
 print("=" * 50)`,
       },
       {
-        title: "Sales Analysis Pipeline",
+        title: "sales analysis pipeline",
         explanation: "Business intelligence from sales data",
         code: `print("SALES ANALYSIS REPORT")
 print("=" * 40)

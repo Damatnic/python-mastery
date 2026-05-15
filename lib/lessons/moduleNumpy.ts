@@ -77,7 +77,7 @@ print("region 1 across products:", sales[:, 1])
 `,
     examples: [
       {
-        title: "Array creation utilities",
+        title: "array creation utilities",
         explanation: "zeros, ones, arange, linspace cover most starter shapes.",
         code: `import numpy as np
 
@@ -105,7 +105,7 @@ print(c.dtype)           # <U21
 # c.sum() would now error or concatenate, not add`,
       },
       {
-        title: "Slices are views, not copies",
+        title: "slices are views, not copies",
         explanation: "Editing a slice mutates the original array. Use .copy() when you want a real new array.",
         code: `import numpy as np
 
@@ -206,7 +206,7 @@ print("per-product totals (collapse cols, axis=1):", sales.sum(axis=1))
 `,
     examples: [
       {
-        title: "Reshape with -1 for the unknown dimension",
+        title: "reshape with -1 for the unknown dimension",
         explanation: "If you know one dimension, pass -1 for the other and NumPy fills it in.",
         code: `import numpy as np
 
@@ -234,7 +234,7 @@ print("student average across quizzes:", scores.mean(axis=1))
 print("top scorer per quiz (row index):", scores.argmax(axis=0))`,
       },
       {
-        title: "Transpose and stack",
+        title: "transpose and stack",
         explanation: "Reshaping is for the same data in a new shape. Transpose flips rows and columns. Stack glues separate arrays together.",
         code: `import numpy as np
 
@@ -318,7 +318,7 @@ print(centered)
 `,
     examples: [
       {
-        title: "Scalar broadcasts to every cell",
+        title: "scalar broadcasts to every cell",
         explanation: "The simplest case: one number applied to a whole array.",
         code: `import numpy as np
 
@@ -338,7 +338,7 @@ print(matrix.shape, "x", discounts.shape, "->", (matrix * (1 - discounts)).shape
 print(matrix * (1 - discounts))`,
       },
       {
-        title: "When shapes don't line up",
+        title: "when shapes don't line up",
         explanation: "The most common bug: forgetting to reshape a vector. NumPy will tell you, but the error wording is dense.",
         code: `import numpy as np
 
@@ -481,7 +481,7 @@ tier = np.select(
 print(list(zip(prices, tier)))`,
       },
       {
-        title: "Vectorization gets harder with stateful loops",
+        title: "vectorization gets harder with stateful loops",
         explanation: "Some sequences (running totals, cumulative ops) need a vectorized primitive, not just elementwise math.",
         code: `import numpy as np
 
@@ -586,7 +586,7 @@ print(f"dtype of pct_of_total column: {df['pct_of_total'].dtype}")
 `,
     examples: [
       {
-        title: "Converting in both directions",
+        title: "converting in both directions",
         explanation: "Series → array with to_numpy(); array → Series by constructor.",
         code: `import pandas as pd
 import numpy as np
@@ -599,7 +599,7 @@ back = pd.Series(arr * 2, name="revenue_doubled")
 print(back)`,
       },
       {
-        title: "Where dropping to NumPy actually helps",
+        title: "where dropping to NumPy actually helps",
         explanation: "Heavy elementwise math on one column. Convert once, do the math, write back.",
         code: `import pandas as pd
 import numpy as np
@@ -618,7 +618,7 @@ print("first 3 rows:")
 print(df.head(3))`,
       },
       {
-        title: "Mixing the two for a real calc",
+        title: "mixing the two for a real calc",
         explanation: "Pandas for the join and the labels, NumPy for the math.",
         code: `import pandas as pd
 import numpy as np

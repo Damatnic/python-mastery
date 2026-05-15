@@ -69,7 +69,7 @@ print(count_by_grade)
 `,
     examples: [
       {
-        title: "Basic GroupBy",
+        title: "basic GroupBy",
         explanation: "Group and aggregate data",
         code: `# Total quantity sold per category
 by_category = sales.groupby("category")["quantity"].sum()
@@ -82,7 +82,7 @@ print("\\nAverage price by category:")
 print(avg_price)`,
       },
       {
-        title: "Multiple Aggregations",
+        title: "multiple aggregations",
         explanation: "Get several stats at once",
         code: `# Get sum, mean, count for quantity
 stats = sales.groupby("category")["quantity"].agg(["sum", "mean", "count"])
@@ -90,7 +90,7 @@ print("Quantity statistics by category:")
 print(stats)`,
       },
       {
-        title: "Reset Index",
+        title: "reset index",
         explanation: "Turn grouped result back into a regular DataFrame",
         code: `# Group and reset
 result = students.groupby("subject")["score"].mean().reset_index()
@@ -248,7 +248,7 @@ print(result)
 `,
     examples: [
       {
-        title: "Multi-Column GroupBy",
+        title: "multi-column GroupBy",
         explanation: "Group by two columns at once",
         code: `# Group sales by category and then analyze
 grouped = sales.groupby("category").agg({
@@ -258,7 +258,7 @@ grouped = sales.groupby("category").agg({
 print(grouped)`,
       },
       {
-        title: "Named Aggregations",
+        title: "named aggregations",
         explanation: "Give your aggregated columns meaningful names",
         code: `result = sales.groupby("category").agg(
     avg_price=("price", "mean"),
@@ -268,7 +268,7 @@ print(grouped)`,
 print(result)`,
       },
       {
-        title: "Dictionary Aggregation",
+        title: "dictionary aggregation",
         explanation: "Different aggregations for different columns",
         code: `result = students.groupby("subject").agg({
     "score": ["mean", "std"],
@@ -448,7 +448,7 @@ print(customers)
 `,
     examples: [
       {
-        title: "Inner Join (Default)",
+        title: "inner join (default)",
         explanation: "Only keep rows that match in both tables",
         code: `import io
 orders_csv = """order_id,customer_id,amount
@@ -469,7 +469,7 @@ print("Inner join (only matches):")
 print(result)`,
       },
       {
-        title: "Left Join",
+        title: "left join",
         explanation: "Keep all rows from left table",
         code: `import io
 orders_csv = """order_id,customer_id,amount
@@ -490,7 +490,7 @@ print("Left join (all orders):")
 print(result)`,
       },
       {
-        title: "Using Suffixes",
+        title: "using suffixes",
         explanation: "Handle duplicate column names",
         code: `import io
 jan = pd.DataFrame({"product": ["A", "B"], "sales": [100, 200]})
@@ -673,7 +673,7 @@ print(full_year)
 `,
     examples: [
       {
-        title: "Concat DataFrames",
+        title: "concat dataframes",
         explanation: "Stack DataFrames to combine rows",
         code: `import io
 
@@ -686,7 +686,7 @@ combined = pd.concat([batch1, batch2], ignore_index=True)
 print(combined)`,
       },
       {
-        title: "Basic Pivot Table",
+        title: "basic pivot table",
         explanation: "Reshape data from long to wide format",
         code: `# Pivot students: subjects as columns, grades as index
 pivot = students.pivot_table(
@@ -699,7 +699,7 @@ print("Average score by grade and subject:")
 print(pivot.round(1))`,
       },
       {
-        title: "Pivot with Multiple Aggregations",
+        title: "pivot with multiple aggregations",
         explanation: "Get several statistics in pivot format",
         code: `# Multiple aggregations for sales
 pivot = sales.pivot_table(
@@ -882,7 +882,7 @@ print(df)
 `,
     examples: [
       {
-        title: "Reading Fixed-Width Data",
+        title: "reading fixed-width data",
         explanation: "Parse data with specific column positions",
         code: `import io
 
@@ -900,7 +900,7 @@ df["name"] = df["name"].str.strip()
 print(df)`,
       },
       {
-        title: "Using Widths Instead of Colspecs",
+        title: "using widths instead of colspecs",
         explanation: "Simpler syntax when you know column widths",
         code: `import io
 
@@ -917,7 +917,7 @@ df = pd.read_fwf(
 print(df)`,
       },
       {
-        title: "Auto-Detect Columns",
+        title: "auto-detect columns",
         explanation: "Let pandas figure out the columns",
         code: `import io
 

@@ -94,7 +94,7 @@ if response.ok:
 `,
     examples: [
       {
-        title: "Fetch a real JSON response",
+        title: "fetch a real JSON response",
         explanation: "Hit a public CORS-friendly API and read the response. Real HTTP, real status code, real JSON.",
         code: `from pyodide.http import pyfetch
 
@@ -108,7 +108,7 @@ print(f"city: {user['address']['city']}")
 print(f"website: {user['website']}")`,
       },
       {
-        title: "Fetch a list and aggregate",
+        title: "fetch a list and aggregate",
         explanation: "GET a collection, parse it, do real work on it. Same pattern you'd use with a paginated production API.",
         code: `from pyodide.http import pyfetch
 
@@ -129,7 +129,7 @@ else:
         print(f"  user {user_id}: {by_user[user_id]} posts")`,
       },
       {
-        title: "Handle an explicit 404",
+        title: "handle an explicit 404",
         explanation: "Hit a URL that returns 404. response.ok is False; nothing raises. You check.",
         code: `from pyodide.http import pyfetch
 
@@ -319,7 +319,7 @@ print(df.head())
 `,
     examples: [
       {
-        title: "Fetching one record and reading the JSON",
+        title: "fetching one record and reading the JSON",
         explanation: "GET a single user by id. Check status first, then parse JSON.",
         code: `from pyodide.http import pyfetch
 
@@ -332,7 +332,7 @@ print(f"email:   {user['email']}")
 print(f"company: {user['company']['name']}")`,
       },
       {
-        title: "Merging two endpoints and aggregating",
+        title: "merging two endpoints and aggregating",
         explanation: "Fetch posts and users, join on userId, count posts per user. Real two-table API work in 6 lines.",
         code: `import pandas as pd
 from pyodide.http import pyfetch
@@ -348,7 +348,7 @@ per_user = joined.groupby("name").size().sort_values(ascending=False)
 print(per_user)`,
       },
       {
-        title: "Handling a 404 gracefully",
+        title: "handling a 404 gracefully",
         explanation: "Always check response.status before .json(). Missing resources shouldn't crash the script.",
         code: `from pyodide.http import pyfetch
 
@@ -601,7 +601,7 @@ print("categories:", categories)
 `,
     examples: [
       {
-        title: "Finding by tag and by class",
+        title: "finding by tag and by class",
         explanation: "find returns the first match; find_all returns every match. Selectors land on the same elements.",
         code: `from pyodide.http import pyfetch
 from bs4 import BeautifulSoup
@@ -621,7 +621,7 @@ for li in soup.select("ul.featured-list li"):
     print("featured:", li.get_text(strip=True))`,
       },
       {
-        title: "Reading attributes off elements",
+        title: "reading attributes off elements",
         explanation: "Real scraping needs the attribute, not just the text. element[\"attr\"] or element.get(\"attr\") both work.",
         code: `from pyodide.http import pyfetch
 from bs4 import BeautifulSoup
@@ -638,7 +638,7 @@ categories = [c.get_text(strip=True) for c in soup.select("li.cat")]
 print("count of categories:", len(categories))`,
       },
       {
-        title: "Walking a table by hand",
+        title: "walking a table by hand",
         explanation: "Lesson 29 uses pd.read_html for this. Doing it by hand once teaches you what read_html is doing under the hood.",
         code: `import pandas as pd
 from pyodide.http import pyfetch
@@ -861,7 +861,7 @@ print(f"total stock units across catalog: {df['Stock'].sum()}")
 `,
     examples: [
       {
-        title: "All tables on a page",
+        title: "all tables on a page",
         explanation: "When you don't know exactly which table you want, read everything and inspect.",
         code: `import pandas as pd
 from pyodide.http import pyfetch
@@ -876,7 +876,7 @@ for i, t in enumerate(tables):
     print(t.head(3))`,
       },
       {
-        title: "Aggregating after the parse",
+        title: "aggregating after the parse",
         explanation: "Once you have a DataFrame, the rest is normal pandas.",
         code: `import pandas as pd
 from pyodide.http import pyfetch
@@ -898,7 +898,7 @@ print("\\ninventory value by category:")
 print(value_by_cat)`,
       },
       {
-        title: "Filtering during the parse",
+        title: "filtering during the parse",
         explanation: "Pass match= to skip tables you don't want. Useful when a page has nav tables, sidebar tables, etc.",
         code: `import pandas as pd
 from pyodide.http import pyfetch
@@ -1111,7 +1111,7 @@ summary = load(joined)
 `,
     examples: [
       {
-        title: "Extract-only: pull and store before transforming",
+        title: "extract-only: pull and store before transforming",
         explanation: "Real pipelines often separate extract from transform so the network step can be re-run independently. Cache the raw payload.",
         code: `import pandas as pd
 from pyodide.http import pyfetch
@@ -1131,7 +1131,7 @@ raw_df = pd.DataFrame(raw)
 print(raw_df.head(2))`,
       },
       {
-        title: "Transform: classify by a derived field",
+        title: "transform: classify by a derived field",
         explanation: "Pull comments, group by the post they belong to, flag posts that attract long comments.",
         code: `import pandas as pd
 from pyodide.http import pyfetch
@@ -1154,7 +1154,7 @@ print("\\nposts by engagement tier:")
 print(per_post["engagement"].value_counts())`,
       },
       {
-        title: "Load: write the summary back to a CSV string",
+        title: "load: write the summary back to a CSV string",
         explanation: "In a browser we can't write a real file, but we can build the same CSV that load() would write to disk.",
         code: `import pandas as pd
 import io

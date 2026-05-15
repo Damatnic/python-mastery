@@ -237,7 +237,7 @@ pygame.quit()
 `,
     examples: [
       {
-        title: "Minimal Game Loop with Delta Time",
+        title: "minimal game loop with delta time",
         explanation: "The simplest Pygame setup with proper delta time handling",
         code: `import pygame
 pygame.init()
@@ -259,7 +259,7 @@ while running:
 pygame.quit()`,
       },
       {
-        title: "Settings File Pattern",
+        title: "settings file pattern",
         explanation: "Gerber's recommended structure; all constants in one place",
         code: `# settings.py
 WIDTH, HEIGHT = 800, 600
@@ -579,7 +579,7 @@ pygame.quit()
 `,
     examples: [
       {
-        title: "Acceleration & Friction Movement",
+        title: "acceleration & friction movement",
         explanation: "Smooth movement that builds up speed and slides to a stop",
         code: `import pygame
 pygame.init()
@@ -631,7 +631,7 @@ while running:
 pygame.quit()`,
       },
       {
-        title: "Normalized 8-Directional Movement",
+        title: "normalized 8-Directional movement",
         explanation: "Same speed in all directions, including diagonals",
         code: `from pygame.math import Vector2
 
@@ -976,7 +976,7 @@ pygame.quit()
 `,
     examples: [
       {
-        title: "Surface Handler · Sprite Sheet Loader",
+        title: "surface handler · sprite sheet loader",
         explanation: "Gerber's pattern for extracting frames from a sprite sheet",
         code: `class SurfaceHandler:
     def __init__(self, sheet_path, frame_width, frame_height):
@@ -1000,7 +1000,7 @@ pygame.quit()
 # walk_left = [pygame.transform.flip(f, True, False) for f in walk_right]`,
       },
       {
-        title: "Animated Player with Direction",
+        title: "animated player with direction",
         explanation: "Full animation system with sprite flipping",
         code: `class AnimatedPlayer(pygame.sprite.Sprite):
     def __init__(self, frames):
@@ -1369,7 +1369,7 @@ pygame.quit()
 `,
     examples: [
       {
-        title: "Tower Targeting with Range Check",
+        title: "tower targeting with range check",
         explanation: "Find the closest enemy within range using distance",
         code: `import math
 
@@ -1393,7 +1393,7 @@ def find_target(tower, enemies, tower_range):
 #     fire_projectile(self.pos, self.target)`,
       },
       {
-        title: "Projectile Velocity from Angle",
+        title: "projectile velocity from angle",
         explanation: "Calculate vx/vy to fire toward a target",
         code: `import math
 
@@ -1789,7 +1789,7 @@ pygame.quit()
 `,
     examples: [
       {
-        title: "Player Lives System",
+        title: "player lives system",
         explanation: "Step 2 option (10pts); track lives, reset ball on fall",
         code: `lives = 3
 
@@ -1809,7 +1809,7 @@ lives_text = font.render(f"Lives: {lives}", True, (255,255,255))
 screen.blit(lives_text, (10, 10))`,
       },
       {
-        title: "Randomized Ball Launch",
+        title: "randomized ball launch",
         explanation: "Step 2 option (5pts); random angle on spacebar",
         code: `import math, random
 
@@ -2213,7 +2213,7 @@ pygame.quit()
 `,
     examples: [
       {
-        title: "Enemy HP Bar",
+        title: "enemy HP bar",
         explanation: "Step 2 option (10pts); health bar above enemies",
         code: `def draw_hp_bar(screen, enemy):
     bar_w, bar_h = 40, 6
@@ -2234,7 +2234,7 @@ for e in enemies:
     draw_hp_bar(screen, e)`,
       },
       {
-        title: "Splash Tower (New Type)",
+        title: "splash tower (new type)",
         explanation: "Step 2 option (15pts); damages all enemies near target",
         code: `class SplashTower(Tower):
     def __init__(self, x, y):
@@ -2638,7 +2638,7 @@ pygame.quit()
 `,
     examples: [
       {
-        title: "Acceleration & Friction",
+        title: "acceleration & friction",
         explanation: "Step 2 option (20pts); smooth physics movement",
         code: `class PlayerPhysics(Character):
     def __init__(self, x, y):
@@ -2669,7 +2669,7 @@ pygame.quit()
         self.float_y = max(0, min(HEIGHT - self.height, self.float_y))`,
       },
       {
-        title: "Character Select Screen",
+        title: "character select screen",
         explanation: "Step 2 option (20pts); choose before playing",
         code: `def character_select(screen, clock, font):
     chars = [
@@ -2961,7 +2961,7 @@ pygame.quit()
 `,
     examples: [
       {
-        title: "Loading and Playing a Sound Effect",
+        title: "loading and playing a sound effect",
         explanation: "Load once at startup, play when events happen. Never load inside the game loop.",
         code: `hit_sound = pygame.mixer.Sound("assets/hit.wav")
 hit_sound.set_volume(0.6)
@@ -2972,7 +2972,7 @@ if ball_rect.colliderect(brick_rect):
     brick.kill()`,
       },
       {
-        title: "Looping Background Music with Fadeout",
+        title: "looping background music with fadeout",
         explanation: "Music streams from disk. Use play(-1) for infinite loop, fadeout() for smooth transitions.",
         code: `# Start menu music
 pygame.mixer.music.load("assets/menu_theme.ogg")
@@ -3322,7 +3322,7 @@ pygame.quit()
 `,
     examples: [
       {
-        title: "Centering Text on Screen",
+        title: "centering text on screen",
         explanation: "Use get_rect() with center to position text in the middle of the screen.",
         code: `font = pygame.font.SysFont(None, 64)
 text = font.render("GAME OVER", True, (255, 0, 0))
@@ -3330,7 +3330,7 @@ rect = text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
 screen.blit(text, rect)`,
       },
       {
-        title: "Dynamic Score with Right Alignment",
+        title: "dynamic score with right alignment",
         explanation: "Right-align the score so it doesn't jump around as the number gets bigger.",
         code: `score_text = font.render(f"Score: {score:,}", True, WHITE)
 # :, adds comma separators (1,000 instead of 1000)
@@ -3720,7 +3720,7 @@ pygame.quit()
 `,
     examples: [
       {
-        title: "Semi-Transparent Pause Overlay",
+        title: "semi-transparent pause overlay",
         explanation: "Draw the game underneath, then a dark semi-transparent surface on top. Looks polished with almost no effort.",
         code: `# Create a surface the size of the screen
 overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -3733,7 +3733,7 @@ text = font.render("PAUSED", True, WHITE)
 screen.blit(text, text.get_rect(center=(400, 300)))`,
       },
       {
-        title: "State Transition Diagram",
+        title: "state transition diagram",
         explanation: "Map out which states can transition to which. Helps you think through the flow before coding.",
         code: `# MENU --[Enter]--> PLAYING
 # PLAYING --[Esc]--> PAUSED
@@ -4088,7 +4088,7 @@ print("Know every system for the Gerber Zoom demo.")
 `,
     examples: [
       {
-        title: "Delta Time Pattern",
+        title: "delta time pattern",
         explanation: "The foundational pattern that makes everything consistent. Know this cold.",
         code: `dt = clock.tick(60) / 1000.0  # seconds since last frame
 
@@ -4101,7 +4101,7 @@ self.y += self.speed * dt
 # Same distance per second either way`,
       },
       {
-        title: "Collision Direction Detection",
+        title: "collision direction detection",
         explanation: "Minimum overlap tells you which side the ball entered from.",
         code: `# Calculate overlap on all 4 sides
 overlap_left = ball_rect.right - brick_rect.left

@@ -70,7 +70,7 @@ print(df.isna().sum())
 `,
     examples: [
       {
-        title: "Detecting Missing Values",
+        title: "detecting missing values",
         explanation: "Find where NaN values exist",
         code: `import io
 csv_data = """name,age,score
@@ -88,7 +88,7 @@ print("\\nCount per column:")
 print(df.isna().sum())`,
       },
       {
-        title: "Dropping Missing Values",
+        title: "dropping missing values",
         explanation: "Remove rows with NaN",
         code: `import io
 csv_data = """name,age,score
@@ -106,7 +106,7 @@ print("After dropna:", len(clean))
 print(clean)`,
       },
       {
-        title: "Filling Missing Values",
+        title: "filling missing values",
         explanation: "Replace NaN with meaningful values",
         code: `import io
 csv_data = """name,age,score
@@ -288,7 +288,7 @@ print(df)
 `,
     examples: [
       {
-        title: "Converting to Numeric",
+        title: "converting to numeric",
         explanation: "Handle strings that should be numbers",
         code: `import io
 csv_data = """item,price
@@ -304,7 +304,7 @@ print(df)
 print("\\nSum of valid prices:", df["price"].sum())`,
       },
       {
-        title: "Converting Dates",
+        title: "converting dates",
         explanation: "Parse date strings into datetime objects",
         code: `import io
 csv_data = """event,date
@@ -319,7 +319,7 @@ df["day_name"] = df["date"].dt.day_name()
 print(df)`,
       },
       {
-        title: "Using astype",
+        title: "using astype",
         explanation: "Direct type conversion",
         code: `import io
 csv_data = """id,active,score
@@ -498,7 +498,7 @@ print("\\nNote the inconsistent spacing and case!")
 `,
     examples: [
       {
-        title: "Basic String Cleaning",
+        title: "basic string cleaning",
         explanation: "Strip whitespace and standardize case",
         code: `import io
 csv_data = """name,city
@@ -512,7 +512,7 @@ df["city"] = df["city"].str.strip().str.upper()
 print(df)`,
       },
       {
-        title: "Replace and Contains",
+        title: "replace and contains",
         explanation: "Find and replace text patterns",
         code: `import io
 csv_data = """product,description
@@ -528,7 +528,7 @@ df["is_large"] = df["description"].str.contains("Large")
 print(df)`,
       },
       {
-        title: "Splitting Strings",
+        title: "splitting strings",
         explanation: "Break apart strings into columns",
         code: `import io
 csv_data = """full_name,email
@@ -711,7 +711,7 @@ print(students_clean.head(3))
 `,
     examples: [
       {
-        title: "Renaming Columns",
+        title: "renaming columns",
         explanation: "Change column names for clarity",
         code: `# Rename for better readability
 renamed = sales.rename(columns={
@@ -722,7 +722,7 @@ print("Renamed columns:", list(renamed.columns))
 print(renamed.head())`,
       },
       {
-        title: "Dropping Columns",
+        title: "dropping columns",
         explanation: "Remove columns you don't need",
         code: `# Create a copy and drop columns
 df = students.copy()
@@ -733,7 +733,7 @@ df = df.drop(columns=["age"])
 print("After:", list(df.columns))`,
       },
       {
-        title: "Reordering Columns",
+        title: "reordering columns",
         explanation: "Change the order columns appear",
         code: `# Reorder columns
 new_order = ["name", "score", "grade", "subject", "age"]
@@ -900,7 +900,7 @@ print("\\nDuplicate rows:", df.duplicated().sum())
 `,
     examples: [
       {
-        title: "Finding and Removing Duplicates",
+        title: "finding and removing duplicates",
         explanation: "Identify and remove duplicate rows",
         code: `import io
 csv_data = """id,name,dept
@@ -920,7 +920,7 @@ print("\\nAfter removing duplicates:")
 print(clean)`,
       },
       {
-        title: "Reset Index After Filtering",
+        title: "reset index after filtering",
         explanation: "Clean up index after removing rows",
         code: `# Filter high scorers
 high = students[students["score"] >= 85]
@@ -933,7 +933,7 @@ print("\\nAfter reset:")
 print(high)`,
       },
       {
-        title: "Set a Column as Index",
+        title: "set a column as index",
         explanation: "Use a meaningful column as the row identifier",
         code: `# Use name as index
 indexed = students.set_index("name")
@@ -1117,7 +1117,7 @@ print(events)
 `,
     examples: [
       {
-        title: "Parse a column with mixed-quality dates",
+        title: "parse a column with mixed-quality dates",
         explanation: "errors='coerce' converts unparseable values to NaT instead of raising",
         code: `import pandas as pd
 
@@ -1129,8 +1129,8 @@ print(raw)
 print(f"bad rows: {raw['when'].isna().sum()}")`,
       },
       {
-        title: "Extract parts with .dt",
-        explanation: "Day name, month, weekday flag — all from the same column",
+        title: "extract parts with .dt",
+        explanation: "Day name, month, weekday flag, all from the same column",
         code: `import pandas as pd
 
 events = pd.DataFrame({
@@ -1142,7 +1142,7 @@ events["day_name"] = events["date"].dt.day_name()
 print(events)`,
       },
       {
-        title: "Filter to the last N days",
+        title: "filter to the last n days",
         explanation: "Today minus a Timedelta is the cutoff",
         code: `import pandas as pd
 
