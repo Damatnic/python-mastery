@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ProjectCard } from "@/components/ProjectCard";
 import { getAllProjects } from "@/lib/projects";
+import { safeJsonParse } from "@/lib/storage";
 
 const STORAGE_KEY = "python-mastery-project-progress";
 
@@ -12,11 +13,9 @@ export default function ProjectsPage() {
   const projects = getAllProjects();
 
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrating from localStorage
-      setCompletedSteps(new Set(JSON.parse(saved)));
-    }
+    const list = safeJsonParse<string[]>(localStorage.getItem(STORAGE_KEY), []);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrating from localStorage
+    setCompletedSteps(new Set(list));
   }, []);
 
   const totalSteps = projects.reduce((sum, p) => sum + p.steps.length, 0);

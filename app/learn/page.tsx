@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ModuleCard } from "@/components/ModuleCard";
 import { getAllModules } from "@/lib/lessons";
 import { getStreakData } from "@/lib/streak";
+import { safeJsonParse, safeReadNumber } from "@/lib/storage";
 
 export default function LearnDashboard() {
   const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set());
@@ -13,13 +14,13 @@ export default function LearnDashboard() {
   const modules = getAllModules();
 
   useEffect(() => {
-    const saved = localStorage.getItem("python-mastery-completed");
-    if (saved) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrating from localStorage
-      setCompletedLessons(new Set(JSON.parse(saved)));
-    }
-    const savedXP = localStorage.getItem("python-mastery-xp");
-    if (savedXP) setTotalXP(parseInt(savedXP, 10));
+    const list = safeJsonParse<string[]>(
+      localStorage.getItem("python-mastery-completed"),
+      [],
+    );
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrating from localStorage
+    setCompletedLessons(new Set(list));
+    setTotalXP(safeReadNumber(localStorage.getItem("python-mastery-xp"), 0));
     const streakData = getStreakData();
     setStreak(streakData.currentStreak);
   }, []);

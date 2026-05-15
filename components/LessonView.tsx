@@ -21,6 +21,7 @@ interface LessonViewProps {
   isAlreadyComplete?: boolean;
   onOpenMobileNav?: () => void;
   onOpenTutorWithPrompt?: (prompt: string) => void;
+  onActiveCodeChange?: (code: string) => void;
 }
 
 // Validator for lesson challenges - evaluates predefined validation functions from lesson data
@@ -401,6 +402,7 @@ export function LessonView({
   isAlreadyComplete = false,
   onOpenMobileNav,
   onOpenTutorWithPrompt,
+  onActiveCodeChange,
 }: LessonViewProps) {
   const { isLoading, isReady, error: pyodideError, runCode } = usePyodide();
   const isPygameLesson = lesson.moduleSlug === "game-dev-pygame";
@@ -469,6 +471,12 @@ export function LessonView({
       localStorage.setItem(`python-mastery-code-${lesson.moduleSlug}-${lesson.slug}`, code);
     }
   }, [code, lesson.moduleSlug, lesson.slug, lesson.starterCode]);
+
+  // Surface the live editor buffer to the tutor so it can reason about
+  // what the learner actually wrote.
+  useEffect(() => {
+    onActiveCodeChange?.(code);
+  }, [code, onActiveCodeChange]);
 
   useEffect(() => {
     if (lesson.projectChallenge && projectCode !== lesson.projectChallenge.starterCode) {
@@ -657,6 +665,32 @@ export function LessonView({
     (!lesson.projectChallenge || projectCompleted);
 
   const showNextLessonCard = allChallengesDoneThisSession || isAlreadyComplete;
+
+  if (pyodideError) {
+    return (
+      <div
+        className="flex-1 flex items-start justify-center p-8 bg-background font-mono text-sm"
+      >
+        <div className="max-w-md w-full">
+          <p>
+            <span className="text-accent">damato@python</span>
+            <span className="text-muted-foreground">:</span>
+            <span className="text-muted-foreground">~$</span> python --start
+          </p>
+          <p className="mt-2 text-error">
+            error: failed to load pyodide. likely a slow or restricted network.
+          </p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="mt-4 px-3 py-2 rounded border border-error text-error hover:bg-error/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          >
+            → refresh &amp; retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col lg:flex-row flex-1 h-full overflow-hidden relative">

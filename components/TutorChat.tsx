@@ -36,6 +36,8 @@ export const TutorChat = forwardRef<TutorChatHandle, TutorChatProps>(function Tu
   const [pulse, setPulse] = useState(false);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
+  const panelRef = useRef<HTMLDivElement | null>(null);
+  const restoreFocusRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     try {
@@ -88,6 +90,36 @@ export const TutorChat = forwardRef<TutorChatHandle, TutorChatProps>(function Tu
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, open, busy]);
+
+  useEffect(() => {
+    if (!open) return;
+    restoreFocusRef.current = document.activeElement as HTMLElement | null;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Tab" && panelRef.current) {
+        const focusable = panelRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    const focusTimer = setTimeout(() => inputRef.current?.focus(), 50);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      clearTimeout(focusTimer);
+      restoreFocusRef.current?.focus?.();
+    };
+  }, [open]);
 
   async function send() {
     const trimmed = input.trim();
@@ -156,7 +188,9 @@ export const TutorChat = forwardRef<TutorChatHandle, TutorChatProps>(function Tu
   return (
     <div
       className="fixed bottom-4 right-4 z-40 flex max-h-[80vh] w-[90vw] max-w-md flex-col overflow-hidden rounded-lg border border-stone-700 bg-stone-950/95 shadow-2xl backdrop-blur"
+      ref={panelRef}
       role="dialog"
+      aria-modal="true"
       aria-label="AI tutor chat"
     >
       <div className="flex items-center justify-between border-b border-stone-800 bg-stone-900/60 px-3 py-2 font-mono text-xs">

@@ -202,9 +202,9 @@ export default function HomeTerminal({ modules }: HomeTerminalProps) {
           break;
         case "fortune": {
           const lines = [
-            "readability counts. – pep 20",
-            "explicit is better than implicit. – pep 20",
-            "premature optimization is the root of all evil. – knuth",
+            "readability counts. (pep 20)",
+            "explicit is better than implicit. (pep 20)",
+            "premature optimization is the root of all evil. (knuth)",
             "loops aren't free. neither is pandas .apply().",
             "if list comprehension feels clever, it probably is. revisit it later.",
           ];

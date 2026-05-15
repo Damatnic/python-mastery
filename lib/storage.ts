@@ -7,6 +7,15 @@ export function safeJsonParse<T>(raw: string | null, fallback: T): T {
   }
 }
 
+export function safeSetItem(key: string, value: string): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // private mode or quota
+  }
+}
+
 export function safeReadNumber(raw: string | null, fallback = 0): number {
   if (raw === null) return fallback;
   const n = parseInt(raw, 10);
@@ -24,6 +33,6 @@ export function markReviewed(slug: string): void {
   if (typeof window === "undefined") return;
   const map = getReviewedMap();
   map[slug] = new Date().toISOString();
-  localStorage.setItem(REVIEWED_KEY, JSON.stringify(map));
+  safeSetItem(REVIEWED_KEY, JSON.stringify(map));
   window.dispatchEvent(new Event("reviewed-updated"));
 }

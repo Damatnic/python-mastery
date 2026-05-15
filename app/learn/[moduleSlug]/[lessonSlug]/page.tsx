@@ -9,7 +9,7 @@ import { MobileModuleNav } from "@/components/MobileModuleNav";
 import { InterfaceOnboarding } from "@/components/InterfaceOnboarding";
 import { getAllModules, getLessonBySlug, getNextLesson, getPreviousLesson } from "@/lib/lessons";
 import { updateStreak } from "@/lib/streak";
-import { safeJsonParse, markReviewed } from "@/lib/storage";
+import { safeJsonParse, safeSetItem, markReviewed } from "@/lib/storage";
 
 interface LessonPageProps {
   params: Promise<{
@@ -24,6 +24,7 @@ export default function LessonPage({ params }: LessonPageProps) {
     new Set()
   );
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [tutorCode, setTutorCode] = useState("");
   const tutorRef = useRef<TutorChatHandle | null>(null);
 
   const modules = getAllModules();
@@ -48,10 +49,7 @@ export default function LessonPage({ params }: LessonPageProps) {
     setCompletedLessons((prev) => {
       const next = new Set(prev);
       next.add(lessonKey);
-      localStorage.setItem(
-        "python-mastery-completed",
-        JSON.stringify([...next])
-      );
+      safeSetItem("python-mastery-completed", JSON.stringify([...next]));
       window.dispatchEvent(new Event("lessons-updated"));
       return next;
     });
@@ -103,13 +101,14 @@ export default function LessonPage({ params }: LessonPageProps) {
           isAlreadyComplete={isAlreadyComplete}
           onOpenMobileNav={() => setMobileNavOpen(true)}
           onOpenTutorWithPrompt={handleAskTutor}
+          onActiveCodeChange={setTutorCode}
         />
       </main>
       <TutorChat
         ref={tutorRef}
         lessonTitle={lesson.title}
         moduleSlug={moduleSlug}
-        currentCode=""
+        currentCode={tutorCode}
       />
       <InterfaceOnboarding />
     </div>

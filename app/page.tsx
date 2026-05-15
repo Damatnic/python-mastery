@@ -3,18 +3,16 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import HomeTerminal from "@/components/HomeTerminal";
+import { getAllModules } from "@/lib/lessons";
 
-const modules = [
-  { num: "01", slug: "python-basics", firstLesson: "variables-fstrings", title: "python-basics", desc: "Variables, lists, dicts, loops, functions.", lessons: 5 },
-  { num: "02", slug: "pandas-fundamentals", firstLesson: "dataframes-series", title: "pandas-fundamentals", desc: "DataFrames, selecting, filtering, sorting.", lessons: 5 },
-  { num: "03", slug: "data-cleaning", firstLesson: "missing-data", title: "data-cleaning", desc: "Missing data, type conversion, duplicates.", lessons: 5 },
-  { num: "04", slug: "grouping-combining", firstLesson: "groupby-basics", title: "grouping-combining", desc: "GroupBy, merging, pivot tables.", lessons: 5 },
-  { num: "05", slug: "string-file-ops", firstLesson: "string-methods-deep", title: "string-file-ops", desc: "String methods, regex, file I/O, JSON.", lessons: 5 },
-  { num: "06", slug: "web-apis", firstLesson: "requests-basics", title: "web-apis", desc: "HTTP requests, JSON parsing, pipelines.", lessons: 5 },
-  { num: "07", slug: "functions-apply", firstLesson: "lambda-functions", title: "functions-apply", desc: "Lambda, apply/map, vectorization.", lessons: 5 },
-  { num: "08", slug: "game-dev-pygame", firstLesson: "pygame-basics", title: "game-dev-pygame", desc: "Side practice. Game loops, sprites, collisions.", lessons: 11 },
-  { num: "09", slug: "data-manipulation-school", firstLesson: "string-methods", title: "data-manipulation-school", desc: "Course notes: strings, dates, combining, pivots.", lessons: 5 },
-];
+const modules = getAllModules().map((m, i) => ({
+  num: String(i + 1).padStart(2, "0"),
+  slug: m.slug,
+  firstLesson: m.lessons[0]?.slug ?? "",
+  title: m.slug,
+  desc: m.description,
+  lessons: m.lessons.length,
+}));
 
 export default function Home() {
   const [completed, setCompleted] = useState<Set<string>>(new Set());

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import type { Module } from "@/lib/types";
+import { safeJsonParse } from "@/lib/storage";
 
 interface ModuleCardProps {
   module: Module;
@@ -22,11 +23,12 @@ export function ModuleCard({
   const [projectCompletions, setProjectCompletions] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    const saved = localStorage.getItem("python-mastery-project-completed");
-    if (saved) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrating from localStorage
-      setProjectCompletions(new Set(JSON.parse(saved)));
-    }
+    const list = safeJsonParse<string[]>(
+      localStorage.getItem("python-mastery-project-completed"),
+      [],
+    );
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrating from localStorage
+    setProjectCompletions(new Set(list));
   }, []);
 
   const completedCount = module.lessons.filter((l) =>

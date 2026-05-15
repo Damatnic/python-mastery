@@ -406,7 +406,12 @@ export function OutputPanel({ output, error, isRunning, executionTime, activeCha
         </div>
       </div>
 
-      <div className="flex-1 overflow-auto p-4 font-mono text-sm output-content">
+      <div
+        className="flex-1 overflow-auto p-4 font-mono text-sm output-content"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      >
         {!output && !error && !isRunning && <EmptyState activeChallenge={activeChallenge} />}
 
         {outputParts.map((part, index) => (
