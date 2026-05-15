@@ -9,53 +9,28 @@ export const lessonsModule1: Lesson[] = [
     title: "Variables & F-Strings",
     badge: "concept",
     theory: `
-## Variables: Boxes That Hold Values
-
-Think of variables like labeled boxes. You put a value in the box, slap a name on it, and now you can reference that value by its name.
-
-\`\`\`python
-name = "Alice"      # A string in a box labeled "name"
-age = 25            # An integer in a box labeled "age"
-price = 19.99       # A float in a box labeled "price"
-is_active = True    # A boolean in a box labeled "is_active"
-\`\`\`
-
-Python figures out the type automatically. You don't declare types like in Java or C.
-
-## F-Strings: The Modern Way to Format
-
-F-strings (formatted string literals) let you embed expressions inside strings. Put an \`f\` before the quotes and use \`{}\` to insert values:
+Variables hold values. Python figures out the type:
 
 \`\`\`python
 name = "Alice"
 age = 25
-print(f"Hello, {name}! You are {age} years old.")
-# Output: Hello, Alice! You are 25 years old.
+price = 19.99
+is_active = True
 \`\`\`
 
-You can do math inside the braces:
+F-strings embed expressions inside strings. Prefix with \`f\`, put expressions in \`{}\`:
 
 \`\`\`python
-price = 19.99
-quantity = 3
-print(f"Total: \${price * quantity:.2f}")
-# Output: Total: $59.97
+print(f"hi {name}, you are {age} years old")
+print(f"total: \${price * 3:.2f}")  # math works inside braces
 \`\`\`
 
-The \`:.2f\` is a format specifier; it means "show 2 decimal places."
+\`:.2f\` is a format spec. A few you'll reach for constantly:
 
-## Common Format Specifiers
-
-| Specifier | Meaning | Example |
-|-----------|---------|---------|
-| \`:.2f\` | 2 decimal places | \`3.14159\` → \`3.14\` |
-| \`:,\` | Thousands separator | \`1000000\` → \`1,000,000\` |
-| \`:.0%\` | Percentage | \`0.85\` → \`85%\` |
-| \`:>10\` | Right-align, 10 chars | \`"hi"\` → \`"        hi"\` |
-
-## Where This Shows Up
-
-Every script you write will use variables and f-strings. Once you get the format specifiers down, you'll reach for them constantly in output and reports.
+- \`:.2f\` two decimals (\`3.14159\` becomes \`3.14\`)
+- \`:,\` thousands separator (\`1000000\` becomes \`1,000,000\`)
+- \`:.0%\` percent (\`0.85\` becomes \`85%\`)
+- \`:>10\` right-align inside 10 chars
 `,
     starterCode: `# Try creating variables and printing with f-strings
 name = "Your Name"
@@ -207,71 +182,50 @@ print(f"Permit {permit_number} on {street_name} has status: {status}")`,
     title: "Lists & Tuples",
     badge: "concept",
     theory: `
-## Lists: Ordered Collections You Can Change
-
-A list is like a numbered container that holds items in order. Create one with square brackets:
+A list is an ordered, mutable collection. Square brackets:
 
 \`\`\`python
 fruits = ["apple", "banana", "cherry"]
 numbers = [1, 2, 3, 4, 5]
-mixed = ["hello", 42, True, 3.14]  # Can mix types
+mixed = ["hello", 42, True, 3.14]
 \`\`\`
 
-## Accessing Items: Indexing
-
-Python uses **zero-based indexing**. The first item is at index 0:
+Index from 0. Negative indexes count from the end:
 
 \`\`\`python
-fruits = ["apple", "banana", "cherry"]
-print(fruits[0])   # "apple"
-print(fruits[1])   # "banana"
-print(fruits[-1])  # "cherry" (last item)
-print(fruits[-2])  # "banana" (second to last)
+fruits[0]    # "apple"
+fruits[-1]   # "cherry"
+fruits[-2]   # "banana"
 \`\`\`
 
-## Slicing: Getting Multiple Items
-
-Use \`[start:end]\` to get a range. The end index is *exclusive*:
+Slice with \`[start:end:step]\`. End is exclusive:
 
 \`\`\`python
 numbers = [0, 1, 2, 3, 4, 5]
-print(numbers[1:4])   # [1, 2, 3]
-print(numbers[:3])    # [0, 1, 2] (from start)
-print(numbers[3:])    # [3, 4, 5] (to end)
-print(numbers[::2])   # [0, 2, 4] (every 2nd)
+numbers[1:4]   # [1, 2, 3]
+numbers[:3]    # [0, 1, 2]
+numbers[3:]    # [3, 4, 5]
+numbers[::2]   # [0, 2, 4]
 \`\`\`
 
-## Modifying Lists
+Mutating:
 
 \`\`\`python
-fruits = ["apple", "banana"]
-fruits.append("cherry")       # Add to end
-fruits.insert(1, "orange")    # Insert at position
-fruits.remove("banana")       # Remove by value
-popped = fruits.pop()         # Remove & return last
+fruits.append("date")
+fruits.insert(1, "orange")
+fruits.remove("banana")
+popped = fruits.pop()
 \`\`\`
 
-## Tuples: Immutable Lists
-
-Tuples are like lists but cannot be changed after creation. Use parentheses:
+Tuples are lists you can't change. Parens. Use them for coordinate-like data or database row tuples:
 
 \`\`\`python
 coordinates = (10, 20)
 rgb = (255, 128, 0)
-# coordinates[0] = 5  # ERROR! Can't modify tuples
+# coordinates[0] = 5  # TypeError
 \`\`\`
 
-Use tuples for data that shouldn't change, like coordinates or database records.
-
-## Useful List Functions
-
-| Function | What It Does |
-|----------|--------------|
-| \`len(list)\` | Number of items |
-| \`sum(list)\` | Sum of numbers |
-| \`min(list)\` | Smallest value |
-| \`max(list)\` | Largest value |
-| \`sorted(list)\` | Returns sorted copy |
+Built-ins that work on both: \`len()\`, \`sum()\`, \`min()\`, \`max()\`, \`sorted()\`.
 `,
     starterCode: `# Working with the students DataFrame
 # Let's create some lists from it
@@ -423,66 +377,41 @@ print(f"Total: {len(neighborhoods)}")`,
     title: "Dictionaries",
     badge: "concept",
     theory: `
-## Dictionaries: Key-Value Storage
-
-A dictionary stores data as key-value pairs. Think of it like a real dictionary: you look up a word (key) to find its definition (value).
+A dict is a hashmap. Keys to values:
 
 \`\`\`python
-person = {
-    "name": "Alice",
-    "age": 30,
-    "city": "Boston"
-}
+person = {"name": "Alice", "age": 30, "city": "Boston"}
 \`\`\`
 
-## Accessing Values
-
-Use square brackets with the key, or \`.get()\` for safer access:
+Access with brackets or \`.get()\`. The first raises \`KeyError\` on missing keys; \`.get()\` returns \`None\` or a default:
 
 \`\`\`python
-print(person["name"])       # "Alice"
-print(person.get("age"))    # 30
-print(person.get("job"))    # None (doesn't exist)
-print(person.get("job", "Unknown"))  # "Unknown" (default)
+person["name"]               # "Alice"
+person.get("job")            # None
+person.get("job", "unknown") # "unknown"
 \`\`\`
 
-The difference: \`person["job"]\` raises an error if the key doesn't exist. \`.get()\` returns \`None\` or your default value.
-
-## Adding & Modifying
+Add, modify, delete:
 
 \`\`\`python
-person["job"] = "Engineer"    # Add new key
-person["age"] = 31            # Modify existing
-del person["city"]            # Delete a key
+person["job"] = "engineer"
+person["age"] = 31
+del person["city"]
 \`\`\`
 
-## Useful Methods
+Useful methods: \`.keys()\`, \`.values()\`, \`.items()\` (iterates pairs).
 
-\`\`\`python
-person.keys()    # All keys: dict_keys(['name', 'age', 'job'])
-person.values()  # All values: dict_values(['Alice', 31, 'Engineer'])
-person.items()   # Key-value pairs as tuples
-\`\`\`
-
-## Nested Dictionaries
-
-Dictionaries can contain other dictionaries:
+Nest freely:
 
 \`\`\`python
 employees = {
     "emp001": {"name": "Alice", "dept": "Engineering"},
-    "emp002": {"name": "Bob", "dept": "Marketing"}
+    "emp002": {"name": "Bob", "dept": "Marketing"},
 }
-
-print(employees["emp001"]["name"])  # "Alice"
+employees["emp001"]["name"]  # "Alice"
 \`\`\`
 
-## When to Use Dictionaries
-
-- Storing related properties of a single entity
-- Looking up values by a meaningful key (not just position)
-- Counting occurrences of items
-- Caching/memoization
+Reach for a dict whenever you'd describe the relationship as "look this up by name" — counting occurrences, caching results, indexing rows by id.
 `,
     starterCode: `# Create a student record as a dictionary
 student = {
@@ -642,70 +571,34 @@ print(f"Status of BP2023-0004: {status_lookup['BP2023-0004']}")`,
     title: "Loops & Conditionals",
     badge: "practice",
     theory: `
-## If/Elif/Else: Making Decisions
-
-The \`if\` statement runs code only when a condition is True:
+\`if/elif/else\` evaluates top to bottom and stops at the first match:
 
 \`\`\`python
-score = 85
-
-if score >= 90:
-    grade = "A"
-elif score >= 80:
-    grade = "B"
-elif score >= 70:
-    grade = "C"
-else:
-    grade = "F"
+if score >= 90: grade = "A"
+elif score >= 80: grade = "B"
+elif score >= 70: grade = "C"
+else: grade = "F"
 \`\`\`
 
-Python checks conditions from top to bottom. Once one is True, it skips the rest.
+Comparison operators you'll use: \`==\`, \`!=\`, \`<\`, \`>\`, \`<=\`, \`>=\`, and \`in\` for membership (\`"apple" in fruits\`).
 
-## Comparison Operators
-
-| Operator | Meaning |
-|----------|---------|
-| \`==\` | Equal to |
-| \`!=\` | Not equal to |
-| \`<\`, \`>\` | Less than, Greater than |
-| \`<=\`, \`>=\` | Less/greater than or equal |
-| \`in\` | Membership test |
-
-## For Loops: Iterating Over Collections
+\`for\` iterates anything iterable:
 
 \`\`\`python
-fruits = ["apple", "banana", "cherry"]
 for fruit in fruits:
     print(fruit)
 \`\`\`
 
-## range(): Generating Number Sequences
+\`range()\` makes integer sequences — \`range(5)\` is 0..4, \`range(2, 6)\` is 2..5, \`range(0, 10, 2)\` steps by 2.
+
+\`enumerate()\` when you need the index alongside the value:
 
 \`\`\`python
-for i in range(5):       # 0, 1, 2, 3, 4
-    print(i)
-
-for i in range(2, 6):    # 2, 3, 4, 5
-    print(i)
-
-for i in range(0, 10, 2): # 0, 2, 4, 6, 8
-    print(i)
-\`\`\`
-
-## enumerate(): Index + Value
-
-When you need both the position and the value:
-
-\`\`\`python
-fruits = ["apple", "banana", "cherry"]
 for i, fruit in enumerate(fruits):
     print(f"{i}: {fruit}")
-# 0: apple
-# 1: banana
-# 2: cherry
 \`\`\`
 
-## While Loops: Repeat Until Condition Changes
+\`while\` for "keep going until":
 
 \`\`\`python
 count = 0
@@ -714,7 +607,7 @@ while count < 5:
     count += 1
 \`\`\`
 
-Use \`for\` when you know how many iterations. Use \`while\` when you're waiting for a condition.
+Rule of thumb: \`for\` when the iteration count is knowable up front, \`while\` when it depends on runtime state.
 `,
     starterCode: `# Practice with loops and conditionals
 scores = [95, 82, 91, 74, 88]
@@ -866,80 +759,49 @@ print(f"Complete permits: {complete_count}")`,
     title: "Functions & Comprehensions",
     badge: "practice",
     theory: `
-## Functions: Reusable Code Blocks
-
-Functions let you write code once and use it many times:
+Functions are reusable blocks. \`def\`, then params, return value:
 
 \`\`\`python
 def greet(name):
-    return f"Hello, {name}!"
+    return f"hi {name}"
 
-message = greet("Alice")
-print(message)  # "Hello, Alice!"
+greet("Alice")  # "hi Alice"
 \`\`\`
 
-## Parameters & Return Values
+Defaults turn params optional. Pass by keyword to skip ahead:
 
 \`\`\`python
-def calculate_total(price, quantity, tax_rate=0.08):
-    subtotal = price * quantity
-    tax = subtotal * tax_rate
-    return subtotal + tax
+def total(price, qty, tax_rate=0.08):
+    subtotal = price * qty
+    return subtotal + subtotal * tax_rate
 
-# Using default tax_rate
-total1 = calculate_total(10, 5)
-
-# Overriding tax_rate
-total2 = calculate_total(10, 5, tax_rate=0.10)
+total(10, 5)                  # uses default
+total(10, 5, tax_rate=0.10)   # override
 \`\`\`
 
-## List Comprehensions: One-Line List Building
+List comprehensions replace the for/append loop. These two do the same thing, but the second one is what experienced Python looks like:
 
-Instead of:
 \`\`\`python
 squares = []
 for x in range(5):
     squares.append(x ** 2)
-\`\`\`
 
-Write:
-\`\`\`python
 squares = [x ** 2 for x in range(5)]
 \`\`\`
 
-## Comprehension with Condition
+Add a condition to filter:
 
 \`\`\`python
-# Only even numbers
 evens = [x for x in range(10) if x % 2 == 0]
-# [0, 2, 4, 6, 8]
-
-# Transform and filter
-scores = [95, 72, 88, 65, 91]
 passing = [s for s in scores if s >= 70]
-# [95, 72, 88, 91]
 \`\`\`
 
-## Dictionary Comprehensions
+Dict comprehensions work the same way:
 
 \`\`\`python
-# Create dict from two lists
-names = ["Alice", "Bob", "Carol"]
-scores = [95, 82, 91]
 grade_book = {name: score for name, score in zip(names, scores)}
-# {"Alice": 95, "Bob": 82, "Carol": 91}
-
-# Transform existing dict
-prices = {"apple": 1.0, "banana": 0.5}
 doubled = {k: v * 2 for k, v in prices.items()}
-# {"apple": 2.0, "banana": 1.0}
 \`\`\`
-
-## When to Use What
-
-- **Functions**: When you'll use the same logic multiple times, or when logic is complex enough to deserve a name
-- **List comprehensions**: When transforming or filtering a collection into a new list
-- **Dict comprehensions**: When building dictionaries from other data
 `,
     starterCode: `# Define a function to calculate letter grade
 def get_grade(score):

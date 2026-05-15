@@ -9,7 +9,7 @@ export const lessonsModuleNumpy: Lesson[] = [
     title: "Arrays and dtypes",
     badge: "concept",
     theory: `
-## Why NumPy, when pandas already exists
+## why NumPy when pandas exists
 
 Every pandas DataFrame and Series is a thin layer over a NumPy array. The math is in NumPy. So when pandas gets slow on a hot loop, the fix is almost always "drop to NumPy."
 
@@ -19,7 +19,7 @@ NumPy arrays have:
 - **A fixed shape.** You declare a shape; NumPy lays the bytes out contiguously. Reshape later if needed.
 - **No labels.** Just positions. Labels are pandas's job.
 
-## Making one
+## creating arrays
 
 \`\`\`python
 import numpy as np
@@ -43,7 +43,7 @@ np.array([1, "a"]).dtype           # <U21 (string), all numbers got stringified
 
 This is the failure mode you'll hit again and again. A bad value in a CSV makes the whole column a string and your math silently breaks.
 
-## Shape and indexing
+## shape & indexing
 
 \`\`\`python
 m = np.array([[1, 2, 3], [4, 5, 6]])
@@ -153,7 +153,7 @@ print(f"row_sum: {a[1].sum()}")`,
     title: "Reshape and axis",
     badge: "concept",
     theory: `
-## Same data, different shape
+## reshape
 
 Reshape rearranges how a 1D buffer of numbers is interpreted. It doesn't move data; it changes the strides used to walk it.
 
@@ -166,7 +166,7 @@ c = a.reshape(4, 3)             # shape (4, 3); same 12 numbers
 
 \`a.reshape(-1, 4)\` lets NumPy compute the missing dimension. Useful when you know the column count but not the row count.
 
-## axis is the dimension being collapsed
+## axis = the dimension being collapsed
 
 \`axis=0\` collapses rows (you get one value per column). \`axis=1\` collapses columns (one value per row).
 
@@ -182,7 +182,7 @@ m.sum(axis=1)        # [6, 15]     <- rowwise totals
 
 The trick that makes this stick: **axis names the dimension that disappears.** \`axis=0\` collapses dimension 0 (rows), so the row dimension goes away and you're left with one number per column.
 
-## Transpose and stacking
+## transpose & stacking
 
 \`\`\`python
 m.T                    # transpose, shape (3, 2)
@@ -278,11 +278,11 @@ print(f"row totals: {m.sum(axis=1)}")`,
     title: "Broadcasting",
     badge: "concept",
     theory: `
-## Why NumPy can add a scalar to a matrix
+## broadcasting
 
 Broadcasting is the rule that lets arrays of different shapes line up. When the shapes match (or one is 1 in a dimension), NumPy stretches the smaller one to fit. No data is copied.
 
-## The rule
+## the rule
 
 Two shapes are compatible if, working right-to-left, each pair of dimensions is either equal or one of them is 1.
 
@@ -292,33 +292,7 @@ Two shapes are compatible if, working right-to-left, each pair of dimensions is 
 (3, 4)  and  (3,)        -> NOT compatible, ValueError
 \`\`\`
 
-## What you actually use this for
-
-**Add a per-row constant:**
-
-\`\`\`python
-prices = np.array([100, 200, 300, 400])  # shape (4,)
-tax = 0.07
-prices_with_tax = prices * (1 + tax)     # scalar broadcasts to (4,)
-\`\`\`
-
-**Subtract per-column means (centering):**
-
-\`\`\`python
-scores = np.array([[85, 92, 78], [70, 88, 95]])
-col_means = scores.mean(axis=0)          # shape (3,)
-centered = scores - col_means            # broadcasts to (2, 3)
-\`\`\`
-
-**Outer product with reshape:**
-
-\`\`\`python
-prices  = np.array([10, 20, 30])         # shape (3,)
-units   = np.array([1, 2, 3, 4])         # shape (4,)
-matrix  = prices.reshape(3, 1) * units   # shape (3, 4); price[i] * units[j]
-\`\`\`
-
-## When broadcasting silently does the wrong thing
+## broadcasting gone wrong
 
 If your shapes happen to be compatible but you didn't mean them to be, the math runs anyway. Always check \`shape\` on both operands before you trust the result.
 `,
@@ -411,7 +385,7 @@ print(f"col means after: {centered.mean(axis=0)}")`,
     title: "Vectorization vs loops",
     badge: "practice",
     theory: `
-## The slow way
+## the slow way
 
 You can iterate over a NumPy array with a Python \`for\` loop. It works. It's also one to two orders of magnitude slower than the vectorized version.
 
@@ -430,7 +404,7 @@ result = a ** 2 + 1
 
 The vectorized form is also shorter, easier to read, and impossible to get wrong on the indexing.
 
-## When you really do need a condition
+## vectorized conditionals
 
 \`np.where\` is the vectorized if/else. Branchless, no Python loop.
 
@@ -454,14 +428,6 @@ np.select(
     default="unknown",
 )
 \`\`\`
-
-## When iteration *is* the right call
-
-If you're calling an external function once per row (network, expensive C lib, file IO), the loop is unavoidable. Vectorization wins for math on the array itself, not for orchestrating side effects.
-
-## How much slower is "slower"?
-
-Below you'll measure it. Even for a single-thousand element array, the vectorized version is typically ~30-200x faster, and the gap widens with array size.
 
 ## See also
 The SQL equivalent of \`np.where\` is a \`CASE WHEN ... THEN ... ELSE ... END\` expression. Same branchless mental model, different syntax. The full SQL CASE lesson lives on damato-sql at [/learn/data-analysis/case-expressions](https://damato-sql.vercel.app/learn/data-analysis/case-expressions).
@@ -566,7 +532,7 @@ print(tiers)`,
     title: "NumPy ↔ pandas crossover",
     badge: "practice",
     theory: `
-## Every Series and DataFrame is a NumPy array underneath
+## pandas is built on numpy
 
 Pandas exists to add labels (index, columns) and convenience (groupby, merge) on top of NumPy. The math is still NumPy. Dropping to it gives you speed and breaks you out of any quirks pandas adds.
 
@@ -580,21 +546,7 @@ s.values            # older API, same thing
 np.asarray(s)       # works on Series or DataFrame
 \`\`\`
 
-## When numpy beats pandas
-
-- **Pure math on a column.** \`(df["price"].to_numpy() ** 2 + 1)\` skips Series overhead, returns a plain array.
-- **Custom functions you want to vectorize.** Operating on a NumPy array means you can pass it straight to scipy, sklearn, or numba.
-- **Bulk operations on multiple columns at once.** \`df.to_numpy()\` gives you a 2D array if all columns share a dtype.
-- **Memory-mapped or streamed data.** NumPy has primitives pandas doesn't.
-
-## When pandas wins
-
-- **Joins.** \`pd.merge\` is hard to beat by hand.
-- **GroupBy.** Same.
-- **Mixed dtypes.** One DataFrame, multiple column types. NumPy would force you into structured arrays.
-- **Anything date-indexed.** Pandas' time-series tooling is genuinely good.
-
-## A real mixed workflow
+## mixed workflow
 
 \`\`\`python
 # Pandas for loading and joining

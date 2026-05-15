@@ -9,7 +9,7 @@ export const lessonsModule2: Lesson[] = [
     title: "DataFrames & Series",
     badge: "concept",
     theory: `
-## What is a DataFrame?
+## DataFrames
 
 A DataFrame is a 2D table with rows and columns, like an Excel spreadsheet or SQL table. It's the core data structure in pandas.
 
@@ -25,7 +25,7 @@ data = {
 df = pd.DataFrame(data)
 \`\`\`
 
-## What is a Series?
+## Series
 
 A Series is a single column; a 1D array with labels (the index):
 
@@ -34,7 +34,7 @@ ages = df["age"]  # This is a Series
 print(type(ages))  # <class 'pandas.core.series.Series'>
 \`\`\`
 
-## Exploring Your Data
+## exploring
 
 \`\`\`python
 df.head()       # First 5 rows
@@ -47,7 +47,7 @@ df.columns      # Column names
 df.dtypes       # Data type of each column
 \`\`\`
 
-## Quick Data Types
+## data types
 
 | dtype | Meaning |
 |-------|---------|
@@ -57,16 +57,6 @@ df.dtypes       # Data type of each column
 | bool | True/False |
 | datetime64 | Date/time |
 
-## What You Do With Them
-
-Once data is in a DataFrame you can:
-- Filter rows
-- Select columns
-- Aggregate and group
-- Join multiple datasets
-- Clean and transform
-
-Almost every pandas operation you'll learn starts with a DataFrame.
 `,
     starterCode: `# The 'students' DataFrame is pre-loaded
 
@@ -199,7 +189,7 @@ print(f"\\nData types:\\n{permits.dtypes}")`,
     title: "Selecting Data",
     badge: "practice",
     theory: `
-## Selecting Columns
+## selecting columns
 
 Single column (returns Series):
 \`\`\`python
@@ -230,35 +220,6 @@ df.iloc[:3, :2]        # First 3 rows, first 2 columns
 df.iloc[-1]            # Last row
 \`\`\`
 
-## Key Difference
-
-\`\`\`python
-# With loc, the end is INCLUSIVE
-df.loc[0:2]  # Returns rows 0, 1, AND 2
-
-# With iloc, the end is EXCLUSIVE
-df.iloc[0:2]  # Returns rows 0 and 1 only
-\`\`\`
-
-## Column Selection Tips
-
-\`\`\`python
-# Get column as Series (most common)
-names = df["name"]
-
-# Get column as DataFrame (preserves structure)
-names_df = df[["name"]]
-
-# Select multiple columns
-subset = df[["name", "score", "grade"]]
-\`\`\`
-
-## When to Use What
-
-- **df["col"]**: Quick column access
-- **df[["col1", "col2"]]**: Multiple columns
-- **loc**: When you know row labels or column names
-- **iloc**: When you want specific positions (like "first 5 rows")
 `,
     starterCode: `# Practice selecting data from students DataFrame
 
@@ -392,7 +353,7 @@ print(status_report)`,
     title: "Filtering Rows",
     badge: "practice",
     theory: `
-## Boolean Indexing
+## boolean indexing
 
 The most powerful way to filter data. Create a True/False mask and use it to select rows:
 
@@ -407,7 +368,7 @@ older_people = df[mask]
 older_people = df[df["age"] > 25]
 \`\`\`
 
-## Comparison Operators
+## operators
 
 \`\`\`python
 df[df["price"] > 50]       # Greater than
@@ -417,7 +378,7 @@ df[df["price"] != 50]      # Not equal
 df[df["name"] == "Alice"]  # String equality
 \`\`\`
 
-## Combining Conditions
+## combining conditions
 
 Use \`&\` (and) and \`|\` (or). **Wrap each condition in parentheses!**
 
@@ -429,7 +390,7 @@ df[(df["age"] > 25) & (df["city"] == "NYC")]
 df[(df["age"] < 20) | (df["age"] > 60)]
 \`\`\`
 
-## Helpful Methods
+## useful methods
 
 \`\`\`python
 # isin() - check membership in a list
@@ -443,11 +404,6 @@ df[df["name"].str.startswith("A")]
 df[df["name"].str.contains("ali", case=False)]
 \`\`\`
 
-## Filtering Pattern
-
-1. Think: "What condition identifies the rows I want?"
-2. Write the condition: \`df["column"] > value\`
-3. Put it inside brackets: \`df[df["column"] > value]\`
 `,
     starterCode: `# Filter students with score >= 90
 high_scorers = students[students["score"] >= 90]
@@ -586,7 +542,7 @@ print(active_permits)`,
     title: "Sorting & Adding Columns",
     badge: "practice",
     theory: `
-## Sorting Data
+## sorting
 
 Sort by one column:
 \`\`\`python
@@ -599,7 +555,7 @@ Sort by multiple columns:
 df.sort_values(["category", "price"], ascending=[True, False])
 \`\`\`
 
-## Adding New Columns
+## adding columns
 
 Just assign to a new column name:
 \`\`\`python
@@ -613,7 +569,7 @@ df["status"] = "active"
 df["expensive"] = df["price"] > 50
 \`\`\`
 
-## Using apply()
+## apply
 
 For more complex transformations:
 \`\`\`python
@@ -626,7 +582,7 @@ df["description"] = df.apply(
 )
 \`\`\`
 
-## Modifying Existing Columns
+## modifying columns
 
 \`\`\`python
 # Update all values
@@ -636,18 +592,6 @@ df["price"] = df["price"] * 1.1  # 10% increase
 df.loc[df["category"] == "Electronics", "price"] *= 0.9  # 10% discount
 \`\`\`
 
-## Common Patterns
-
-\`\`\`python
-# Percentage of total
-df["pct_of_total"] = df["amount"] / df["amount"].sum() * 100
-
-# Rank
-df["rank"] = df["score"].rank(ascending=False)
-
-# Cumulative sum
-df["running_total"] = df["amount"].cumsum()
-\`\`\`
 `,
     starterCode: `# Sort students by score (highest first)
 sorted_students = students.sort_values("score", ascending=False)
@@ -787,7 +731,7 @@ print(permits[["Permit Number", "Status", "is_active"]])`,
     title: "Reading & Writing Files",
     badge: "concept",
     theory: `
-## Reading CSV Files
+## reading csv
 
 The most common operation; loading data from a CSV:
 
@@ -810,7 +754,7 @@ pd.read_csv("data.csv",
 )
 \`\`\`
 
-## Reading from String (for testing)
+## reading from a string
 
 \`\`\`python
 import io
@@ -820,7 +764,7 @@ Bob,30"""
 df = pd.read_csv(io.StringIO(csv_string))
 \`\`\`
 
-## Writing CSV Files
+## writing csv
 
 \`\`\`python
 df.to_csv("output.csv")
@@ -828,7 +772,7 @@ df.to_csv("output.csv", index=False)  # Without row index
 df.to_csv("output.csv", columns=["name", "age"])  # Specific columns
 \`\`\`
 
-## Other File Formats
+## other formats
 
 \`\`\`python
 # Excel
@@ -844,11 +788,6 @@ df = pd.read_parquet("data.parquet")
 df.to_parquet("output.parquet")
 \`\`\`
 
-## Best Practices
-
-1. Always check your data after loading: \`df.head()\`, \`df.info()\`
-2. Specify dtypes for columns that might be misinterpreted (like zip codes)
-3. Use \`index=False\` when saving to avoid unnamed index column on reload
 `,
     starterCode: `# In this environment, we use io.StringIO to simulate file reading
 import io

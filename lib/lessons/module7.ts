@@ -9,7 +9,7 @@ export const lessonsModule7: Lesson[] = [
     title: "Lambda Functions",
     badge: "concept",
     theory: `
-## What is a Lambda?
+## lambdas
 
 A lambda is a small, anonymous function. Instead of using \`def\`:
 
@@ -24,7 +24,7 @@ You can write:
 double = lambda x: x * 2
 \`\`\`
 
-## Lambda Syntax
+## syntax
 
 \`\`\`python
 lambda arguments: expression
@@ -35,7 +35,7 @@ lambda arguments: expression
 - Single expression (no statements)
 - Implicit return
 
-## Examples
+## examples
 
 \`\`\`python
 # One argument
@@ -51,7 +51,7 @@ grade = lambda score: "Pass" if score >= 70 else "Fail"
 print(grade(85))  # "Pass"
 \`\`\`
 
-## Using with map() and filter()
+## with map() and filter()
 
 \`\`\`python
 numbers = [1, 2, 3, 4, 5]
@@ -65,17 +65,6 @@ evens = list(filter(lambda x: x % 2 == 0, numbers))
 # [2, 4]
 \`\`\`
 
-## When to Use Lambdas
-
-**Good for:**
-- Simple, one-line operations
-- Passing to functions like sort(), map(), filter()
-- Quick DataFrame transformations
-
-**Avoid when:**
-- Logic needs multiple lines
-- Function is used in multiple places
-- Logic is complex or needs documentation
 `,
     starterCode: `# Lambda basics
 square = lambda x: x ** 2
@@ -292,11 +281,6 @@ df["score_doubled"] = df["score"].map(lambda x: x * 2)
 | DataFrame.apply() | Function on rows or columns |
 | DataFrame.map() | Element-wise function on entire DataFrame |
 
-## When to Use Each
-
-- **map()**: Simple value translations (dict) or element transformations
-- **apply()**: Complex logic, access to row context
-- **Vectorized ops**: Prefer \`df["a"] + df["b"]\` over apply when possible
 `,
     starterCode: `# Apply function to Series
 def classify_score(score):
@@ -462,7 +446,7 @@ print(sales["PriorityLabel"].value_counts())`,
     title: "Custom Aggregations",
     badge: "practice",
     theory: `
-## Custom Functions in agg()
+## custom funcs in agg()
 
 You can use custom functions with groupby().agg():
 
@@ -473,7 +457,7 @@ def range_func(x):
 df.groupby("category")["value"].agg(range_func)
 \`\`\`
 
-## Multiple Custom Aggregations
+## multiple custom aggregations
 
 \`\`\`python
 df.groupby("category")["value"].agg([
@@ -484,7 +468,7 @@ df.groupby("category")["value"].agg([
 ])
 \`\`\`
 
-## Named Aggregations with Custom Functions
+## named aggregations w/ custom funcs
 
 \`\`\`python
 df.groupby("category").agg(
@@ -505,23 +489,6 @@ df.groupby("category")["value"].agg("mean")
 
 # transform - value for each row (group's mean)
 df["group_mean"] = df.groupby("category")["value"].transform("mean")
-\`\`\`
-
-## Common transform() Uses
-
-\`\`\`python
-# Normalize within groups
-df["normalized"] = df.groupby("group")["value"].transform(
-    lambda x: (x - x.mean()) / x.std()
-)
-
-# Rank within groups
-df["rank"] = df.groupby("group")["value"].transform("rank")
-
-# Percentage of group total
-df["pct"] = df.groupby("group")["value"].transform(
-    lambda x: x / x.sum() * 100
-)
 \`\`\`
 
 ## See also
@@ -692,7 +659,7 @@ for cat in category_stats.index:
     title: "Vectorized Operations",
     badge: "concept",
     theory: `
-## Why Vectorization Matters
+## why vectorization matters
 
 **Slow (loop):**
 \`\`\`python
@@ -709,7 +676,7 @@ df["sum"] = df["a"] + df["b"]
 
 Vectorized operations are 10-100x faster because they use optimized C code under the hood.
 
-## Vectorized Math
+## vectorized math
 
 \`\`\`python
 df["doubled"] = df["value"] * 2
@@ -718,7 +685,7 @@ df["total"] = df["price"] * df["qty"]
 df["pct"] = df["value"] / df["value"].sum() * 100
 \`\`\`
 
-## String Operations (.str accessor)
+## string ops (.str)
 
 \`\`\`python
 df["lower"] = df["name"].str.lower()
@@ -727,7 +694,7 @@ df["has_a"] = df["name"].str.contains("a")
 df["parts"] = df["text"].str.split(",")
 \`\`\`
 
-## Conditional Operations
+## conditionals (np.where, np.select)
 
 \`\`\`python
 import numpy as np
@@ -748,7 +715,7 @@ df["grade"] = np.select(conditions, choices, default="F")
 df["bucket"] = pd.cut(df["value"], bins=[0, 25, 50, 75, 100])
 \`\`\`
 
-## Comparison to apply()
+## vs apply()
 
 | Operation | Use |
 |-----------|-----|
@@ -930,11 +897,11 @@ print(rep_performance["Tier"].value_counts())`,
     title: "Capstone Project",
     badge: "challenge",
     theory: `
-## Capstone, the unscaffolded version
+## the capstone
 
 Every lesson up to this one handed you a partial query and asked you to fill in a blank. This one doesn't. You get a real dataset and three questions. You choose the approach.
 
-## The dataset
+## the dataset
 
 The Plotly diabetes dataset, 768 rows, 9 columns of medical metrics. The starter code pyfetches it for you and gives you a DataFrame named \`df\`. After that, you're on your own.
 
@@ -943,18 +910,18 @@ columns: Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, Diabe
 Outcome: 1 = diabetic, 0 = not
 \`\`\`
 
-## What "open-ended" means here
+## what open-ended means
 
 - No starter code beyond loading the data.
 - No structure-of-the-solution comments.
 - The validator only checks the printed answer, not how you arrived at it.
 - A peek-able example solution is hidden below in a collapsed details block. Try it cold first.
 
-## The strategy that has worked for the lessons until now
+## strategy from earlier lessons
 
 You can keep using it. \`groupby\`, \`apply\`, vectorized math, NumPy when speed matters. The point of an open-ended challenge isn't that you need new techniques; it's that nobody is telling you which one to reach for.
 
-## A hint about how the solution example works
+## a peek at the solution
 
 It is one short paragraph of code (under 20 lines, total). If your draft is creeping past 40 lines, you're probably overbuilding.
 

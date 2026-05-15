@@ -9,7 +9,7 @@ export const lessonsModule3: Lesson[] = [
     title: "Missing Data",
     badge: "concept",
     theory: `
-## Detecting Missing Values
+## detecting missing values
 
 In pandas, missing values are represented as \`NaN\` (Not a Number) or \`None\`.
 
@@ -19,7 +19,7 @@ df.isna().sum()  # Count of NaN per column
 df.isna().any()  # True if column has any NaN
 \`\`\`
 
-## Handling Missing Data
+## handling missing data
 
 **Option 1: Drop rows with missing values**
 \`\`\`python
@@ -38,7 +38,7 @@ df.fillna(method="ffill")      # Forward fill (use previous value)
 df.fillna(method="bfill")      # Backward fill (use next value)
 \`\`\`
 
-## Checking for Missing Data
+## checking
 
 \`\`\`python
 # Total missing values
@@ -51,17 +51,6 @@ print(df.isna().mean() * 100)
 rows_with_na = df[df.isna().any(axis=1)]
 \`\`\`
 
-## When to Drop vs Fill
-
-**Drop when:**
-- Few rows have missing data (< 5%)
-- The missing data is random
-- You have plenty of data
-
-**Fill when:**
-- Many rows would be lost
-- You have a sensible default
-- Missing values have meaning (0, "Unknown")
 `,
     starterCode: `import io
 
@@ -225,14 +214,14 @@ print(f"\\nTotal missing values: {survey.isna().sum().sum()}")`,
     title: "Type Conversion",
     badge: "practice",
     theory: `
-## Why Types Matter
+## why types matter
 
 Pandas might read numbers as strings, dates as text, or misinterpret your data. Wrong types mean:
 - Math operations fail
 - Sorting is alphabetical instead of numeric
 - Filtering doesn't work as expected
 
-## Checking Types
+## checking
 
 \`\`\`python
 df.dtypes         # Type of each column
@@ -240,7 +229,7 @@ df["col"].dtype   # Type of specific column
 df.info()         # Types + non-null counts
 \`\`\`
 
-## Converting Types
+## converting
 
 \`\`\`python
 # To numeric
@@ -257,7 +246,7 @@ df["active"] = df["active"].astype(bool)
 df["id"] = df["id"].astype(str)
 \`\`\`
 
-## The errors Parameter
+## the errors parameter
 
 \`\`\`python
 pd.to_numeric(series, errors="raise")   # Default: raise error on invalid
@@ -265,7 +254,7 @@ pd.to_numeric(series, errors="coerce")  # Convert invalid to NaN
 pd.to_numeric(series, errors="ignore")  # Return original on error
 \`\`\`
 
-## Common Date Formats
+## date formats
 
 | Format | Example |
 |--------|---------|
@@ -274,7 +263,7 @@ pd.to_numeric(series, errors="ignore")  # Return original on error
 | %d-%b-%Y | 15-Mar-2024 |
 | %Y-%m-%d %H:%M:%S | 2024-03-15 14:30:00 |
 
-## Working with Dates
+## dates
 
 \`\`\`python
 df["date"] = pd.to_datetime(df["date"])
@@ -436,7 +425,7 @@ print(f"\\nAverage salary: \${survey['Salary'].mean():,.0f}")`,
     title: "String Cleaning",
     badge: "practice",
     theory: `
-## The .str Accessor
+## the .str accessor
 
 Pandas provides string methods through the \`.str\` accessor:
 
@@ -447,7 +436,7 @@ df["name"].str.title()
 df["name"].str.strip()
 \`\`\`
 
-## Common String Operations
+## common operations
 
 \`\`\`python
 # Remove whitespace
@@ -470,7 +459,7 @@ df["text"].str.startswith("prefix")
 df["text"].str.endswith("suffix")
 \`\`\`
 
-## Extracting Parts of Strings
+## extracting
 
 \`\`\`python
 # Split and get parts
@@ -484,7 +473,7 @@ df["text"].str.extract(r"(\\d+)")  # First number
 df["text"].str.len()
 \`\`\`
 
-## Combining String Operations
+## chaining
 
 Chain multiple operations:
 \`\`\`python
@@ -494,19 +483,6 @@ df["clean_name"] = (df["name"]
     .str.replace(" ", "_"))
 \`\`\`
 
-## Real-World Examples
-
-\`\`\`python
-# Clean phone numbers
-df["phone"] = df["phone"].str.replace(r"[^\\d]", "", regex=True)
-
-# Extract email domain
-df["domain"] = df["email"].str.split("@").str[1]
-
-# Standardize Yes/No
-df["active"] = df["active"].str.lower().str.strip()
-df["active"] = df["active"].replace({"yes": True, "no": False})
-\`\`\`
 `,
     starterCode: `import io
 
@@ -656,7 +632,7 @@ print(survey["JobTitle"].unique())`,
     title: "Renaming & Dropping",
     badge: "practice",
     theory: `
-## Renaming Columns
+## renaming
 
 \`\`\`python
 # Rename specific columns
@@ -676,7 +652,7 @@ df.columns = df.columns.str.lower()
 df.columns = df.columns.str.replace(" ", "_")
 \`\`\`
 
-## Dropping Columns
+## dropping columns
 
 \`\`\`python
 # Drop single column
@@ -689,7 +665,7 @@ df.drop(columns=["col1", "col2"])
 df.drop(df.columns[0], axis=1)  # First column
 \`\`\`
 
-## Dropping Rows
+## dropping rows
 
 \`\`\`python
 # Drop by index
@@ -702,7 +678,7 @@ df = df[df["age"] >= 18]  # Keep only adults
 df.drop(df[df["score"] < 50].index)
 \`\`\`
 
-## Reordering Columns
+## reordering
 
 \`\`\`python
 # Specify exact order
@@ -713,7 +689,7 @@ cols = ["important_col"] + [c for c in df.columns if c != "important_col"]
 df = df[cols]
 \`\`\`
 
-## In-Place Operations
+## in-place
 
 By default, these return a new DataFrame. Use \`inplace=True\` to modify the original:
 \`\`\`python
@@ -862,7 +838,7 @@ print(list(survey.columns))`,
     title: "Duplicates & Reset Index",
     badge: "practice",
     theory: `
-## Finding Duplicates
+## finding duplicates
 
 \`\`\`python
 # Check for duplicate rows
@@ -875,7 +851,7 @@ df.duplicated(subset=["name"])     # Duplicate names only
 df.duplicated(subset=["name", "email"])  # Both must match
 \`\`\`
 
-## Removing Duplicates
+## removing duplicates
 
 \`\`\`python
 # Remove duplicate rows
@@ -890,7 +866,7 @@ df.drop_duplicates(keep=False)     # Remove ALL duplicates
 df.drop_duplicates(subset=["email"])
 \`\`\`
 
-## Reset Index
+## reset_index
 
 After filtering or sorting, the index might have gaps. Reset it:
 
@@ -899,7 +875,7 @@ df.reset_index()                   # Old index becomes a column
 df.reset_index(drop=True)          # Discard old index
 \`\`\`
 
-## Setting Index
+## set_index
 
 \`\`\`python
 df.set_index("id")                 # Use 'id' column as index
@@ -907,17 +883,6 @@ df.set_index("id", drop=True)      # Remove from columns (default)
 df.set_index(["year", "month"])    # Multi-level index
 \`\`\`
 
-## Common Pattern: Filter, Reset, Continue
-
-\`\`\`python
-# Filter data
-filtered = df[df["score"] >= 70]
-
-# Reset index for clean 0, 1, 2, ... indexing
-filtered = filtered.reset_index(drop=True)
-\`\`\`
-
-This ensures subsequent operations work with a clean, sequential index.
 `,
     starterCode: `import io
 
@@ -1069,7 +1034,7 @@ print(survey.head())`,
     title: "Datetime Handling",
     badge: "concept",
     theory: `
-## Converting Strings to Datetime
+## parsing dates
 
 Most CSVs give you dates as strings. \`pd.to_datetime\` parses them. It's smart about common formats: \`2024-01-15\`, \`01/15/2024\`, \`Jan 15 2024\` all work.
 
@@ -1089,7 +1054,7 @@ If the format is weird and pandas can't guess, tell it:
 df["date"] = pd.to_datetime(df["date"], format="%d-%b-%Y")
 \`\`\`
 
-## The .dt Accessor
+## the .dt accessor
 
 Once a column is datetime, \`.dt\` gives you parts:
 
@@ -1102,7 +1067,7 @@ df["date"].dt.weekday      # 0 (Monday)
 df["date"].dt.is_month_end # True/False
 \`\`\`
 
-## Date Arithmetic
+## date arithmetic
 
 Subtracting two datetimes gives you a \`Timedelta\`:
 
@@ -1117,7 +1082,7 @@ df["next_week"] = df["date"] + pd.Timedelta(days=7)
 df["next_month"] = df["date"] + pd.DateOffset(months=1)
 \`\`\`
 
-## Filtering by Date
+## filtering by date
 
 Once parsed, comparisons just work:
 
@@ -1126,7 +1091,7 @@ recent = df[df["date"] >= "2024-01-01"]
 last_30_days = df[df["date"] >= pd.Timestamp.today() - pd.Timedelta(days=30)]
 \`\`\`
 
-## Formatting Back to String
+## formatting
 
 \`strftime\` formats a datetime as a string:
 

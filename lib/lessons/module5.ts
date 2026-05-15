@@ -9,7 +9,7 @@ export const lessonsModule5: Lesson[] = [
     title: "String Methods Deep Dive",
     badge: "practice",
     theory: `
-## Essential String Methods
+## essential methods
 
 \`\`\`python
 text = "  Hello, World!  "
@@ -24,7 +24,7 @@ text.split(",")    # ["  Hello", " World!  "]
 "-".join(["a", "b", "c"])  # "a-b-c"
 \`\`\`
 
-## Checking String Content
+## checking content
 
 \`\`\`python
 "hello".startswith("he")   # True
@@ -35,7 +35,7 @@ text.split(",")    # ["  Hello", " World!  "]
 "hello" in "hello world"   # True (substring check)
 \`\`\`
 
-## Formatting and Padding
+## formatting & padding
 
 \`\`\`python
 "42".zfill(5)              # "00042" - pad with zeros
@@ -48,7 +48,7 @@ text.split(",")    # ["  Hello", " World!  "]
 "{name} is {age}".format(name="Alice", age=25)
 \`\`\`
 
-## Slicing Strings
+## slicing
 
 \`\`\`python
 text = "Python"
@@ -59,7 +59,7 @@ text[3:]     # "hon" - from index 3 to end
 text[::-1]   # "nohtyP" - reversed
 \`\`\`
 
-## Finding and Counting
+## finding & counting
 
 \`\`\`python
 "hello world".find("world")   # 6 (index where found)
@@ -238,7 +238,7 @@ print(sales["FirstName"].unique().tolist())`,
     title: "Regex Basics",
     badge: "concept",
     theory: `
-## What is Regex?
+## what regex is
 
 Regular expressions (regex) are patterns for matching text. They're powerful for finding, extracting, and replacing text.
 
@@ -255,37 +255,7 @@ re.search(r"\\d+", "Order 123")  # Match object or None
 re.sub(r"\\d+", "X", "Order 123")  # "Order X"
 \`\`\`
 
-## Common Patterns
-
-| Pattern | Matches |
-|---------|---------|
-| \\d | Any digit (0-9) |
-| \\w | Word character (a-z, A-Z, 0-9, _) |
-| \\s | Whitespace |
-| . | Any character (except newline) |
-| + | One or more of preceding |
-| * | Zero or more of preceding |
-| ? | Zero or one of preceding |
-| ^ | Start of string |
-| $ | End of string |
-
-## Useful Examples
-
-\`\`\`python
-# Email pattern (simplified)
-r"[\\w.]+@[\\w.]+"
-
-# Phone number
-r"\\d{3}-\\d{3}-\\d{4}"
-
-# Date (YYYY-MM-DD)
-r"\\d{4}-\\d{2}-\\d{2}"
-
-# Extract between quotes
-r'"([^"]*)"'
-\`\`\`
-
-## Groups (Extracting Parts)
+## groups
 
 \`\`\`python
 # Parentheses create capture groups
@@ -295,7 +265,7 @@ if match:
     number = match.group(2)  # "1234"
 \`\`\`
 
-## Pandas + Regex
+## pandas + regex
 
 \`\`\`python
 # Extract with regex
@@ -463,7 +433,7 @@ print(sales[["SaleID", "SaleNum"]].head())`,
     title: "File I/O",
     badge: "concept",
     theory: `
-## Reading Files
+## reading
 
 \`\`\`python
 # Read entire file
@@ -480,7 +450,7 @@ with open("file.txt", "r") as f:
         print(line.strip())
 \`\`\`
 
-## Writing Files
+## writing
 
 \`\`\`python
 # Write (overwrites existing)
@@ -497,7 +467,7 @@ with open("output.txt", "w") as f:
     f.writelines(line + "\\n" for line in lines)
 \`\`\`
 
-## The with Statement
+## the with statement
 
 Always use \`with\` to ensure files are properly closed:
 
@@ -512,7 +482,7 @@ data = f.read()
 f.close()  # Easy to forget!
 \`\`\`
 
-## File Modes
+## file modes
 
 | Mode | Meaning |
 |------|---------|
@@ -523,7 +493,7 @@ f.close()  # Easy to forget!
 | "b" | Binary mode |
 | "r+" | Read and write |
 
-## The csv Module
+## the csv module
 
 \`\`\`python
 import csv
@@ -547,7 +517,7 @@ with open("output.csv", "w", newline="") as f:
     writer.writerow(["Alice", 25])
 \`\`\`
 
-## Loading real-size data over the network
+## loading real-size data
 
 The browser can't read \`/Users/you/data.csv\`. But it can pyfetch a URL and feed the bytes to \`pd.read_csv\` or \`csv.DictReader\` through \`io.StringIO\`. That's how the examples below switch from 8-row toy CSVs to real datasets in the hundreds-to-thousands of rows.
 
@@ -764,7 +734,7 @@ print(report.read())`,
     title: "JSON Handling",
     badge: "practice",
     theory: `
-## What is JSON?
+## what JSON is
 
 JSON (JavaScript Object Notation) is the standard format for data exchange. It looks like Python dictionaries and lists:
 
@@ -780,7 +750,7 @@ JSON (JavaScript Object Notation) is the standard format for data exchange. It l
 }
 \`\`\`
 
-## Python's json Module
+## the json module
 
 \`\`\`python
 import json
@@ -797,7 +767,7 @@ print(json_str)  # '{"name": "Bob", "age": 25}'
 json.dumps(data, indent=2)
 \`\`\`
 
-## Working with Files
+## json files
 
 \`\`\`python
 # Read JSON file
@@ -809,7 +779,7 @@ with open("output.json", "w") as f:
     json.dump(data, f, indent=2)  # Note: dump, not dumps
 \`\`\`
 
-## Nested Access
+## nested access
 
 \`\`\`python
 data = {
@@ -824,7 +794,7 @@ first_user = data["users"][0]["name"]  # "Alice"
 first_score = data["users"][0]["scores"][0]  # 95
 \`\`\`
 
-## JSON to DataFrame
+## json to DataFrame
 
 \`\`\`python
 import pandas as pd
@@ -1022,7 +992,7 @@ print(json_str)`,
     title: "Error Handling",
     badge: "concept",
     theory: `
-## Try/Except Blocks
+## try/except
 
 Catch errors and handle them gracefully:
 
@@ -1033,7 +1003,7 @@ except ZeroDivisionError:
     print("Cannot divide by zero!")
 \`\`\`
 
-## Common Exception Types
+## common exception types
 
 | Exception | When it occurs |
 |-----------|----------------|
@@ -1044,7 +1014,7 @@ except ZeroDivisionError:
 | TypeError | Wrong type for operation |
 | ZeroDivisionError | Division by zero |
 
-## Catching Multiple Exceptions
+## multiple exceptions
 
 \`\`\`python
 try:
@@ -1059,7 +1029,7 @@ except (IndexError, TypeError) as e:
     print(f"Error: {e}")
 \`\`\`
 
-## The else and finally Clauses
+## else and finally
 
 \`\`\`python
 try:
@@ -1075,7 +1045,7 @@ finally:
     print("Done")
 \`\`\`
 
-## Raising Exceptions
+## raising
 
 \`\`\`python
 def divide(a, b):
@@ -1084,24 +1054,6 @@ def divide(a, b):
     return a / b
 \`\`\`
 
-## Error Handling Patterns
-
-\`\`\`python
-# Default value on error
-def safe_int(value, default=0):
-    try:
-        return int(value)
-    except (ValueError, TypeError):
-        return default
-
-# Log and continue
-for item in items:
-    try:
-        process(item)
-    except Exception as e:
-        print(f"Error processing {item}: {e}")
-        continue
-\`\`\`
 `,
     starterCode: `# Practice error handling
 

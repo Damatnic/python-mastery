@@ -9,7 +9,7 @@ export const lessonsModule4: Lesson[] = [
     title: "GroupBy Basics",
     badge: "concept",
     theory: `
-## The Split-Apply-Combine Pattern
+## split-apply-combine
 
 GroupBy works in three steps:
 1. **Split** the data into groups based on a key
@@ -23,7 +23,7 @@ df.groupby("category")["price"].mean()
 #   Combine into result Series
 \`\`\`
 
-## Basic GroupBy Operations
+## groupby basics
 
 \`\`\`python
 # Single aggregation
@@ -37,7 +37,7 @@ df.groupby("category")["amount"].max()
 df.groupby("category")[["amount", "quantity"]].sum()
 \`\`\`
 
-## Using agg() for Multiple Aggregations
+## agg() for multi-aggregations
 
 \`\`\`python
 df.groupby("category")["amount"].agg(["sum", "mean", "count"])
@@ -45,7 +45,7 @@ df.groupby("category")["amount"].agg(["sum", "mean", "count"])
 
 This gives you sum, mean, and count for each category in one table.
 
-## Reset Index After GroupBy
+## reset_index after groupby
 
 By default, the group key becomes the index. To get it back as a column:
 
@@ -53,13 +53,6 @@ By default, the group key becomes the index. To get it back as a column:
 result = df.groupby("category")["amount"].sum().reset_index()
 # Now 'category' is a regular column again
 \`\`\`
-
-## Common Use Cases
-
-- Sales by region
-- Average score by subject
-- Count of orders by customer
-- Total revenue by product category
 
 ## See also
 This is the pandas equivalent of SQL's \`GROUP BY\`. Same idea, different syntax. Cross-reference on damato-sql at [/learn/data-analysis/group-by](https://damato-sql.vercel.app/learn/data-analysis/group-by).
@@ -193,7 +186,7 @@ print(avg_salary.sort_values(ascending=False))`,
     title: "Multi-Column GroupBy",
     badge: "practice",
     theory: `
-## Grouping by Multiple Columns
+## grouping by multiple columns
 
 \`\`\`python
 df.groupby(["region", "category"])["sales"].sum()
@@ -201,7 +194,7 @@ df.groupby(["region", "category"])["sales"].sum()
 
 This creates a hierarchical index with all combinations.
 
-## Multiple Aggregations on Multiple Columns
+## multi-aggregations on multiple columns
 
 \`\`\`python
 df.groupby("category").agg({
@@ -211,7 +204,7 @@ df.groupby("category").agg({
 })
 \`\`\`
 
-## Named Aggregations (Clean Column Names)
+## named aggregations
 
 \`\`\`python
 df.groupby("category").agg(
@@ -223,7 +216,7 @@ df.groupby("category").agg(
 
 This gives you descriptive column names in the result.
 
-## Working with Multi-Index Results
+## multi-index results
 
 \`\`\`python
 # After multi-column groupby
@@ -236,7 +229,7 @@ flat = result.reset_index()
 pivoted = result.unstack()
 \`\`\`
 
-## Size vs Count
+## size vs count
 
 \`\`\`python
 df.groupby("category").size()   # Count all rows
@@ -374,7 +367,7 @@ print(language_counts)`,
     title: "Merge & Join",
     badge: "concept",
     theory: `
-## pd.merge(): Combining DataFrames
+## pd.merge()
 
 Think of merge like a SQL JOIN. You combine two tables based on matching values.
 
@@ -382,7 +375,7 @@ Think of merge like a SQL JOIN. You combine two tables based on matching values.
 pd.merge(left_df, right_df, on="common_column")
 \`\`\`
 
-## Join Types (how parameter)
+## join types
 
 | Type | Keeps |
 |------|-------|
@@ -395,7 +388,7 @@ pd.merge(left_df, right_df, on="common_column")
 pd.merge(orders, customers, on="customer_id", how="left")
 \`\`\`
 
-## Different Column Names
+## different column names
 
 When the join columns have different names:
 
@@ -405,7 +398,7 @@ pd.merge(orders, customers,
          right_on="customer_id")
 \`\`\`
 
-## Handling Duplicate Column Names
+## duplicate column names
 
 When both DataFrames have columns with the same name (that aren't join keys):
 
@@ -414,7 +407,7 @@ pd.merge(df1, df2, on="id", suffixes=("_left", "_right"))
 # Columns become: value_left, value_right
 \`\`\`
 
-## Merge Patterns
+## patterns
 
 \`\`\`python
 # Add customer details to orders
@@ -612,7 +605,7 @@ print(enriched[["RespondentID", "Country", "Region", "Salary"]].head(10))`,
     title: "Concat & Pivot",
     badge: "practice",
     theory: `
-## pd.concat(): Stacking DataFrames
+## pd.concat()
 
 Stack DataFrames vertically (add more rows):
 
@@ -627,7 +620,7 @@ Stack horizontally (add more columns):
 combined = pd.concat([df1, df2], axis=1)
 \`\`\`
 
-## Pivot Tables
+## pivot tables
 
 Transform long data into wide format:
 
@@ -640,7 +633,7 @@ df.pivot_table(
 )
 \`\`\`
 
-## Pivot vs Pivot_table
+## pivot vs pivot_table
 
 - **pivot()**: Simple reshape, no aggregation (will error on duplicates)
 - **pivot_table()**: Handles duplicates by aggregating
@@ -653,20 +646,7 @@ df.pivot(index="date", columns="product", values="sales")
 df.pivot_table(index="date", columns="product", values="sales", aggfunc="sum")
 \`\`\`
 
-## Common Pivot Patterns
-
-\`\`\`python
-# Sales by region and product
-df.pivot_table(index="region", columns="product", values="sales", aggfunc="sum")
-
-# Multiple aggregations
-df.pivot_table(index="region", values="sales", aggfunc=["sum", "mean", "count"])
-
-# Fill missing values
-df.pivot_table(..., fill_value=0)
-\`\`\`
-
-## Melt: Opposite of Pivot
+## melt
 
 Unpivot from wide to long format:
 
@@ -827,7 +807,7 @@ print(salary_pivot.round(0))`,
     title: "Fixed-Width Files",
     badge: "concept",
     theory: `
-## What Are Fixed-Width Files?
+## fixed-width files
 
 Unlike CSVs (comma-separated), fixed-width files use character positions. Each field occupies a set number of characters:
 
@@ -840,7 +820,7 @@ Carol 28CHI
 
 Name is characters 0-5, Age is 6-7, City is 8-11.
 
-## Reading Fixed-Width with pd.read_fwf()
+## pd.read_fwf()
 
 \`\`\`python
 # Auto-detect column widths (sometimes works)
@@ -857,7 +837,7 @@ df = pd.read_fwf("data.txt",
     names=["name", "age", "city"])
 \`\`\`
 
-## colspecs Format
+## colspecs
 
 List of (start, end) tuples. Character positions are 0-indexed:
 
@@ -869,7 +849,7 @@ colspecs = [
 ]
 \`\`\`
 
-## Common Parameters
+## common parameters
 
 \`\`\`python
 pd.read_fwf(filepath,
@@ -882,12 +862,6 @@ pd.read_fwf(filepath,
 )
 \`\`\`
 
-## When You'll See Fixed-Width Files
-
-- Government data (census, IRS)
-- Mainframe exports
-- Legacy banking systems
-- Log files with fixed formats
 `,
     starterCode: `import io
 

@@ -9,7 +9,7 @@ export const lessonsModule6: Lesson[] = [
     title: "Requests Basics",
     badge: "concept",
     theory: `
-## Two Ways to Fetch Data
+## fetching: requests vs pyfetch
 
 In a regular Python script you use the \`requests\` library:
 
@@ -38,7 +38,7 @@ Same shape, two differences worth knowing:
 
 When you ship a real script you'll write \`requests.get\`. The patterns translate.
 
-## Status, JSON, and Errors
+## status, json, errors
 
 \`\`\`python
 response = await pyfetch(url)
@@ -62,7 +62,7 @@ except Exception as e:
     print(f"request failed: {e}")
 \`\`\`
 
-## Adding Params
+## query params
 
 \`pyfetch\` doesn't have a \`params=\` keyword like \`requests\` does. Build the query string yourself:
 
@@ -76,7 +76,7 @@ posts = await response.json()
 print(f"{len(posts)} posts for user 1")
 \`\`\`
 
-## Public test API
+## public test API
 
 Examples below hit **jsonplaceholder.typicode.com**. It's a free, CORS-friendly fake API with users, posts, comments, todos. Real HTTP, real JSON, no auth required. Good for practice without spinning up your own backend.
 `,
@@ -239,13 +239,13 @@ else:
     title: "JSON from APIs",
     badge: "practice",
     theory: `
-## Real network, real data
+## real network
 
 Lesson 26 introduced \`pyfetch\`. This lesson uses it for actual work: hitting a public REST API, getting JSON, turning it into a DataFrame.
 
 Every example below makes a real network request. The test API is \`https://jsonplaceholder.typicode.com\`, a free CORS-friendly stand-in for production APIs. Same shape (users, posts, comments, todos), no auth required.
 
-## The fetch shape you'll keep writing
+## the shape you'll keep writing
 
 \`\`\`python
 from pyodide.http import pyfetch
@@ -260,7 +260,7 @@ df = pd.DataFrame(data)
 
 Four steps. \`pyfetch\` → check status → \`.json()\` → \`pd.DataFrame\`. That sequence covers 80% of real API work.
 
-## Picking the columns you want
+## picking columns
 
 A typical API returns way more fields than you need. Strip down right away:
 
@@ -278,7 +278,7 @@ df = json_normalize(data["users"])
 # Yields columns: id, address.city, address.zipcode, ...
 \`\`\`
 
-## Counting by a foreign key
+## counting by foreign key
 
 A common API has two endpoints that join on an id. JsonPlaceholder gives you \`/posts\` (with a \`userId\` field) and \`/users\` (with that user's name). Fetch both, merge, aggregate.
 
@@ -289,7 +289,7 @@ joined = posts.merge(users, left_on="userId", right_on="id")
 posts_per_user = joined.groupby("name").size()
 \`\`\`
 
-## When the status isn't 200
+## handling non-200
 
 Always read \`response.status\` before \`.json()\`. A 404 or 500 page might still have a JSON body, but it won't have the shape you're expecting.
 
@@ -506,7 +506,7 @@ for region, rev in regional.items():
     title: "BeautifulSoup Basics",
     badge: "concept",
     theory: `
-## What is BeautifulSoup?
+## BeautifulSoup
 
 BeautifulSoup parses HTML/XML, letting you extract data from web pages:
 
@@ -520,7 +520,7 @@ print(soup.h1.text)  # "Title"
 print(soup.p.text)   # "Content"
 \`\`\`
 
-## Finding Elements
+## finding elements
 
 \`\`\`python
 # Find first matching element
@@ -534,7 +534,7 @@ soup.find_all("a")
 soup.find_all("div", class_="item")
 \`\`\`
 
-## Extracting Data
+## extracting
 
 \`\`\`python
 element = soup.find("a")
@@ -544,7 +544,7 @@ element["href"]        # Same, but may raise error
 element.get_text(strip=True)  # Clean text
 \`\`\`
 
-## CSS Selectors
+## css selectors
 
 \`\`\`python
 soup.select("div.container")    # Class selector
@@ -554,7 +554,7 @@ soup.select("div > p")          # Direct child
 soup.select("a[href]")          # Has attribute
 \`\`\`
 
-## Common Pattern: Scraping a List
+## scraping a list
 
 \`\`\`python
 items = []
@@ -567,7 +567,7 @@ for row in soup.find_all("tr"):
         })
 \`\`\`
 
-## Pairing it with pyfetch
+## with pyfetch
 
 In this site we fetch HTML over the network with \`pyfetch\` (same-origin works without any CORS hassle), then feed \`response.string()\` to BeautifulSoup. Same code as a regular Python script except for the \`await\`.
 
@@ -796,7 +796,7 @@ print(f"\\nTotal Revenue: \${total:,.2f}")`,
     title: "Scraping Tables",
     badge: "practice",
     theory: `
-## pd.read_html on a real page
+## pd.read_html
 
 \`pd.read_html\` parses every table on a page into DataFrames. In a regular script you can hand it a URL. In Pyodide, the network goes through pyfetch, so the recipe is:
 
@@ -812,7 +812,7 @@ df = tables[0]
 
 The site bundles a real HTML page at \`/sample-data/electronics-store.html\` containing an inventory table. The examples below pull from it.
 
-## Picking the right table
+## picking the right table
 
 When a page has more than one table, three tools narrow it down:
 
@@ -822,7 +822,7 @@ pd.read_html(html, attrs={"id": "inventory-table"})  # by attribute
 pd.read_html(html, header=0)                   # explicit header row
 \`\`\`
 
-## Cleaning what comes back
+## cleaning
 
 \`pd.read_html\` returns strings for every column by default, because HTML doesn't know types. You'll always have a cleanup step.
 
@@ -838,7 +838,7 @@ Currency or formatted numbers need a regex strip first:
 df["Revenue"] = df["Revenue"].str.replace(r"[$,]", "", regex=True).astype(float)
 \`\`\`
 
-## What read_html can't do
+## what read_html can't do
 
 - Pages where the table is rendered by JavaScript after page load. \`pyfetch\` gets the raw HTML; if the table isn't in the initial markup, it's not there to parse.
 - Cells with images instead of text. The image alt attribute is sometimes a good fallback, but \`read_html\` ignores it; you have to drop to BeautifulSoup.
@@ -1018,7 +1018,7 @@ print(f"\\nTop Performer: {top_rep} with \${top_rev:,.2f}")`,
     title: "Building a Data Pipeline",
     badge: "challenge",
     theory: `
-## A pipeline against a real API
+## the pipeline
 
 Three steps, three functions, one source of truth: an actual JSON endpoint. We'll use \`/posts\` and \`/users\` from jsonplaceholder.
 
@@ -1028,7 +1028,7 @@ Three steps, three functions, one source of truth: an actual JSON endpoint. We'l
 
 Wrapping each phase in a function is what turns a pile of fetch calls into a *pipeline*. It also makes the pieces testable in isolation.
 
-## Skeleton
+## skeleton
 
 \`\`\`python
 async def extract():
@@ -1049,7 +1049,7 @@ def load(df):
     return counts
 \`\`\`
 
-## Logging the steps
+## logging
 
 The browser console can swallow errors mid-pipeline. A tiny log helper makes it obvious where a run stopped.
 
@@ -1059,7 +1059,7 @@ def log(step, msg):
     print(f"[{datetime.now():%H:%M:%S}] [{step}] {msg}")
 \`\`\`
 
-## Idempotence
+## idempotence
 
 A pipeline you can re-run safely is worth ten times one you can't. That usually means:
 - Extract is side-effect-free (just fetching, not mutating server state)
