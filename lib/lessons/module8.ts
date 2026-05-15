@@ -4,7 +4,7 @@ export const lessonsModule8: Lesson[] = [
   {
     module: "Game Development with Pygame",
     moduleSlug: "game-dev-pygame",
-    lessonNumber: 36,
+    lessonNumber: 41,
     slug: "pygame-basics",
     title: "Pygame Setup & Game Loop",
     badge: "concept",
@@ -309,7 +309,7 @@ def validate(answer):
   {
     module: "Game Development with Pygame",
     moduleSlug: "game-dev-pygame",
-    lessonNumber: 37,
+    lessonNumber: 42,
     slug: "pygame-movement",
     title: "Movement, Velocity & Physics",
     badge: "concept",
@@ -689,7 +689,7 @@ def validate(answer):
   {
     module: "Game Development with Pygame",
     moduleSlug: "game-dev-pygame",
-    lessonNumber: 38,
+    lessonNumber: 43,
     slug: "pygame-sprites",
     title: "Sprites & Sprite Groups",
     badge: "concept",
@@ -1072,7 +1072,7 @@ def validate(answer):
   {
     module: "Game Development with Pygame",
     moduleSlug: "game-dev-pygame",
-    lessonNumber: 39,
+    lessonNumber: 44,
     slug: "pygame-collision",
     title: "Collision Detection",
     badge: "practice",
@@ -1442,7 +1442,7 @@ def validate(answer):
   {
     module: "Game Development with Pygame",
     moduleSlug: "game-dev-pygame",
-    lessonNumber: 40,
+    lessonNumber: 45,
     slug: "pygame-project-breakaway",
     title: "Project: Brick Breakaway",
     badge: "challenge",

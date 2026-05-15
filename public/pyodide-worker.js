@@ -92,7 +92,7 @@ json_str
 async function bootstrap() {
   try {
     pyodide = await loadPyodide({ indexURL: PYODIDE_CDN });
-    await pyodide.loadPackage(["pandas", "numpy"]);
+    await pyodide.loadPackage(["pandas", "numpy", "beautifulsoup4"]);
     await pyodide.runPythonAsync(STARTER_DATA_CODE);
     ready = true;
     self.postMessage({ type: "ready" });

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, use } from "react";
 import Link from "next/link";
 import { Sidebar } from "@/components/Sidebar";
 import { LessonView } from "@/components/LessonView";
+import { TutorChat } from "@/components/TutorChat";
 import { getAllModules, getLessonBySlug, getNextLesson, getPreviousLesson } from "@/lib/lessons";
 import { updateStreak } from "@/lib/streak";
 import { safeJsonParse, markReviewed } from "@/lib/storage";
@@ -88,6 +89,11 @@ export default function LessonPage({ params }: LessonPageProps) {
           nextLesson={nextLesson ? { slug: nextLesson.slug, moduleSlug: nextLesson.moduleSlug, title: nextLesson.title } : null}
         />
       </main>
+      <TutorChat
+        lessonTitle={lesson.title}
+        moduleSlug={moduleSlug}
+        currentCode=""
+      />
     </div>
   );
 }

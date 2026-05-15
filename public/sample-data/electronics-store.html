@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Electronics Store · Weekly Inventory</title>
+</head>
+<body>
+<header>
+  <h1>Electronics Store · Weekly Inventory</h1>
+  <p>Snapshot of in-stock SKUs as of <time datetime="2026-05-10">May 10, 2026</time>.</p>
+</header>
+
+<section class="categories">
+  <h2>Categories</h2>
+  <ul id="category-list">
+    <li class="cat">Laptops</li>
+    <li class="cat">Phones</li>
+    <li class="cat">Tablets</li>
+    <li class="cat">Accessories</li>
+  </ul>
+</section>
+
+<section class="inventory">
+  <h2>Inventory</h2>
+  <table id="inventory-table" border="1">
+    <thead>
+      <tr>
+        <th>SKU</th>
+        <th>Product</th>
+        <th>Category</th>
+        <th>Price</th>
+        <th>Stock</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>L-001</td><td>Pro Laptop 14</td><td>Laptops</td><td>1299.00</td><td>22</td></tr>
+      <tr><td>L-002</td><td>Pro Laptop 16</td><td>Laptops</td><td>1899.00</td><td>11</td></tr>
+      <tr><td>L-003</td><td>Air Laptop 13</td><td>Laptops</td><td>999.00</td><td>34</td></tr>
+      <tr><td>P-001</td><td>Phone X</td><td>Phones</td><td>899.00</td><td>58</td></tr>
+      <tr><td>P-002</td><td>Phone X Pro</td><td>Phones</td><td>1199.00</td><td>30</td></tr>
+      <tr><td>P-003</td><td>Phone Mini</td><td>Phones</td><td>699.00</td><td>72</td></tr>
+      <tr><td>T-001</td><td>Tablet 10</td><td>Tablets</td><td>599.00</td><td>40</td></tr>
+      <tr><td>T-002</td><td>Tablet 12 Pro</td><td>Tablets</td><td>1099.00</td><td>18</td></tr>
+      <tr><td>A-001</td><td>Wireless Earbuds</td><td>Accessories</td><td>149.00</td><td>120</td></tr>
+      <tr><td>A-002</td><td>USB-C Charger</td><td>Accessories</td><td>49.00</td><td>240</td></tr>
+      <tr><td>A-003</td><td>Laptop Sleeve</td><td>Accessories</td><td>39.00</td><td>180</td></tr>
+      <tr><td>A-004</td><td>HDMI Cable 2m</td><td>Accessories</td><td>19.00</td><td>320</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="featured">
+  <h2>Featured Today</h2>
+  <ul class="featured-list">
+    <li data-sku="L-002">Pro Laptop 16 <span class="price">$1899.00</span></li>
+    <li data-sku="P-002">Phone X Pro <span class="price">$1199.00</span></li>
+    <li data-sku="T-002">Tablet 12 Pro <span class="price">$1099.00</span></li>
+  </ul>
+</section>
+
+<footer>
+  <p>Demo HTML for damato-python lesson examples. Same-origin so pyfetch always reaches it.</p>
+</footer>
+</body>
+</html>

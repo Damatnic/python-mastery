@@ -60,6 +60,9 @@ result = df.groupby("category")["amount"].sum().reset_index()
 - Average score by subject
 - Count of orders by customer
 - Total revenue by product category
+
+## See also
+This is the pandas equivalent of SQL's \`GROUP BY\`. Same idea, different syntax. Cross-reference on damato-sql at [/learn/data-analysis/group-by](https://damato-sql.vercel.app/learn/data-analysis/group-by).
 `,
     starterCode: `# Group students by subject and calculate average score
 avg_by_subject = students.groupby("subject")["score"].mean()
@@ -424,6 +427,9 @@ orphan_orders = all_orders[all_orders["customer_name"].isna()]
 # Find all combinations (cross join)
 pd.merge(df1, df2, how="cross")
 \`\`\`
+
+## See also
+The SQL equivalent is \`INNER JOIN ... ON\` (and \`LEFT JOIN\` for \`how="left"\`). The matching mental model with table-flavored examples is on damato-sql at [/learn/joining-tables/inner-join](https://damato-sql.vercel.app/learn/joining-tables/inner-join).
 `,
     starterCode: `import io
 

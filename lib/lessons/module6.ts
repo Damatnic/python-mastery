@@ -239,189 +239,156 @@ else:
     title: "JSON from APIs",
     badge: "practice",
     theory: `
-## API Response Patterns
+## Real network, real data
 
-Most APIs return JSON in predictable structures:
+Lesson 26 introduced \`pyfetch\`. This lesson uses it for actual work: hitting a public REST API, getting JSON, turning it into a DataFrame.
 
-**List of items:**
-\`\`\`json
-{
-  "data": [
-    {"id": 1, "name": "Item 1"},
-    {"id": 2, "name": "Item 2"}
-  ],
-  "total": 2
-}
-\`\`\`
+Every example below makes a real network request. The test API is \`https://jsonplaceholder.typicode.com\`, a free CORS-friendly stand-in for production APIs. Same shape (users, posts, comments, todos), no auth required.
 
-**Single item:**
-\`\`\`json
-{
-  "data": {"id": 1, "name": "Item 1"},
-  "status": "success"
-}
-\`\`\`
-
-**Paginated results:**
-\`\`\`json
-{
-  "data": [...],
-  "page": 1,
-  "total_pages": 10,
-  "next": "https://api.example.com/items?page=2"
-}
-\`\`\`
-
-## Converting to DataFrame
+## The fetch shape you'll keep writing
 
 \`\`\`python
+from pyodide.http import pyfetch
 import pandas as pd
 
-# List of dicts → DataFrame
-data = [{"name": "A", "value": 1}, {"name": "B", "value": 2}]
+response = await pyfetch("https://jsonplaceholder.typicode.com/users")
+if response.status != 200:
+    raise RuntimeError(f"API returned {response.status}")
+data = await response.json()
 df = pd.DataFrame(data)
+\`\`\`
 
-# Nested structure → normalize
+Four steps. \`pyfetch\` → check status → \`.json()\` → \`pd.DataFrame\`. That sequence covers 80% of real API work.
+
+## Picking the columns you want
+
+A typical API returns way more fields than you need. Strip down right away:
+
+\`\`\`python
+df = pd.DataFrame(data)[["id", "name", "email"]]
+\`\`\`
+
+If the response is nested (a list of dicts where one value is itself a dict), use \`pd.json_normalize\` to flatten:
+
+\`\`\`python
 from pandas import json_normalize
-df = json_normalize(data, record_path="items", meta=["page"])
+
+# {"users": [{"id": 1, "address": {"city": "Boston"}}, ...]}
+df = json_normalize(data["users"])
+# Yields columns: id, address.city, address.zipcode, ...
 \`\`\`
 
-## Working with Nested JSON
+## Counting by a foreign key
+
+A common API has two endpoints that join on an id. JsonPlaceholder gives you \`/posts\` (with a \`userId\` field) and \`/users\` (with that user's name). Fetch both, merge, aggregate.
 
 \`\`\`python
-response = {
-    "results": [
-        {
-            "user": {"name": "Alice", "id": 1},
-            "scores": [95, 88, 91]
-        }
-    ]
-}
-
-# Extract nested data
-for result in response["results"]:
-    name = result["user"]["name"]
-    avg_score = sum(result["scores"]) / len(result["scores"])
-    print(f"{name}: {avg_score:.1f}")
+posts = pd.DataFrame(await (await pyfetch(".../posts")).json())
+users = pd.DataFrame(await (await pyfetch(".../users")).json())
+joined = posts.merge(users, left_on="userId", right_on="id")
+posts_per_user = joined.groupby("name").size()
 \`\`\`
 
-## Flattening Nested Data
+## When the status isn't 200
+
+Always read \`response.status\` before \`.json()\`. A 404 or 500 page might still have a JSON body, but it won't have the shape you're expecting.
 
 \`\`\`python
-# Manual flattening
-rows = []
-for item in response["results"]:
-    rows.append({
-        "name": item["user"]["name"],
-        "id": item["user"]["id"],
-        "avg_score": sum(item["scores"]) / len(item["scores"])
-    })
-df = pd.DataFrame(rows)
+resp = await pyfetch(".../users/9999")  # doesn't exist
+if resp.status == 404:
+    print("user not found")
+elif resp.status >= 500:
+    print("server error, retry later")
+else:
+    user = await resp.json()
 \`\`\`
 `,
-    starterCode: `# Process nested API data
-api_data = {
-    "status": "success",
-    "results": [
-        {"id": 1, "name": "Product A", "price": 29.99, "tags": ["electronics", "sale"]},
-        {"id": 2, "name": "Product B", "price": 49.99, "tags": ["electronics"]},
-        {"id": 3, "name": "Product C", "price": 19.99, "tags": ["sale", "clearance"]}
-    ],
-    "count": 3
-}
+    starterCode: `# Fetch real users from a public API and load into a DataFrame.
+import pandas as pd
+from pyodide.http import pyfetch
 
-# Convert results to DataFrame
-df = pd.DataFrame(api_data["results"])
-print("Products DataFrame:")
-print(df)
+response = await pyfetch("https://jsonplaceholder.typicode.com/users")
+if response.status != 200:
+    raise RuntimeError(f"API returned {response.status}")
+
+users = await response.json()
+df = pd.DataFrame(users)[["id", "name", "username", "email"]]
+
+print(f"Fetched {len(df)} users from the live API")
+print(df.head())
 `,
     examples: [
       {
-        title: "Extracting Nested Data",
-        explanation: "Navigate complex JSON structures",
-        code: `# API response with nested user data
-response = {
-    "users": [
-        {
-            "profile": {"name": "Alice", "age": 25},
-            "stats": {"posts": 42, "followers": 150}
-        },
-        {
-            "profile": {"name": "Bob", "age": 30},
-            "stats": {"posts": 28, "followers": 89}
-        }
-    ]
-}
+        title: "Fetching one record and reading the JSON",
+        explanation: "GET a single user by id. Check status first, then parse JSON.",
+        code: `from pyodide.http import pyfetch
 
-# Extract and flatten
-rows = []
-for user in response["users"]:
-    rows.append({
-        "name": user["profile"]["name"],
-        "age": user["profile"]["age"],
-        "posts": user["stats"]["posts"],
-        "followers": user["stats"]["followers"]
-    })
+resp = await pyfetch("https://jsonplaceholder.typicode.com/users/1")
+print(f"status: {resp.status}")
 
-df = pd.DataFrame(rows)
-print(df)`,
+user = await resp.json()
+print(f"name:    {user['name']}")
+print(f"email:   {user['email']}")
+print(f"company: {user['company']['name']}")`,
       },
       {
-        title: "Handling Paginated Data",
-        explanation: "Combine multiple pages of results",
-        code: `# Simulated paginated responses
-page1 = {"data": [{"id": 1}, {"id": 2}], "page": 1}
-page2 = {"data": [{"id": 3}, {"id": 4}], "page": 2}
-page3 = {"data": [{"id": 5}], "page": 3}
+        title: "Merging two endpoints and aggregating",
+        explanation: "Fetch posts and users, join on userId, count posts per user. Real two-table API work in 6 lines.",
+        code: `import pandas as pd
+from pyodide.http import pyfetch
 
-# Combine all pages
-all_data = []
-for page in [page1, page2, page3]:
-    all_data.extend(page["data"])
+posts_resp = await pyfetch("https://jsonplaceholder.typicode.com/posts")
+users_resp = await pyfetch("https://jsonplaceholder.typicode.com/users")
 
-df = pd.DataFrame(all_data)
-print(f"Total records: {len(df)}")
-print(df)`,
+posts = pd.DataFrame(await posts_resp.json())
+users = pd.DataFrame(await users_resp.json())[["id", "name"]]
+
+joined = posts.merge(users, left_on="userId", right_on="id", suffixes=("_post", "_user"))
+per_user = joined.groupby("name").size().sort_values(ascending=False)
+print(per_user)`,
       },
       {
-        title: "JSON to DataFrame with Filtering",
-        explanation: "Load and filter API data",
-        code: `products = [
-    {"name": "Widget", "category": "Electronics", "price": 29.99, "in_stock": True},
-    {"name": "Gadget", "category": "Electronics", "price": 99.99, "in_stock": False},
-    {"name": "Tool", "category": "Hardware", "price": 15.99, "in_stock": True}
-]
+        title: "Handling a 404 gracefully",
+        explanation: "Always check response.status before .json(). Missing resources shouldn't crash the script.",
+        code: `from pyodide.http import pyfetch
 
-df = pd.DataFrame(products)
+resp = await pyfetch("https://jsonplaceholder.typicode.com/users/9999")
+print(f"status: {resp.status}")
 
-# Filter in-stock electronics
-available = df[(df["in_stock"]) & (df["category"] == "Electronics")]
-print("Available Electronics:")
-print(available)`,
+if resp.status == 200:
+    user = await resp.json()
+    print(f"found: {user['name']}")
+elif resp.status == 404:
+    print("user not found, continuing")
+else:
+    print(f"unexpected status {resp.status}")`,
       },
     ],
     challenges: [
       {
         id: "m6l2c1",
-        prompt: "Convert this list to DataFrame and filter where price > 20: [{'item': 'A', 'price': 15}, {'item': 'B', 'price': 30}]",
-        hint: "pd.DataFrame(list), then filter with df[df['price'] > 20]",
-        validateFn: `return output.includes("B") && output.includes("30") && !output.includes("15")`,
-        solution: `data = [{'item': 'A', 'price': 15}, {'item': 'B', 'price': 30}]
-df = pd.DataFrame(data)
-expensive = df[df['price'] > 20]
-print(expensive)`,
+        prompt: "Fetch user id 3 from https://jsonplaceholder.typicode.com/users/3 and print only their email address.",
+        hint: "pyfetch, await response.json(), print user['email']",
+        validateFn: `return /\\S+@\\S+\\.\\S+/.test(output) && !output.toLowerCase().includes("error") && !output.includes("404")`,
+        solution: `from pyodide.http import pyfetch
+
+resp = await pyfetch("https://jsonplaceholder.typicode.com/users/3")
+user = await resp.json()
+print(user["email"])`,
       },
       {
         id: "m6l2c2",
-        prompt: "Extract names from nested data and calculate average age: {'users': [{'info': {'name': 'A', 'age': 20}}, {'info': {'name': 'B', 'age': 30}}]}",
-        hint: "Loop through users, access info dict, collect ages for average",
-        validateFn: `return output.includes("A") && output.includes("B") && output.includes("25")`,
-        solution: `data = {'users': [{'info': {'name': 'A', 'age': 20}}, {'info': {'name': 'B', 'age': 30}}]}
-ages = []
-for user in data['users']:
-    print(f"Name: {user['info']['name']}")
-    ages.append(user['info']['age'])
-print(f"Average age: {sum(ages)/len(ages)}")`,
+        prompt: "Fetch all posts from https://jsonplaceholder.typicode.com/posts, group by userId, and print the user with the most posts in the format 'user X has Y posts' (X and Y are integers).",
+        hint: "DataFrame the response, groupby('userId').size(), .idxmax() for the top user",
+        validateFn: `return /user\\s+\\d+\\s+has\\s+\\d+\\s+posts/i.test(output) && !output.toLowerCase().includes("error")`,
+        solution: `import pandas as pd
+from pyodide.http import pyfetch
+
+resp = await pyfetch("https://jsonplaceholder.typicode.com/posts")
+posts = pd.DataFrame(await resp.json())
+counts = posts.groupby("userId").size()
+top = counts.idxmax()
+print(f"user {top} has {counts[top]} posts")`,
       },
     ],
     projectChallenge: {
@@ -600,139 +567,126 @@ for row in soup.find_all("tr"):
         })
 \`\`\`
 
-**Note:** In this browser environment, we'll work with HTML strings since we can't access external websites.
+## Pairing it with pyfetch
+
+In this site we fetch HTML over the network with \`pyfetch\` (same-origin works without any CORS hassle), then feed \`response.string()\` to BeautifulSoup. Same code as a regular Python script except for the \`await\`.
+
+\`\`\`python
+from pyodide.http import pyfetch
+from bs4 import BeautifulSoup
+
+response = await pyfetch("/sample-data/electronics-store.html")
+html = await response.string()
+soup = BeautifulSoup(html, "html.parser")
+
+print(soup.find("h1").get_text())
+\`\`\`
+
+There's a real HTML page bundled with this site at \`/sample-data/electronics-store.html\` for the examples below. It has an inventory table, category list, and "featured" section so you can practice every common selector against actual markup, not a synthetic string.
 `,
-    starterCode: `# We'll simulate BeautifulSoup-like parsing
-# In real code: from bs4 import BeautifulSoup
+    starterCode: `# Fetch the sample HTML and parse it with BeautifulSoup.
+from pyodide.http import pyfetch
+from bs4 import BeautifulSoup
 
-html_content = """
-<html>
-<body>
-    <h1>Product List</h1>
-    <div class="product">
-        <span class="name">Widget A</span>
-        <span class="price">$29.99</span>
-    </div>
-    <div class="product">
-        <span class="name">Widget B</span>
-        <span class="price">$49.99</span>
-    </div>
-</body>
-</html>
-"""
+resp = await pyfetch("/sample-data/electronics-store.html")
+html = await resp.string()
+soup = BeautifulSoup(html, "html.parser")
 
-# Simple parsing (simulating BeautifulSoup)
-import re
+# Page title
+print("title:", soup.find("h1").get_text())
 
-# Extract product names
-names = re.findall(r'<span class="name">([^<]+)</span>', html_content)
-print("Products found:")
-for name in names:
-    print(f"  {name}")
+# Category list
+categories = [li.get_text() for li in soup.select("ul#category-list li.cat")]
+print("categories:", categories)
 `,
     examples: [
       {
-        title: "Extracting Links",
-        explanation: "Find and extract href attributes",
-        code: `import re
+        title: "Finding by tag and by class",
+        explanation: "find returns the first match; find_all returns every match. Selectors land on the same elements.",
+        code: `from pyodide.http import pyfetch
+from bs4 import BeautifulSoup
 
-html = '''
-<nav>
-    <a href="/home">Home</a>
-    <a href="/about">About</a>
-    <a href="/contact">Contact</a>
-</nav>
-'''
+resp = await pyfetch("/sample-data/electronics-store.html")
+soup = BeautifulSoup(await resp.string(), "html.parser")
 
-# Extract links using regex (simulating BeautifulSoup)
-pattern = r'<a href="([^"]+)">([^<]+)</a>'
-links = re.findall(pattern, html)
+# First h1 on the page
+print("page heading:", soup.find("h1").get_text())
 
-print("Navigation links:")
-for href, text in links:
-    print(f"  {text}: {href}")`,
+# All section headings
+for h2 in soup.find_all("h2"):
+    print("section:", h2.get_text())
+
+# Featured list items via CSS selector
+for li in soup.select("ul.featured-list li"):
+    print("featured:", li.get_text(strip=True))`,
       },
       {
-        title: "Parsing Tables",
-        explanation: "Extract data from HTML tables",
-        code: `import re
+        title: "Reading attributes off elements",
+        explanation: "Real scraping needs the attribute, not just the text. element[\"attr\"] or element.get(\"attr\") both work.",
+        code: `from pyodide.http import pyfetch
+from bs4 import BeautifulSoup
 
-html = '''
-<table>
-    <tr><th>Name</th><th>Score</th></tr>
-    <tr><td>Alice</td><td>95</td></tr>
-    <tr><td>Bob</td><td>82</td></tr>
-    <tr><td>Carol</td><td>91</td></tr>
-</table>
-'''
+resp = await pyfetch("/sample-data/electronics-store.html")
+soup = BeautifulSoup(await resp.string(), "html.parser")
 
-# Extract table rows
-rows = re.findall(r'<tr><td>([^<]+)</td><td>([^<]+)</td></tr>', html)
+# Each featured item carries the SKU in a data attribute.
+featured_skus = [li.get("data-sku") for li in soup.select("ul.featured-list li")]
+print("featured skus:", featured_skus)
 
-# Convert to DataFrame
-df = pd.DataFrame(rows, columns=["name", "score"])
-df["score"] = df["score"].astype(int)
-print(df)
-print(f"\\nAverage score: {df['score'].mean():.1f}")`,
+# Pull category names from a structured list rather than free-form text
+categories = [c.get_text(strip=True) for c in soup.select("li.cat")]
+print("count of categories:", len(categories))`,
       },
       {
-        title: "Extracting Structured Data",
-        explanation: "Parse repeated HTML structures",
-        code: `import re
+        title: "Walking a table by hand",
+        explanation: "Lesson 29 uses pd.read_html for this. Doing it by hand once teaches you what read_html is doing under the hood.",
+        code: `import pandas as pd
+from pyodide.http import pyfetch
+from bs4 import BeautifulSoup
 
-html = '''
-<div class="card">
-    <h2>Product A</h2>
-    <p class="price">$29.99</p>
-    <p class="stock">In Stock</p>
-</div>
-<div class="card">
-    <h2>Product B</h2>
-    <p class="price">$49.99</p>
-    <p class="stock">Out of Stock</p>
-</div>
-'''
+resp = await pyfetch("/sample-data/electronics-store.html")
+soup = BeautifulSoup(await resp.string(), "html.parser")
 
-# Extract cards
-cards = re.findall(
-    r'<h2>([^<]+)</h2>\\s*<p class="price">([^<]+)</p>\\s*<p class="stock">([^<]+)</p>',
-    html
-)
+table = soup.find("table", id="inventory-table")
+headers = [th.get_text(strip=True) for th in table.find_all("th")]
 
-products = []
-for name, price, stock in cards:
-    products.append({
-        "name": name,
-        "price": price,
-        "available": "In Stock" in stock
-    })
+rows = []
+for tr in table.find("tbody").find_all("tr"):
+    cells = [td.get_text(strip=True) for td in tr.find_all("td")]
+    rows.append(dict(zip(headers, cells)))
 
-df = pd.DataFrame(products)
-print(df)`,
+df = pd.DataFrame(rows)
+df["Price"] = df["Price"].astype(float)
+df["Stock"] = df["Stock"].astype(int)
+print(df.head())
+print(f"total inventory rows: {len(df)}")`,
       },
     ],
     challenges: [
       {
         id: "m6l3c1",
-        prompt: "Extract all text between <li> tags from: '<ul><li>Apple</li><li>Banana</li><li>Cherry</li></ul>'",
-        hint: "Use re.findall with pattern r'<li>([^<]+)</li>'",
-        validateFn: `return output.includes("Apple") && output.includes("Banana") && output.includes("Cherry")`,
-        solution: `import re
-html = '<ul><li>Apple</li><li>Banana</li><li>Cherry</li></ul>'
-items = re.findall(r'<li>([^<]+)</li>', html)
-for item in items:
-    print(item)`,
+        prompt: "Fetch /sample-data/electronics-store.html, parse it, and print the page's h1 text exactly as it appears.",
+        hint: "soup.find('h1').get_text()",
+        validateFn: `return output.includes("Electronics Store") && output.includes("Weekly Inventory")`,
+        solution: `from pyodide.http import pyfetch
+from bs4 import BeautifulSoup
+
+resp = await pyfetch("/sample-data/electronics-store.html")
+soup = BeautifulSoup(await resp.string(), "html.parser")
+print(soup.find("h1").get_text())`,
       },
       {
         id: "m6l3c2",
-        prompt: "Parse '<a href=\"/page1\">Link 1</a><a href=\"/page2\">Link 2</a>' and print each URL and text.",
-        hint: "Pattern: r'<a href=\"([^\"]+)\">([^<]+)</a>'",
-        validateFn: `return output.includes("/page1") && output.includes("Link 1") && output.includes("/page2")`,
-        solution: `import re
-html = '<a href="/page1">Link 1</a><a href="/page2">Link 2</a>'
-links = re.findall(r'<a href="([^"]+)">([^<]+)</a>', html)
-for url, text in links:
-    print(f"{text}: {url}")`,
+        prompt: "Fetch the same page and print how many distinct categories appear in the category list, in the format 'categories: N' where N is an integer.",
+        hint: "len(soup.select('li.cat'))",
+        validateFn: `return /categories:\\s*4\\b/.test(output)`,
+        solution: `from pyodide.http import pyfetch
+from bs4 import BeautifulSoup
+
+resp = await pyfetch("/sample-data/electronics-store.html")
+soup = BeautifulSoup(await resp.string(), "html.parser")
+count = len(soup.select("li.cat"))
+print(f"categories: {count}")`,
       },
     ],
     projectChallenge: {
@@ -842,176 +796,151 @@ print(f"\\nTotal Revenue: \${total:,.2f}")`,
     title: "Scraping Tables",
     badge: "practice",
     theory: `
-## pd.read_html(): The Easy Way
+## pd.read_html on a real page
 
-Pandas can automatically parse HTML tables:
-
-\`\`\`python
-tables = pd.read_html("https://example.com/data")
-# Returns list of DataFrames, one per table found
-df = tables[0]  # First table
-\`\`\`
-
-## Parameters for read_html
+\`pd.read_html\` parses every table on a page into DataFrames. In a regular script you can hand it a URL. In Pyodide, the network goes through pyfetch, so the recipe is:
 
 \`\`\`python
-pd.read_html(
-    source,           # URL, file, or HTML string
-    match="pattern",  # Only tables containing this text
-    header=0,         # Row to use as header
-    index_col=0,      # Column to use as index
-    skiprows=1,       # Skip first N rows
-    attrs={"id": "table-id"}  # Match specific table
-)
-\`\`\`
+from pyodide.http import pyfetch
+import pandas as pd
 
-## From HTML String
-
-\`\`\`python
-html = '''
-<table>
-  <tr><th>Name</th><th>Score</th></tr>
-  <tr><td>Alice</td><td>95</td></tr>
-  <tr><td>Bob</td><td>82</td></tr>
-</table>
-'''
-tables = pd.read_html(html)
+resp = await pyfetch("/sample-data/electronics-store.html")
+html = await resp.string()
+tables = pd.read_html(html)   # list of DataFrames, one per <table>
 df = tables[0]
 \`\`\`
 
-## Cleaning Table Data
+The site bundles a real HTML page at \`/sample-data/electronics-store.html\` containing an inventory table. The examples below pull from it.
 
-After parsing, you often need to clean:
+## Picking the right table
+
+When a page has more than one table, three tools narrow it down:
 
 \`\`\`python
-# Remove extra whitespace
-df.columns = df.columns.str.strip()
-df = df.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
-
-# Convert types
-df["Score"] = pd.to_numeric(df["Score"], errors="coerce")
-
-# Rename columns
-df.columns = ["name", "score"]
+pd.read_html(html, match="Inventory")          # tables containing this text
+pd.read_html(html, attrs={"id": "inventory-table"})  # by attribute
+pd.read_html(html, header=0)                   # explicit header row
 \`\`\`
 
-## Real-World Tips
+## Cleaning what comes back
 
-1. Tables might have merged cells (headers span multiple columns)
-2. Some tables use images instead of text
-3. Tables might be loaded by JavaScript (need Selenium)
-4. Always check \`len(tables)\` to see how many were found
+\`pd.read_html\` returns strings for every column by default, because HTML doesn't know types. You'll always have a cleanup step.
+
+\`\`\`python
+df = pd.read_html(html, attrs={"id": "inventory-table"})[0]
+df["Price"] = df["Price"].astype(float)
+df["Stock"] = df["Stock"].astype(int)
+\`\`\`
+
+Currency or formatted numbers need a regex strip first:
+
+\`\`\`python
+df["Revenue"] = df["Revenue"].str.replace(r"[$,]", "", regex=True).astype(float)
+\`\`\`
+
+## What read_html can't do
+
+- Pages where the table is rendered by JavaScript after page load. \`pyfetch\` gets the raw HTML; if the table isn't in the initial markup, it's not there to parse.
+- Cells with images instead of text. The image alt attribute is sometimes a good fallback, but \`read_html\` ignores it; you have to drop to BeautifulSoup.
+- Tables with merged cells (rowspan/colspan). Pandas tries, but you'll often need to clean the output by hand.
 `,
-    starterCode: `# Parse HTML table with pandas
-html_table = """
-<table border="1">
-    <thead>
-        <tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th></tr>
-    </thead>
-    <tbody>
-        <tr><td>Laptop</td><td>Electronics</td><td>$999</td><td>50</td></tr>
-        <tr><td>Mouse</td><td>Electronics</td><td>$29</td><td>200</td></tr>
-        <tr><td>Desk</td><td>Furniture</td><td>$299</td><td>25</td></tr>
-        <tr><td>Chair</td><td>Furniture</td><td>$199</td><td>40</td></tr>
-    </tbody>
-</table>
-"""
+    starterCode: `# Fetch the real inventory page and pull the table into a DataFrame.
+import pandas as pd
+from pyodide.http import pyfetch
 
-# Parse the table
-tables = pd.read_html(html_table)
-df = tables[0]
-print("Parsed table:")
-print(df)
+resp = await pyfetch("/sample-data/electronics-store.html")
+html = await resp.string()
+
+df = pd.read_html(html, attrs={"id": "inventory-table"})[0]
+df["Price"] = df["Price"].astype(float)
+df["Stock"] = df["Stock"].astype(int)
+
+print(df.head())
+print(f"rows: {len(df)}")
+print(f"total stock units across catalog: {df['Stock'].sum()}")
 `,
     examples: [
       {
-        title: "Basic Table Parsing",
-        explanation: "Extract a simple HTML table",
-        code: `html = """
-<table>
-    <tr><th>Name</th><th>Age</th><th>City</th></tr>
-    <tr><td>Alice</td><td>25</td><td>NYC</td></tr>
-    <tr><td>Bob</td><td>30</td><td>LA</td></tr>
-    <tr><td>Carol</td><td>28</td><td>Chicago</td></tr>
-</table>
-"""
+        title: "All tables on a page",
+        explanation: "When you don't know exactly which table you want, read everything and inspect.",
+        code: `import pandas as pd
+from pyodide.http import pyfetch
 
-df = pd.read_html(html)[0]
-print(df)
-print(f"\\nAverage age: {df['Age'].mean():.1f}")`,
-      },
-      {
-        title: "Cleaning Parsed Data",
-        explanation: "Process table data after extraction",
-        code: `html = """
-<table>
-    <tr><th>Item</th><th>Price</th></tr>
-    <tr><td>Widget</td><td>$29.99</td></tr>
-    <tr><td>Gadget</td><td>$49.99</td></tr>
-    <tr><td>Gizmo</td><td>$19.99</td></tr>
-</table>
-"""
-
-df = pd.read_html(html)[0]
-
-# Clean price column - remove $ and convert to float
-df["Price"] = df["Price"].str.replace("$", "", regex=False).astype(float)
-
-print(df)
-print(f"\\nTotal value: \${df['Price'].sum():.2f}")`,
-      },
-      {
-        title: "Multiple Tables",
-        explanation: "Handle pages with multiple tables",
-        code: `html = """
-<h2>Sales</h2>
-<table>
-    <tr><th>Product</th><th>Revenue</th></tr>
-    <tr><td>A</td><td>1000</td></tr>
-</table>
-
-<h2>Expenses</h2>
-<table>
-    <tr><th>Category</th><th>Amount</th></tr>
-    <tr><td>Rent</td><td>500</td></tr>
-</table>
-"""
+resp = await pyfetch("/sample-data/electronics-store.html")
+html = await resp.string()
 
 tables = pd.read_html(html)
-print(f"Found {len(tables)} tables")
+print(f"found {len(tables)} tables")
+for i, t in enumerate(tables):
+    print(f"\\ntable {i} columns: {list(t.columns)}")
+    print(t.head(3))`,
+      },
+      {
+        title: "Aggregating after the parse",
+        explanation: "Once you have a DataFrame, the rest is normal pandas.",
+        code: `import pandas as pd
+from pyodide.http import pyfetch
 
-print("\\nTable 1 (Sales):")
-print(tables[0])
+resp = await pyfetch("/sample-data/electronics-store.html")
+df = pd.read_html(await resp.string(), attrs={"id": "inventory-table"})[0]
 
-print("\\nTable 2 (Expenses):")
-print(tables[1])`,
+df["Price"] = df["Price"].astype(float)
+df["Stock"] = df["Stock"].astype(int)
+
+# Stock by category
+by_cat = df.groupby("Category")["Stock"].sum().sort_values(ascending=False)
+print(by_cat)
+
+# Inventory value by category
+df["Value"] = df["Price"] * df["Stock"]
+value_by_cat = df.groupby("Category")["Value"].sum().round(2)
+print("\\ninventory value by category:")
+print(value_by_cat)`,
+      },
+      {
+        title: "Filtering during the parse",
+        explanation: "Pass match= to skip tables you don't want. Useful when a page has nav tables, sidebar tables, etc.",
+        code: `import pandas as pd
+from pyodide.http import pyfetch
+
+resp = await pyfetch("/sample-data/electronics-store.html")
+html = await resp.string()
+
+# Only tables that contain the word "SKU"
+hits = pd.read_html(html, match="SKU")
+print(f"matching tables: {len(hits)}")
+print(hits[0].head())`,
       },
     ],
     challenges: [
       {
         id: "m6l4c1",
-        prompt: "Parse this HTML table and calculate the sum of the Value column: '<table><tr><th>Name</th><th>Value</th></tr><tr><td>A</td><td>100</td></tr><tr><td>B</td><td>200</td></tr></table>'",
-        hint: "pd.read_html(html)[0], then sum the Value column",
-        validateFn: `return output.includes("300")`,
-        solution: `html = '<table><tr><th>Name</th><th>Value</th></tr><tr><td>A</td><td>100</td></tr><tr><td>B</td><td>200</td></tr></table>'
-df = pd.read_html(html)[0]
-total = df['Value'].sum()
-print(f"Total: {total}")`,
+        prompt: "Fetch /sample-data/electronics-store.html, parse the inventory table, and print the total stock count across all rows in the format 'total stock: N' where N is an integer.",
+        hint: "pyfetch, pd.read_html(attrs={'id': 'inventory-table'})[0], cast Stock to int, sum it",
+        validateFn: `return /total\\s+stock:\\s*1?\\d{3,4}\\b/.test(output)`,
+        solution: `import pandas as pd
+from pyodide.http import pyfetch
+
+resp = await pyfetch("/sample-data/electronics-store.html")
+df = pd.read_html(await resp.string(), attrs={"id": "inventory-table"})[0]
+df["Stock"] = df["Stock"].astype(int)
+print(f"total stock: {df['Stock'].sum()}")`,
       },
       {
         id: "m6l4c2",
-        prompt: "Parse a table with prices like '$10.99', remove the $ sign, convert to float, and find the max price.",
-        hint: "str.replace('$', ''), astype(float), then .max()",
-        validateFn: `return output.includes("25") || output.includes("25.99")`,
-        solution: `html = '''<table>
-<tr><th>Item</th><th>Price</th></tr>
-<tr><td>A</td><td>$10.99</td></tr>
-<tr><td>B</td><td>$25.99</td></tr>
-<tr><td>C</td><td>$15.99</td></tr>
-</table>'''
-df = pd.read_html(html)[0]
-df['Price'] = df['Price'].str.replace('$', '', regex=False).astype(float)
-print(f"Max price: \${df['Price'].max()}")`,
+        prompt: "Same page. Find the single category with the highest total inventory value (Price * Stock summed). Print 'top category: NAME' where NAME is the category name.",
+        hint: "compute Value column, groupby Category sum Value, idxmax",
+        validateFn: `return /top\\s+category:\\s*(Laptops|Phones|Tablets|Accessories)/.test(output)`,
+        solution: `import pandas as pd
+from pyodide.http import pyfetch
+
+resp = await pyfetch("/sample-data/electronics-store.html")
+df = pd.read_html(await resp.string(), attrs={"id": "inventory-table"})[0]
+df["Price"] = df["Price"].astype(float)
+df["Stock"] = df["Stock"].astype(int)
+df["Value"] = df["Price"] * df["Stock"]
+top = df.groupby("Category")["Value"].sum().idxmax()
+print(f"top category: {top}")`,
       },
     ],
     projectChallenge: {
@@ -1089,263 +1018,206 @@ print(f"\\nTop Performer: {top_rep} with \${top_rev:,.2f}")`,
     title: "Building a Data Pipeline",
     badge: "challenge",
     theory: `
-## What is a Data Pipeline?
+## A pipeline against a real API
 
-A pipeline is a series of steps that transform raw data into useful output:
+Three steps, three functions, one source of truth: an actual JSON endpoint. We'll use \`/posts\` and \`/users\` from jsonplaceholder.
 
-1. **Extract**: Get data from source (API, file, database)
-2. **Transform**: Clean, reshape, enrich the data
-3. **Load**: Save to destination (file, database, dashboard)
+1. **Extract** with \`pyfetch\`. Hit each endpoint, check status, get JSON.
+2. **Transform** with pandas. Convert lists of dicts to DataFrames, merge on \`userId\`, classify.
+3. **Load** with print/return. Real pipelines write to CSV, a database, or a dashboard; in the browser we render.
 
-## Pipeline Pattern
+Wrapping each phase in a function is what turns a pile of fetch calls into a *pipeline*. It also makes the pieces testable in isolation.
 
-\`\`\`python
-def extract():
-    # Fetch raw data
-    response = requests.get("https://api.example.com/data")
-    return response.json()
-
-def transform(raw_data):
-    # Clean and process
-    df = pd.DataFrame(raw_data)
-    df = df.dropna()
-    df["date"] = pd.to_datetime(df["date"])
-    return df
-
-def load(df, filename):
-    # Save results
-    df.to_csv(filename, index=False)
-    print(f"Saved {len(df)} rows to {filename}")
-
-# Run pipeline
-raw = extract()
-clean = transform(raw)
-load(clean, "output.csv")
-\`\`\`
-
-## Error Handling in Pipelines
+## Skeleton
 
 \`\`\`python
-def run_pipeline():
-    try:
-        raw = extract()
-        if not raw:
-            raise ValueError("No data extracted")
+async def extract():
+    posts_resp = await pyfetch("https://jsonplaceholder.typicode.com/posts")
+    users_resp = await pyfetch("https://jsonplaceholder.typicode.com/users")
+    if posts_resp.status != 200 or users_resp.status != 200:
+        raise RuntimeError("upstream API not available")
+    return await posts_resp.json(), await users_resp.json()
 
-        clean = transform(raw)
-        if len(clean) == 0:
-            raise ValueError("No data after transformation")
+def transform(posts_raw, users_raw):
+    posts = pd.DataFrame(posts_raw)
+    users = pd.DataFrame(users_raw)[["id", "name"]]
+    return posts.merge(users, left_on="userId", right_on="id", suffixes=("_post", "_user"))
 
-        load(clean, "output.csv")
-        return True
-
-    except Exception as e:
-        print(f"Pipeline failed: {e}")
-        return False
-\`\`\`
-
-## Logging Progress
-
-\`\`\`python
-def log(msg):
-    from datetime import datetime
-    print(f"[{datetime.now():%H:%M:%S}] {msg}")
-
-log("Starting extraction...")
-# ... do work
-log("Extracted 1000 records")
-\`\`\`
-
-## Best Practices
-
-1. Make each step a function
-2. Return data, don't modify in place
-3. Validate data between steps
-4. Log progress and errors
-5. Make it idempotent (safe to re-run)
-`,
-    starterCode: `# Build a mini data pipeline
-
-# Step 1: Extract (simulated API data)
-def extract():
-    raw_data = [
-        {"date": "2024-01-15", "product": "Widget", "sales": "1500", "region": "East"},
-        {"date": "2024-01-15", "product": "Gadget", "sales": "800", "region": "West"},
-        {"date": "2024-01-16", "product": "Widget", "sales": "1200", "region": "East"},
-        {"date": "2024-01-16", "product": "Gadget", "sales": None, "region": "West"},
-        {"date": "2024-01-17", "product": "Widget", "sales": "1800", "region": "East"},
-    ]
-    print(f"Extracted {len(raw_data)} records")
-    return raw_data
-
-# Step 2: Transform
-def transform(data):
-    df = pd.DataFrame(data)
-    print(f"Raw records: {len(df)}")
-
-    # Drop rows with missing sales
-    df = df.dropna(subset=["sales"])
-    print(f"After dropna: {len(df)}")
-
-    # Convert types
-    df["sales"] = pd.to_numeric(df["sales"])
-    df["date"] = pd.to_datetime(df["date"])
-
-    return df
-
-# Step 3: Load (aggregate and display)
 def load(df):
-    summary = df.groupby("product")["sales"].agg(["sum", "mean", "count"])
-    print("\\n=== Sales Summary ===")
-    print(summary)
-    return summary
+    counts = df.groupby("name").size().sort_values(ascending=False)
+    print(counts)
+    return counts
+\`\`\`
 
-# Run the pipeline
-raw = extract()
-clean = transform(raw)
-result = load(clean)
+## Logging the steps
+
+The browser console can swallow errors mid-pipeline. A tiny log helper makes it obvious where a run stopped.
+
+\`\`\`python
+from datetime import datetime
+def log(step, msg):
+    print(f"[{datetime.now():%H:%M:%S}] [{step}] {msg}")
+\`\`\`
+
+## Idempotence
+
+A pipeline you can re-run safely is worth ten times one you can't. That usually means:
+- Extract is side-effect-free (just fetching, not mutating server state)
+- Transform takes raw data and returns new data, never mutates inputs
+- Load either overwrites the destination or uses an upsert key
+`,
+    starterCode: `# Live ETL pipeline: jsonplaceholder posts + users → per-user post counts.
+import pandas as pd
+from datetime import datetime
+from pyodide.http import pyfetch
+
+def log(step, msg):
+    print(f"[{datetime.now():%H:%M:%S}] [{step}] {msg}")
+
+async def extract():
+    log("EXTRACT", "fetching posts and users...")
+    posts_resp = await pyfetch("https://jsonplaceholder.typicode.com/posts")
+    users_resp = await pyfetch("https://jsonplaceholder.typicode.com/users")
+    if posts_resp.status != 200 or users_resp.status != 200:
+        raise RuntimeError("upstream API not available")
+    posts = await posts_resp.json()
+    users = await users_resp.json()
+    log("EXTRACT", f"{len(posts)} posts, {len(users)} users")
+    return posts, users
+
+def transform(posts_raw, users_raw):
+    log("TRANSFORM", "merging on userId and tagging long posts...")
+    posts = pd.DataFrame(posts_raw)
+    users = pd.DataFrame(users_raw)[["id", "name"]]
+    joined = posts.merge(users, left_on="userId", right_on="id", suffixes=("_post", "_user"))
+    joined["body_chars"] = joined["body"].str.len()
+    joined["long_post"] = joined["body_chars"] > joined["body_chars"].median()
+    log("TRANSFORM", f"{len(joined)} rows after merge")
+    return joined
+
+def load(df):
+    log("LOAD", "summarizing per user...")
+    by_user = df.groupby("name").agg(
+        posts=("title", "count"),
+        long_posts=("long_post", "sum"),
+        avg_body_chars=("body_chars", "mean"),
+    ).round(0).astype(int).sort_values("posts", ascending=False)
+    print(by_user)
+    return by_user
+
+raw_posts, raw_users = await extract()
+joined = transform(raw_posts, raw_users)
+summary = load(joined)
 `,
     examples: [
       {
-        title: "Complete ETL Pipeline",
-        explanation: "Full extract-transform-load workflow",
-        code: `def extract_sales():
-    return [
-        {"product": "A", "qty": "10", "price": "9.99"},
-        {"product": "B", "qty": "5", "price": "19.99"},
-        {"product": "A", "qty": "8", "price": "9.99"},
-        {"product": "C", "qty": "invalid", "price": "14.99"},
-    ]
+        title: "Extract-only: pull and store before transforming",
+        explanation: "Real pipelines often separate extract from transform so the network step can be re-run independently. Cache the raw payload.",
+        code: `import pandas as pd
+from pyodide.http import pyfetch
 
-def transform_sales(data):
-    df = pd.DataFrame(data)
-    # Safe conversion
-    df["qty"] = pd.to_numeric(df["qty"], errors="coerce")
-    df["price"] = pd.to_numeric(df["price"], errors="coerce")
-    # Drop invalid
-    df = df.dropna()
-    # Calculate revenue
-    df["revenue"] = df["qty"] * df["price"]
-    return df
+async def extract():
+    resp = await pyfetch("https://jsonplaceholder.typicode.com/comments")
+    if resp.status != 200:
+        raise RuntimeError(f"comments: status {resp.status}")
+    return await resp.json()
 
-def load_summary(df):
-    print("=== Revenue by Product ===")
-    summary = df.groupby("product")["revenue"].sum()
-    print(summary)
-    print(f"\\nTotal Revenue: \${summary.sum():.2f}")
+raw = await extract()
+print(f"raw rows: {len(raw)}")
+print("first record keys:", list(raw[0].keys()))
 
-# Run it
-raw = extract_sales()
-clean = transform_sales(raw)
-load_summary(clean)`,
+# Hold the raw payload as a frame so transform can be run repeatedly without re-fetching.
+raw_df = pd.DataFrame(raw)
+print(raw_df.head(2))`,
       },
       {
-        title: "Pipeline with Validation",
-        explanation: "Add checks between steps",
-        code: `def validate_data(df, min_rows=1):
-    if len(df) < min_rows:
-        raise ValueError(f"Expected {min_rows}+ rows, got {len(df)}")
-    if df.isna().any().any():
-        print("Warning: Data contains NaN values")
-    return True
+        title: "Transform: classify by a derived field",
+        explanation: "Pull comments, group by the post they belong to, flag posts that attract long comments.",
+        code: `import pandas as pd
+from pyodide.http import pyfetch
 
-def run_pipeline():
-    # Extract
-    data = [{"x": 1}, {"x": 2}, {"x": 3}]
-    df = pd.DataFrame(data)
-    print(f"Extracted {len(df)} rows")
+resp = await pyfetch("https://jsonplaceholder.typicode.com/comments")
+comments = pd.DataFrame(await resp.json())
 
-    # Validate
-    try:
-        validate_data(df, min_rows=2)
-        print("Validation passed!")
-    except ValueError as e:
-        print(f"Validation failed: {e}")
-        return None
+per_post = comments.groupby("postId").agg(
+    comment_count=("id", "count"),
+    avg_body_chars=("body", lambda s: s.str.len().mean()),
+).round(0).astype(int)
 
-    # Transform
-    df["x_squared"] = df["x"] ** 2
-    print(f"Transformed: added x_squared column")
-
-    return df
-
-result = run_pipeline()
-print("\\nFinal result:")
-print(result)`,
+per_post["engagement"] = pd.cut(
+    per_post["comment_count"],
+    bins=[-1, 2, 5, 100],
+    labels=["low", "medium", "high"],
+)
+print(per_post.head(10))
+print("\\nposts by engagement tier:")
+print(per_post["engagement"].value_counts())`,
       },
       {
-        title: "Logging Pipeline Progress",
-        explanation: "Track pipeline execution",
-        code: `from datetime import datetime
+        title: "Load: write the summary back to a CSV string",
+        explanation: "In a browser we can't write a real file, but we can build the same CSV that load() would write to disk.",
+        code: `import pandas as pd
+import io
+from pyodide.http import pyfetch
 
-def log(step, message):
-    print(f"[{datetime.now():%H:%M:%S}] [{step}] {message}")
+resp = await pyfetch("https://jsonplaceholder.typicode.com/todos")
+todos = pd.DataFrame(await resp.json())
 
-def etl_with_logging():
-    log("START", "Pipeline beginning")
+summary = todos.groupby("userId").agg(
+    total=("id", "count"),
+    completed=("completed", "sum"),
+)
+summary["completion_pct"] = (summary["completed"] / summary["total"] * 100).round(1)
 
-    # Extract
-    log("EXTRACT", "Fetching data...")
-    data = [{"id": i, "value": i * 10} for i in range(5)]
-    log("EXTRACT", f"Got {len(data)} records")
+# What you'd write to a file in a real script:
+buf = io.StringIO()
+summary.to_csv(buf)
+csv_text = buf.getvalue()
 
-    # Transform
-    log("TRANSFORM", "Processing data...")
-    df = pd.DataFrame(data)
-    df["doubled"] = df["value"] * 2
-    log("TRANSFORM", "Added doubled column")
-
-    # Load
-    log("LOAD", "Generating output...")
-    print(df)
-    log("LOAD", f"Output {len(df)} rows")
-
-    log("END", "Pipeline complete!")
-
-etl_with_logging()`,
+print("first 200 chars of the CSV that load() would persist:\\n")
+print(csv_text[:200])`,
       },
     ],
     challenges: [
       {
         id: "m6l5c1",
-        prompt: "Build a pipeline that: extracts [{'name': 'A', 'score': '85'}, {'name': 'B', 'score': '92'}], converts score to int, and prints the average.",
-        hint: "Create extract/transform functions, convert with pd.to_numeric",
-        validateFn: `return output.includes("88") || output.includes("88.5")`,
-        solution: `def extract():
-    return [{'name': 'A', 'score': '85'}, {'name': 'B', 'score': '92'}]
+        prompt: "Fetch all todos from https://jsonplaceholder.typicode.com/todos. Group by userId and compute the number of completed todos per user. Print the user with the most completed todos in the format 'top user: N has K completed' where N and K are integers.",
+        hint: "DataFrame the response, groupby userId, sum the 'completed' boolean, idxmax",
+        validateFn: `return /top\\s+user:\\s*\\d+\\s+has\\s+\\d+\\s+completed/i.test(output) && !output.toLowerCase().includes("error")`,
+        solution: `import pandas as pd
+from pyodide.http import pyfetch
 
-def transform(data):
-    df = pd.DataFrame(data)
-    df['score'] = pd.to_numeric(df['score'])
-    return df
-
-def analyze(df):
-    print(f"Average score: {df['score'].mean()}")
-
-raw = extract()
-clean = transform(raw)
-analyze(clean)`,
+resp = await pyfetch("https://jsonplaceholder.typicode.com/todos")
+todos = pd.DataFrame(await resp.json())
+completed_by_user = todos.groupby("userId")["completed"].sum()
+top_user = int(completed_by_user.idxmax())
+top_count = int(completed_by_user.max())
+print(f"top user: {top_user} has {top_count} completed")`,
       },
       {
         id: "m6l5c2",
-        prompt: "Create a pipeline with validation that rejects data with fewer than 3 rows. Test with 2-row data.",
-        hint: "Check len(df) and raise ValueError if too few",
-        validateFn: `return output.includes("fail") || output.includes("Error") || output.includes("fewer")`,
-        solution: `def validate(df):
-    if len(df) < 3:
-        raise ValueError("Too few rows! Need at least 3")
-    return df
+        prompt: "Build a full extract/transform/load pipeline that: extracts /posts and /users from jsonplaceholder, merges them on userId, and prints 'pipeline ok: N rows for M users' (N is total joined rows, M is unique authors).",
+        hint: "Three functions, returns chained together, len(df) and df['name'].nunique()",
+        validateFn: `return /pipeline\\s+ok:\\s*\\d+\\s+rows\\s+for\\s+\\d+\\s+users/i.test(output) && !output.toLowerCase().includes("traceback")`,
+        solution: `import pandas as pd
+from pyodide.http import pyfetch
 
-def run_pipeline():
-    data = [{"x": 1}, {"x": 2}]  # Only 2 rows
-    df = pd.DataFrame(data)
-    try:
-        validate(df)
-        print("Success!")
-    except ValueError as e:
-        print(f"Pipeline failed: {e}")
+async def extract():
+    p = await pyfetch("https://jsonplaceholder.typicode.com/posts")
+    u = await pyfetch("https://jsonplaceholder.typicode.com/users")
+    return await p.json(), await u.json()
 
-run_pipeline()`,
+def transform(posts_raw, users_raw):
+    posts = pd.DataFrame(posts_raw)
+    users = pd.DataFrame(users_raw)[["id", "name"]]
+    return posts.merge(users, left_on="userId", right_on="id", suffixes=("_post", "_user"))
+
+def load(df):
+    print(f"pipeline ok: {len(df)} rows for {df['name'].nunique()} users")
+
+raw_posts, raw_users = await extract()
+joined = transform(raw_posts, raw_users)
+load(joined)`,
       },
     ],
     projectChallenge: {

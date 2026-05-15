@@ -44,6 +44,12 @@ export const MODULE_METADATA: Omit<Module, "lessons">[] = [
       "Write lambda functions, use apply and map, and master vectorized operations for performance.",
   },
   {
+    slug: "numpy-foundations",
+    title: "NumPy Foundations",
+    description:
+      "Arrays, dtypes, reshape, broadcasting, and vectorization. The math layer under pandas, plus how to drop down to it when you need speed.",
+  },
+  {
     slug: "game-dev-pygame",
     title: "Game Dev with Pygame",
     description:

@@ -546,6 +546,23 @@ with open("output.csv", "w", newline="") as f:
     writer.writerow(["Name", "Age"])
     writer.writerow(["Alice", 25])
 \`\`\`
+
+## Loading real-size data over the network
+
+The browser can't read \`/Users/you/data.csv\`. But it can pyfetch a URL and feed the bytes to \`pd.read_csv\` or \`csv.DictReader\` through \`io.StringIO\`. That's how the examples below switch from 8-row toy CSVs to real datasets in the hundreds-to-thousands of rows.
+
+\`\`\`python
+import io
+import pandas as pd
+from pyodide.http import pyfetch
+
+URL = "https://raw.githubusercontent.com/plotly/datasets/master/diabetes.csv"
+resp = await pyfetch(URL)
+df = pd.read_csv(io.StringIO(await resp.string()))
+print(df.shape)  # (768, 9)
+\`\`\`
+
+Any \`raw.githubusercontent.com\` URL is CORS-friendly. Plotly and Vega both maintain large dataset repos that work without auth.
 `,
     starterCode: `import io
 
@@ -613,6 +630,25 @@ f = io.StringIO(csv_data)
 reader = csv.DictReader(f)
 for row in reader:
     print(f"{row['name']} is {row['age']} from {row['city']}")`,
+      },
+      {
+        title: "Loading a real-size CSV via pyfetch",
+        explanation: "Fetch a 768-row public dataset and load it straight into pandas. Same code you'd write against a local file, swap open() for pyfetch + StringIO.",
+        code: `import io
+import pandas as pd
+from pyodide.http import pyfetch
+
+URL = "https://raw.githubusercontent.com/plotly/datasets/master/diabetes.csv"
+resp = await pyfetch(URL)
+df = pd.read_csv(io.StringIO(await resp.string()))
+
+print(f"shape: {df.shape}")
+print(f"columns: {list(df.columns)}")
+print("\\nfirst 5 rows:")
+print(df.head())
+
+print("\\nsummary stats (Glucose, BloodPressure, BMI):")
+print(df[["Glucose", "BloodPressure", "BMI"]].describe().round(1))`,
       },
     ],
     challenges: [

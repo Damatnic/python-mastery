@@ -523,6 +523,9 @@ df["pct"] = df.groupby("group")["value"].transform(
     lambda x: x / x.sum() * 100
 )
 \`\`\`
+
+## See also
+The SQL equivalents of \`transform("rank")\` and "percentage of group total" are window functions: \`RANK() OVER (PARTITION BY group ORDER BY value)\` and \`value * 100.0 / SUM(value) OVER (PARTITION BY group)\`. Cross-reference on damato-sql at [/learn/window-functions/ranking-functions](https://damato-sql.vercel.app/learn/window-functions/ranking-functions).
 `,
     starterCode: `# Custom aggregation: score range per subject
 def score_range(x):
@@ -927,94 +930,77 @@ print(rep_performance["Tier"].value_counts())`,
     title: "Capstone Project",
     badge: "challenge",
     theory: `
-## Putting It All Together
+## Capstone, the unscaffolded version
 
-This capstone combines everything you've learned:
-- Loading and exploring data
-- Cleaning (missing values, types, strings)
-- Filtering and selecting
-- Grouping and aggregating
-- Creating derived columns
-- Exporting results
+Every lesson up to this one handed you a partial query and asked you to fill in a blank. This one doesn't. You get a real dataset and three questions. You choose the approach.
 
-## The Challenge
+## The dataset
 
-You'll build a complete data analysis pipeline:
+The Plotly diabetes dataset, 768 rows, 9 columns of medical metrics. The starter code pyfetches it for you and gives you a DataFrame named \`df\`. After that, you're on your own.
 
-1. **Load** the sales data
-2. **Clean** any issues (types, missing values)
-3. **Enrich** with calculated fields
-4. **Analyze** by grouping and aggregating
-5. **Filter** to find insights
-6. **Export** a summary
-
-## Pipeline Structure
-
-\`\`\`python
-def load_data():
-    # Load and initial exploration
-    pass
-
-def clean_data(df):
-    # Handle missing, fix types, clean strings
-    pass
-
-def enrich_data(df):
-    # Add calculated columns
-    pass
-
-def analyze(df):
-    # Group, aggregate, find insights
-    pass
-
-def export_summary(df, summary):
-    # Save results
-    pass
-
-# Run pipeline
-raw = load_data()
-clean = clean_data(raw)
-enriched = enrich_data(clean)
-insights = analyze(enriched)
-export_summary(enriched, insights)
+\`\`\`text
+columns: Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, DiabetesPedigreeFunction, Age, Outcome
+Outcome: 1 = diabetic, 0 = not
 \`\`\`
 
-## Success Criteria
+## What "open-ended" means here
 
-Your solution should:
-- Handle edge cases gracefully
-- Use vectorized operations where possible
-- Include clear print statements showing progress
-- Generate a meaningful summary
+- No starter code beyond loading the data.
+- No structure-of-the-solution comments.
+- The validator only checks the printed answer, not how you arrived at it.
+- A peek-able example solution is hidden below in a collapsed details block. Try it cold first.
+
+## The strategy that has worked for the lessons until now
+
+You can keep using it. \`groupby\`, \`apply\`, vectorized math, NumPy when speed matters. The point of an open-ended challenge isn't that you need new techniques; it's that nobody is telling you which one to reach for.
+
+## A hint about how the solution example works
+
+It is one short paragraph of code (under 20 lines, total). If your draft is creeping past 40 lines, you're probably overbuilding.
+
+<details>
+<summary><strong>peek the reference solution</strong> (try it without first)</summary>
+
+\`\`\`python
+import io
+import pandas as pd
+from pyodide.http import pyfetch
+
+URL = "https://raw.githubusercontent.com/plotly/datasets/master/diabetes.csv"
+resp = await pyfetch(URL)
+df = pd.read_csv(io.StringIO(await resp.string()))
+
+# Q1: positivity rate
+print(f"diabetic rate: {df['Outcome'].mean() * 100:.1f}%")
+
+# Q2: avg Glucose for diabetics vs non-diabetics
+mean_by_outcome = df.groupby("Outcome")["Glucose"].mean().round(1)
+print(f"diabetic mean Glucose: {mean_by_outcome[1]}")
+print(f"non-diabetic mean Glucose: {mean_by_outcome[0]}")
+
+# Q3: highest-BMI age bucket
+df["age_bucket"] = pd.cut(df["Age"], bins=[20, 30, 40, 50, 60, 100],
+                         labels=["20s", "30s", "40s", "50s", "60+"])
+top_bucket = df.groupby("age_bucket", observed=True)["BMI"].mean().idxmax()
+print(f"highest-BMI age bucket: {top_bucket}")
+\`\`\`
+
+</details>
 `,
-    starterCode: `# CAPSTONE: Complete Data Analysis Pipeline
-# Goal: Analyze sales data and generate insights
+    starterCode: `# Capstone. No scaffolding past the data load.
+import io
+import pandas as pd
+from pyodide.http import pyfetch
 
-# Step 1: Load data (using pre-loaded 'sales' DataFrame)
-print("=== Step 1: Load & Explore ===")
-print(f"Shape: {sales.shape}")
-print(f"Columns: {list(sales.columns)}")
-print(sales.head())
+URL = "https://raw.githubusercontent.com/plotly/datasets/master/diabetes.csv"
+resp = await pyfetch(URL)
+df = pd.read_csv(io.StringIO(await resp.string()))
 
-# Step 2: Clean data
-print("\\n=== Step 2: Clean ===")
-# Convert date to datetime
-sales["date"] = pd.to_datetime(sales["date"])
-print(f"Date range: {sales['date'].min()} to {sales['date'].max()}")
+print(f"loaded: {df.shape[0]} rows x {df.shape[1]} columns")
+print(df.head(3))
 
-# Step 3: Enrich with calculated fields
-print("\\n=== Step 3: Enrich ===")
-sales["revenue"] = sales["price"] * sales["quantity"]
-sales["day_of_week"] = sales["date"].dt.day_name()
-print("Added: revenue, day_of_week")
-
-# Step 4: Analyze
-print("\\n=== Step 4: Analyze ===")
-# Your analysis here...
-
-# Step 5: Generate summary
-print("\\n=== Step 5: Summary ===")
-# Your summary here...
+# Your work below.
+# The challenges hold the questions. Pick your own approach.
 `,
     examples: [
       {
@@ -1103,36 +1089,29 @@ for product, rev in top_products.items():
     challenges: [
       {
         id: "m7l5c1",
-        prompt: "Complete the capstone: calculate total revenue by category and find which category has the highest revenue.",
-        hint: "groupby('category')['revenue'].sum(), then find the max",
-        validateFn: `return output.includes("Electronics") || output.includes("highest") || output.includes("revenue")`,
-        solution: `# Enrich
-sales["revenue"] = sales["price"] * sales["quantity"]
-
-# Analyze by category
-by_category = sales.groupby("category")["revenue"].sum()
-print("Revenue by Category:")
-print(by_category)
-
-# Find highest
-top_category = by_category.idxmax()
-top_revenue = by_category.max()
-print(f"\\nHighest: {top_category} with \${top_revenue:.2f}")`,
+        prompt: "Using the loaded df, print the share of rows where Outcome == 1 (diabetic) as a percentage with one decimal, in the format 'diabetic rate: X.X%'. The actual answer is around 34.9%. No hint, no starter steps. Pick your own approach.",
+        hint: "",
+        validateFn: `return /diabetic\\s+rate:\\s*3[45]\\.[0-9]%/.test(output)`,
+        solution: `print(f"diabetic rate: {df['Outcome'].mean() * 100:.1f}%")`,
       },
       {
         id: "m7l5c2",
-        prompt: "Create a summary showing: total students, average score, count per grade, and count per subject.",
-        hint: "Use len(), mean(), and value_counts() for each metric",
-        validateFn: `return output.includes("Total") && output.includes("Average") && (output.includes("Math") || output.includes("grade"))`,
-        solution: `print("=== STUDENT SUMMARY ===")
-print(f"Total Students: {len(students)}")
-print(f"Average Score: {students['score'].mean():.1f}")
-
-print("\\nBy Grade:")
-print(students["grade"].value_counts().sort_index())
-
-print("\\nBy Subject:")
-print(students["subject"].value_counts())`,
+        prompt: "From the same df, compute the mean Glucose for diabetics (Outcome == 1) and for non-diabetics (Outcome == 0). Print 'diabetic mean Glucose: X.X' and 'non-diabetic mean Glucose: Y.Y' (one decimal each). Diabetics should be noticeably higher; that's the whole point of the dataset.",
+        hint: "",
+        validateFn: `const dm = output.match(/diabetic\\s+mean\\s+Glucose:\\s*(\\d+(?:\\.\\d+)?)/i); const nm = output.match(/non-diabetic\\s+mean\\s+Glucose:\\s*(\\d+(?:\\.\\d+)?)/i); if (!dm || !nm) return false; const d = parseFloat(dm[1]); const n = parseFloat(nm[1]); return d > n && d > 130 && n < 130;`,
+        solution: `means = df.groupby("Outcome")["Glucose"].mean().round(1)
+print(f"diabetic mean Glucose: {means[1]}")
+print(f"non-diabetic mean Glucose: {means[0]}")`,
+      },
+      {
+        id: "m7l5c3",
+        prompt: "Bucket the Age column into 20s, 30s, 40s, 50s, 60+ (use pd.cut). Find which bucket has the highest average BMI. Print 'highest-BMI age bucket: NAME' (one of 20s/30s/40s/50s/60+).",
+        hint: "",
+        validateFn: `return /highest-BMI\\s+age\\s+bucket:\\s*(20s|30s|40s|50s|60\\+)/i.test(output)`,
+        solution: `df["age_bucket"] = pd.cut(df["Age"], bins=[20, 30, 40, 50, 60, 100],
+                         labels=["20s", "30s", "40s", "50s", "60+"])
+top = df.groupby("age_bucket", observed=True)["BMI"].mean().idxmax()
+print(f"highest-BMI age bucket: {top}")`,
       },
     ],
     projectChallenge: {
