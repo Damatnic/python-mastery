@@ -227,7 +227,7 @@ if api_response["status"] == 200:
 else:
     print(f"API Error: {api_response['status']}")`,
       validateFn: `return output.includes("200") && output.includes("Total") && output.includes("Revenue")`,
-      hint: "Check status first, then navigate to api_response['data']['sales'] and convert to DataFrame",
+      hint: "Check status first, then drill into api_response['data']['sales'] and convert to DataFrame",
       xpReward: 50,
     },
   },

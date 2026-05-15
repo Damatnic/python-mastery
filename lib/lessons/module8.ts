@@ -9,7 +9,7 @@ export const lessonsModule8: Lesson[] = [
     title: "Pygame Setup & Game Loop",
     badge: "concept",
     theory: `
-## What is Pygame?
+## pygame basics
 
 Pygame is a Python library for making games. It handles the window, drawing, keyboard/mouse input, and timing. You basically get a blank canvas and Pygame gives you the tools to draw on it 60 times per second.
 
@@ -22,7 +22,7 @@ That's all you need to get started. Everything else builds on top.
 
 ---
 
-## 🎬 What Gerber Covers in the Videos
+## from the videos
 
 **Pygame Install (2:09)**
 - \`pip install pygame\` in terminal
@@ -43,7 +43,7 @@ That's all you need to get started. Everything else builds on top.
 
 ---
 
-## The Game Loop
+## the game loop
 
 Every game runs in a loop. It keeps going until the player quits. Each time through the loop is one "frame."
 
@@ -75,7 +75,7 @@ pygame.quit()
 
 Those three steps (**handle events → update → draw**) repeat every frame. That's the whole pattern.
 
-## Delta Time: Frame-Rate Independence
+## delta time
 
 This tripped me up at first. If you just do \`x += 5\` every frame, your game runs at different speeds on different computers. A faster computer runs more frames per second, so things move faster. That's bad.
 
@@ -102,7 +102,7 @@ SPEED = 300  # pixels per second
 x += SPEED * dt
 \`\`\`
 
-## Rect vs Vector2: When to Use Each
+## Rect vs Vector2
 
 Gerber makes an entire video about this because students get confused:
 
@@ -131,7 +131,7 @@ class Ball(pygame.sprite.Sprite):
         self.rect.center = self.pos  # sync rect to float pos
 \`\`\`
 
-## Screen Coordinates
+## screen coordinates
 
 Pygame's coordinate system starts at the top-left corner:
 - (0, 0) = top-left
@@ -140,7 +140,7 @@ Pygame's coordinate system starts at the top-left corner:
 
 So (800, 600) is the bottom-right of an 800x600 window. A bit counterintuitive if you're used to math, but you get used to it fast.
 
-## Colors
+## colors
 
 Colors are (R, G, B) tuples with values 0-255:
 
@@ -152,7 +152,7 @@ GREEN = (0, 255, 0)
 BLUE  = (0, 0, 255)
 \`\`\`
 
-## Drawing Basics
+## drawing basics
 
 \`\`\`python
 # Draw a filled rectangle: surface, color, (x, y, width, height)
@@ -167,7 +167,7 @@ pygame.draw.line(screen, WHITE, (0, 0), (800, 600), 2)
 
 The order matters; things drawn later appear on top.
 
-## 🎨 Asset Creation Tips
+## 🎨 asset creation tips
 
 Where to find free sprites and tilesets:
 - **Kenney.nl**: amazing free assets, super polished, great for prototyping
@@ -181,7 +181,7 @@ Tools for making your own:
 
 ---
 
-## 💡 Tips & Tricks
+## tips
 
 - **Gerber tip:** Keep all constants in a \`settings.py\` file; way easier to tune the game later
 - **Gerber tip:** Always call \`pygame.quit()\` at the end; prevents the window from hanging
@@ -190,7 +190,7 @@ Tools for making your own:
 
 ---
 
-## ⚠️ Common Mistakes
+## common mistakes
 
 - **Forgetting pygame.quit()**: the window hangs when you close it
 - **Not calling pygame.display.flip()**: nothing shows up, you just stare at a black screen wondering why
@@ -314,7 +314,7 @@ def validate(answer):
     title: "Movement, Velocity & Physics",
     badge: "concept",
     theory: `
-## 🎬 What Gerber Covers in the Videos
+## from the videos
 
 **Basic Platform Movement (Brick Breakaway Video 3)**
 - \`keys = pygame.key.get_pressed()\` for continuous input
@@ -333,7 +333,7 @@ def validate(answer):
 
 ---
 
-## Delta Time Movement: The Right Way
+## delta time movement: the right way
 
 Gerber teaches this early because it's foundational. Here's the pattern:
 
@@ -353,7 +353,7 @@ while running:
 
 **Why this matters:** If you just do \`x += 5\` every frame, your game runs at different speeds on different computers. Delta time fixes that.
 
-## Keyboard Input
+## keyboard input
 
 \`\`\`python
 keys = pygame.key.get_pressed()  # snapshot of current key state
@@ -370,7 +370,7 @@ if keys[pygame.K_DOWN]:
 
 Common keys: \`pygame.K_LEFT\`, \`pygame.K_RIGHT\`, \`pygame.K_UP\`, \`pygame.K_DOWN\`, \`pygame.K_SPACE\`, \`pygame.K_RETURN\`, \`pygame.K_a\`, \`pygame.K_w\`, etc.
 
-## Boundary Clamping
+## boundary clamping
 
 Keep the player on screen. Gerber shows two ways:
 
@@ -391,7 +391,7 @@ player_rect.clamp_ip(screen.get_rect())
 
 The \`_ip\` suffix means "in place"; it modifies the rect directly instead of returning a new one.
 
-## Bouncing Off Walls
+## bouncing off walls
 
 When the object hits a wall, flip the velocity:
 
@@ -419,7 +419,7 @@ elif x + BALL_RADIUS >= WIDTH:
     vx = -abs(vx)  # force negative (moving left)
 \`\`\`
 
-## Acceleration and Friction
+## acceleration and friction
 
 This is what makes movement feel good instead of robotic:
 
@@ -457,7 +457,7 @@ while running:
 
 **Gerber tip:** Friction below 1.0 means velocity shrinks each frame when you're not pressing anything; that's the "sliding to a stop" feel.
 
-## Vector Normalization: Diagonal Movement Fix
+## vector normalization
 
 Without normalization, diagonal movement is ~41% faster than horizontal/vertical. That's because you're adding two velocities together:
 
@@ -483,7 +483,7 @@ if direction.length() > 0:
     pos += direction * SPEED * dt
 \`\`\`
 
-## Storing Float Position Separately
+## storing float position separately
 
 **Gerber tip:** Rects use integers, which causes jitter with small movements. Store a float position separately:
 
@@ -509,7 +509,7 @@ class Player(pygame.sprite.Sprite):
 
 ---
 
-## 💡 Tips & Tricks
+## tips
 
 - **Gerber tip:** Always multiply velocity by dt for frame-rate independence
 - **Tip:** Store float positions separately from the rect for smooth sub-pixel movement
@@ -519,7 +519,7 @@ class Player(pygame.sprite.Sprite):
 
 ---
 
-## ⚠️ Common Mistakes
+## common mistakes
 
 - **Not using delta time**: game runs at different speeds on different machines
 - **Using integer division** on rect positions; causes visible jitter
@@ -694,7 +694,7 @@ def validate(answer):
     title: "Sprites & Sprite Groups",
     badge: "concept",
     theory: `
-## 🎬 What Gerber Covers in the Videos
+## from the videos
 
 **User Platform Class and Attributes (Brick Breakaway Video 2)**
 - Creating a class that extends \`pygame.sprite.Sprite\`
@@ -718,7 +718,7 @@ def validate(answer):
 
 ---
 
-## What's a Sprite?
+## sprites
 
 In Pygame, a sprite is an object that has an image and a position. It inherits from \`pygame.sprite.Sprite\` and you put sprites into groups that handle updating and drawing automatically.
 
@@ -742,7 +742,7 @@ The key things every sprite needs:
 - **\`self.rect\`**: position and size (a Rect object)
 - **\`update()\`** method; called every frame
 
-## Sprite Groups
+## sprite groups
 
 Groups manage collections of sprites. You add sprites to a group and the group handles updating and drawing all of them.
 
@@ -758,7 +758,7 @@ all_sprites.draw(screen)      # draws every sprite to the screen
 
 **Gerber tip:** Use sprite groups; \`all_sprites.update()\` and \`all_sprites.draw()\` handle everything. Way cleaner than manually looping through every object.
 
-## Loading Real Images
+## loading real images
 
 \`\`\`python
 class Player(pygame.sprite.Sprite):
@@ -771,7 +771,7 @@ class Player(pygame.sprite.Sprite):
 
 \`convert_alpha()\` optimizes the image for faster drawing and preserves transparency.
 
-## Resizing Sprites
+## resizing sprites
 
 \`\`\`python
 # Load and scale in one step
@@ -784,7 +784,7 @@ self.image = pygame.transform.scale(original, (original.get_width() * 2, origina
 
 **Tip:** Use \`pygame.transform.scale()\` with 2x or 0.5x for quick sizing. Pixel art looks best at integer multiples.
 
-## The Surface Handler Pattern
+## surface handler pattern
 
 Gerber's pattern for extracting frames from a sprite sheet. This is super useful:
 
@@ -819,7 +819,7 @@ walk_frames = handler.get_animation(row=0, num_frames=4)  # frames 0-3 on row 0
 attack_frames = handler.get_animation(row=1, num_frames=3)  # frames 0-2 on row 1
 \`\`\`
 
-## Sprite Sheet Frame Extraction: The Math
+## sprite sheet frame extraction: the math
 
 If your sprite sheet has 64x64 pixel frames arranged in a grid:
 
@@ -841,7 +841,7 @@ y = row * frame_height  # 1 * 64 = 64
 frame.blit(sheet, (0, 0), (x, y, frame_width, frame_height))
 \`\`\`
 
-## Animation System
+## animation system
 
 \`\`\`python
 class AnimatedSprite(pygame.sprite.Sprite):
@@ -866,7 +866,7 @@ class AnimatedSprite(pygame.sprite.Sprite):
         # ... movement code
 \`\`\`
 
-## Flipping Sprites for Direction
+## flipping sprites for direction
 
 Most sprite sheets only have one direction. Flip at runtime:
 
@@ -885,7 +885,7 @@ if not self.facing_right:
     self.image = pygame.transform.flip(self.frames[self.frame_index], True, False)
 \`\`\`
 
-## Rect Properties: Your Best Friends
+## Rect properties: your best friends
 
 \`\`\`python
 rect.x, rect.y         # top-left corner
@@ -901,7 +901,7 @@ rect.midleft, rect.midright, rect.midtop, rect.midbottom
 
 ---
 
-## 💡 Tips & Tricks
+## tips
 
 - **Gerber tip:** Use sprite groups; \`all_sprites.update()\` and \`all_sprites.draw()\` handle everything
 - **Tip:** Kenney.nl has free sprite sheets that work great for prototyping
@@ -911,7 +911,7 @@ rect.midleft, rect.midright, rect.midtop, rect.midbottom
 
 ---
 
-## ⚠️ Common Mistakes
+## common mistakes
 
 - **Forgetting \`super().__init__()\`**: sprite doesn't work properly with groups
 - **Not setting both self.image AND self.rect**: sprite won't draw
@@ -1077,7 +1077,7 @@ def validate(answer):
     title: "Collision Detection",
     badge: "practice",
     theory: `
-## 🎬 What Gerber Covers in the Videos
+## from the videos
 
 **Ball and Platform Collision (Brick Breakaway Video 7)**
 - \`colliderect()\` for rect-to-rect detection
@@ -1105,11 +1105,11 @@ def validate(answer):
 
 ---
 
-## Why Collision Detection Matters
+## collision detection
 
 Without it, things pass through each other. Bullets don't hit enemies. The ball goes through the paddle. The player walks through walls. Collision detection is what makes games feel real.
 
-## Rect Collision (Fastest)
+## Rect collision (fastest)
 
 The simplest method; check if two rectangles overlap:
 
@@ -1125,7 +1125,7 @@ if rect.collidepoint(mouse_x, mouse_y):
 
 Rect collision is fast and good enough for most cases.
 
-## Sprite Group Collision
+## sprite group collision
 
 For checking one sprite against a whole group:
 
@@ -1143,7 +1143,7 @@ hits = pygame.sprite.groupcollide(bullets, enemies, True, True)
 # True, True = kill both the bullet and enemy on hit
 \`\`\`
 
-## Circle/Distance-Based Collision
+## circle / distance-based collision
 
 More accurate for round objects or when you need range detection (like tower targeting):
 
@@ -1168,7 +1168,7 @@ if dist <= TOWER_RANGE:
     tower.target = enemy
 \`\`\`
 
-## Waypoint/Path Following (Tower Defense)
+## waypoint following
 
 Enemies follow a list of waypoints. The key is tracking which waypoint they're heading toward:
 
@@ -1198,7 +1198,7 @@ class Enemy:
             self.pos += direction * self.speed * dt
 \`\`\`
 
-## Angle Calculation with math.atan2
+## angle calculation with math.atan2
 
 **Essential for projectiles that need to aim at a target:**
 
@@ -1218,7 +1218,7 @@ vy = math.sin(angle) * speed
 
 **Why atan2 instead of atan?** \`atan2(y, x)\` handles all four quadrants correctly. Regular \`atan\` doesn't know which quadrant you're in.
 
-## Projectile That Tracks a Moving Target
+## projectile that tracks a moving target
 
 \`\`\`python
 class Projectile:
@@ -1248,7 +1248,7 @@ class Projectile:
             self.pos += direction * self.speed * dt
 \`\`\`
 
-## Ball + Paddle Collision (The Right Way)
+## ball + paddle collision (the right way)
 
 **Gerber tip:** Always check \`vy > 0\` before bouncing off the paddle:
 
@@ -1259,7 +1259,7 @@ if ball_rect.colliderect(paddle_rect) and ball_vy > 0:
 
 **Why?** If you don't check, the ball can get stuck inside the paddle and bounce back and forth rapidly. \`vy > 0\` means the ball is moving downward; only then should we bounce it up.
 
-## Side-Aware Bounce (Which Side Did I Hit?)
+## side-aware bounce (which side did i hit?)
 
 For bouncing off bricks, you need to know if you hit the top/bottom or left/right:
 
@@ -1287,7 +1287,7 @@ def bounce_off_rect(ball_rect, ball_vel, target_rect):
 
 ---
 
-## 💡 Tips & Tricks
+## tips
 
 - **Gerber tip:** Check \`vy > 0\` on paddle collision; prevents ball getting stuck
 - **Tip:** \`math.atan2(dy, dx)\` gives angle from point A to point B; essential for Tower Defense
@@ -1297,7 +1297,7 @@ def bounce_off_rect(ball_rect, ball_vel, target_rect):
 
 ---
 
-## ⚠️ Common Mistakes
+## common mistakes
 
 - **Not checking vy > 0 on paddle**: ball gets stuck and vibrates
 - **Using position-at-fire instead of tracking**: projectiles miss moving targets
@@ -1447,13 +1447,13 @@ def validate(answer):
     title: "Project: Brick Breakaway",
     badge: "challenge",
     theory: `
-## What You're Building
+## what you're building
 
 Brick Breakaway is a classic arcade game: a ball bounces around breaking bricks, you control a paddle at the bottom to keep the ball from falling off-screen. Clear all the bricks to win.
 
 ---
 
-## 🎬 Gerber's Video Breakdown (9 Videos)
+## 🎬 gerber's video breakdown (9 videos)
 
 Follow along with Gerber's videos in order. Each video adds one piece:
 
@@ -1504,7 +1504,7 @@ Follow along with Gerber's videos in order. Each video adds one piece:
 
 ---
 
-## Project Structure
+## project structure
 
 \`\`\`
 BrickBreakaway/
@@ -1515,7 +1515,7 @@ BrickBreakaway/
 └── brick.py         # Brick sprite
 \`\`\`
 
-## Video 1: Settings / Constants
+## video 1: settings & constants
 
 \`\`\`python
 # settings.py
@@ -1543,7 +1543,7 @@ COLORS = {
 }
 \`\`\`
 
-## Video 2-3: Paddle Class
+## videos 2-3: paddle class
 
 \`\`\`python
 # paddle.py
@@ -1572,7 +1572,7 @@ class Paddle(pygame.sprite.Sprite):
         self.float_x = float(self.rect.x)
 \`\`\`
 
-## Video 5-6: Ball Class
+## videos 5-6: ball class
 
 \`\`\`python
 # ball.py
@@ -1617,7 +1617,7 @@ class Ball(pygame.sprite.Sprite):
         self.rect.center = (int(self.float_x), int(self.float_y))
 \`\`\`
 
-## Video 7: Ball + Paddle Collision
+## video 7: ball + paddle collision
 
 \`\`\`python
 # In main game loop:
@@ -1631,7 +1631,7 @@ if ball.rect.colliderect(paddle.rect) and ball.vy > 0:
 
 **Gerber tip:** The offset trick makes the game more interesting. Hit the ball with the edge of the paddle and it bounces at an angle.
 
-## Video 8-9: Brick Class and Collisions
+## videos 8-9: brick class & collisions
 
 \`\`\`python
 # brick.py
@@ -1656,7 +1656,7 @@ class Brick(pygame.sprite.Sprite):
 
 ---
 
-## 💡 Tips & Tricks
+## tips
 
 - **Gerber tip:** Keep all constants in settings.py; way easier to tune
 - **Gerber tip:** Check \`vy > 0\` before paddle bounce; prevents stuck ball
@@ -1665,7 +1665,7 @@ class Brick(pygame.sprite.Sprite):
 
 ---
 
-## ⚠️ Common Mistakes
+## common mistakes
 
 - **Forgetting vy > 0 check**: ball gets stuck in paddle
 - **Integer positions causing jitter**: use floats, convert to int for rect
@@ -1674,7 +1674,7 @@ class Brick(pygame.sprite.Sprite):
 
 ---
 
-## Step 2: Improvement Ideas (20+ points required)
+## step 2: improvement ideas (20+ points required)
 
 - **Informative Text (5pts)**: spacebar prompt + game over message
 - **Randomized Ball Start (5pts)**: random angle on launch
@@ -1860,13 +1860,13 @@ def validate(answer):
     title: "Project: Tower Defense",
     badge: "challenge",
     theory: `
-## What You're Building
+## what you're building
 
 Tower Defense: enemies walk down a path, you place towers to shoot them. More complex than Brick Breakaway because you need waypoint pathfinding, targeting logic, and projectiles that track moving targets.
 
 ---
 
-## 🎬 Gerber's Video Breakdown (12 Videos)
+## 🎬 gerber's video breakdown (12 videos)
 
 **Video 1: Project Setup**
 - Folder structure, main.py, settings.py
@@ -1929,7 +1929,7 @@ Tower Defense: enemies walk down a path, you place towers to shoot them. More co
 
 ---
 
-## Project Structure
+## project structure
 
 \`\`\`
 TowerDefense/
@@ -1941,7 +1941,7 @@ TowerDefense/
 └── projectile.py
 \`\`\`
 
-## Key Concepts
+## key concepts
 
 ### Waypoint Path Following
 
@@ -2025,7 +2025,7 @@ class Projectile:
 
 ---
 
-## 💡 Tips & Tricks
+## tips
 
 - **Gerber tip:** Store enemy reference in projectile, not just position; tracks moving targets
 - **Tip:** \`math.atan2(dy, dx)\` gives angle in radians; essential for aiming
@@ -2034,7 +2034,7 @@ class Projectile:
 
 ---
 
-## ⚠️ Common Mistakes
+## common mistakes
 
 - **Storing position instead of reference**: projectiles miss moving enemies
 - **Not checking if target is alive**: crashes when enemy dies mid-flight
@@ -2043,7 +2043,7 @@ class Projectile:
 
 ---
 
-## Step 2 Options (20+ points required)
+## step 2 options
 
 - **Tower Sprite (5pts)**: load image instead of drawing shape
 - **Projectile Rotation (5pts)**: rotate sprite to face target
@@ -2301,13 +2301,13 @@ def validate(answer):
     title: "Project: Sprite Game",
     badge: "challenge",
     theory: `
-## What You're Building
+## what you're building
 
 A character-based game with animated sprites, NPCs that move around, and collision interactions. The foundation for RPGs, platformers, or action games. The big new thing is sprite sheets; multiple animation frames from a single image.
 
 ---
 
-## 🎬 Gerber's Video Breakdown (13 Videos)
+## 🎬 gerber's video breakdown (13 videos)
 
 **Video 1: Project Setup**
 - Folder/file structure
@@ -2374,7 +2374,7 @@ A character-based game with animated sprites, NPCs that move around, and collisi
 
 ---
 
-## Project Structure
+## project structure
 
 \`\`\`
 SpriteGame/
@@ -2387,7 +2387,7 @@ SpriteGame/
 └── assets/            # sprites, backgrounds
 \`\`\`
 
-## Surface Handler Pattern
+## surface handler pattern
 
 \`\`\`python
 class SurfaceHandler:
@@ -2407,7 +2407,7 @@ class SurfaceHandler:
         return [self.get_frame(col, row) for col in range(num_frames)]
 \`\`\`
 
-## Base Character Class
+## base character class
 
 \`\`\`python
 class Character(pygame.sprite.Sprite):
@@ -2432,7 +2432,7 @@ class Character(pygame.sprite.Sprite):
                 self.image = pygame.transform.flip(self.image, True, False)
 \`\`\`
 
-## Runner NPC with Teleport
+## runner NPC with teleport
 
 \`\`\`python
 class Runner(Character):
@@ -2471,7 +2471,7 @@ class Runner(Character):
 
 ---
 
-## 💡 Tips & Tricks
+## tips
 
 - **Gerber tip:** Separate character.py keeps shared code DRY
 - **Tip:** \`pygame.SRCALPHA\` is required for transparent sprites
@@ -2480,7 +2480,7 @@ class Runner(Character):
 
 ---
 
-## ⚠️ Common Mistakes
+## common mistakes
 
 - **Loading sprites inside update()**: kills performance
 - **Modifying self.image directly**: keep original frames separate
@@ -2489,7 +2489,7 @@ class Runner(Character):
 
 ---
 
-## Step 2 Options (20+ points required)
+## step 2 options
 
 - **Background Change (5pts)**: swap on score threshold
 - **Multiple Sprite Sheets (5pts)**: random NPC appearances
@@ -2746,7 +2746,7 @@ def validate(answer):
     title: "Sound & Music",
     badge: "concept",
     theory: `
-## Adding Sound to Your Game
+## adding sound to your game
 
 A game without sound feels dead. Pygame's \`mixer\` module handles both short sound effects (explosions, jumps, hits) and background music (looping tracks).
 
@@ -2762,7 +2762,7 @@ There are two separate systems and they work differently:
 
 ---
 
-## Sound Effects with pygame.mixer.Sound
+## sound effects with pygame.mixer.Sound
 
 Sound effects are loaded into memory. Use \`.wav\` or \`.ogg\` files (mp3 support is inconsistent).
 
@@ -2802,7 +2802,7 @@ pygame.mixer.stop()       # stop ALL sounds
 
 ---
 
-## Background Music with pygame.mixer.music
+## background music with pygame.mixer.music
 
 Music streams from disk instead of loading into memory. Only one track plays at a time.
 
@@ -2827,7 +2827,7 @@ pygame.mixer.music.fadeout(2000)
 
 ---
 
-## Channels: Playing Multiple Sounds
+## channels: playing multiple sounds
 
 Pygame has 8 channels by default. Each channel can play one sound at a time. When you call \`sound.play()\`, it grabs a free channel automatically.
 
@@ -2845,7 +2845,7 @@ If all channels are busy when you play a sound, the oldest sound gets cut off. R
 
 ---
 
-## Common Pattern: Sound Manager
+## common pattern: sound manager
 
 Most games wrap their sounds in a simple manager:
 
@@ -2882,7 +2882,7 @@ sfx.play("coin", volume=0.5)
 
 ---
 
-## File Formats
+## file formats
 
 | Format | Best For | Notes |
 |--------|----------|-------|
@@ -3029,7 +3029,7 @@ def validate(answer):
     title: "Text & HUD Rendering",
     badge: "concept",
     theory: `
-## Rendering Text in Pygame
+## rendering text in Pygame
 
 Pygame doesn't have a text box you can just type into. To show text on screen you render it onto a surface, then blit that surface onto the screen. It's a two-step process.
 
@@ -3043,7 +3043,7 @@ That's the whole pattern. Everything else is just variations on it.
 
 ---
 
-## Font Options
+## font options
 
 ### System Fonts
 \`\`\`python
@@ -3071,7 +3071,7 @@ Custom fonts make your game look unique. Free pixel fonts from Google Fonts or d
 
 ---
 
-## The render() Method
+## render()
 
 \`\`\`python
 text_surface = font.render(text, antialias, color, background=None)
@@ -3099,7 +3099,7 @@ highlighted = font.render("NEW HIGH SCORE!", True, (255, 255, 0), (0, 0, 100))
 
 ---
 
-## Positioning Text
+## positioning text
 
 \`font.render()\` returns a surface. Positioning it on the screen is a separate step.
 
@@ -3133,7 +3133,7 @@ rect.midbottom = (SCREEN_WIDTH // 2, SCREEN_HEIGHT - 10)
 
 ---
 
-## Building a HUD (Heads-Up Display)
+## building a HUD (heads-up display)
 
 A HUD shows game info that updates every frame: score, lives, timer, level.
 
@@ -3187,7 +3187,7 @@ while running:
 
 ---
 
-## Performance Tip: Cache Rendered Text
+## performance tip: cache rendered text
 
 Re-rendering text every frame is wasteful if the text hasn't changed. Cache it:
 
@@ -3219,7 +3219,7 @@ For simple games this optimization doesn't matter much, but it's a good habit. R
 
 ---
 
-## Timer Display
+## timer display
 
 \`\`\`python
 start_time = pygame.time.get_ticks()
@@ -3382,7 +3382,7 @@ def validate(answer):
     title: "Game State Management",
     badge: "practice",
     theory: `
-## Why State Management Matters
+## state management
 
 Right now your games probably have a single game loop that handles everything. But real games have multiple screens: a title screen, the actual gameplay, a pause menu, a game-over screen. Without state management, your code turns into a tangled mess of \`if show_menu\` and \`if game_over\` flags scattered everywhere.
 
@@ -3390,7 +3390,7 @@ The fix is simple: use a state variable and organize your code around it.
 
 ---
 
-## The State Pattern
+## state pattern
 
 \`\`\`python
 # Define your states
@@ -3447,7 +3447,7 @@ That's the entire pattern. Each state gets its own input handler, its own update
 
 ---
 
-## State Transitions
+## state transitions
 
 States change when specific things happen:
 
@@ -3487,7 +3487,7 @@ def handle_game_over_input(event):
 
 ---
 
-## Drawing Each State
+## drawing each state
 
 ### Menu Screen
 \`\`\`python
@@ -3544,7 +3544,7 @@ def draw_game_over(screen):
 
 ---
 
-## reset_game(): The Restart Function
+## reset_game(): the restart function
 
 When transitioning from Game Over back to Playing, you need to reset everything:
 
@@ -3563,7 +3563,7 @@ def reset_game():
 
 ---
 
-## Gerber Tip: Keep It Simple
+## Gerber tip: keep it simple
 
 You don't need a fancy state machine library. A string variable and some if/elif blocks is all most games need. Don't over-engineer it. The pattern above handles menus, pausing, game over, and win screens for any Pygame project.
 
@@ -3802,13 +3802,13 @@ def validate(answer):
     title: "Brick Breakaway · Deep Dive & Demo Prep",
     badge: "challenge",
     theory: `
-## Your Brick Breakaway: How Everything Works
+## how everything works
 
 This is a deep breakdown of the Brick Breakaway game you built. Everything here maps to your actual code. Know this inside and out for the Zoom demo with Gerber.
 
 ---
 
-## The Big Picture
+## the big picture
 
 The game has 5 core systems working together:
 1. **Platform**: keyboard-controlled paddle at the bottom
@@ -3821,7 +3821,7 @@ Everything runs inside one game loop doing **events → update → draw** at 60f
 
 ---
 
-## Delta Time: Why It Matters
+## delta time: why it matters
 
 \`\`\`python
 dt = clock.tick(60) / 1000.0  # seconds since last frame
@@ -3842,7 +3842,7 @@ self.x += self.speed * dt  # 500 pixels per second = same speed everywhere
 
 ---
 
-## Ball Physics: Launch and Bounce
+## ball physics: launch and bounce
 
 ### Random Launch
 \`\`\`python
@@ -3885,7 +3885,7 @@ Using \`abs()\` instead of \`*= -1\` prevents the "stuck in wall" bug where the 
 
 ---
 
-## Brick Collision Detection
+## Brick collision detection
 
 \`\`\`python
 if ball_rect.colliderect(brick.get_rect()):
@@ -3912,7 +3912,7 @@ if ball_rect.colliderect(brick.get_rect()):
 
 ---
 
-## Power-Up System
+## power-up system
 
 ### Brick Types
 Power-up bricks look different (colored with a letter symbol) and drop a collectible when destroyed:
@@ -3953,7 +3953,7 @@ Spawns a second ball at the same position going the opposite horizontal directio
 
 ---
 
-## Level System
+## level system
 
 Three level functions return different brick layouts:
 
@@ -3970,7 +3970,7 @@ Each level randomly places 4-6 power-up bricks. Ball speed increases by 30 px/se
 
 ---
 
-## Background: Procedural Generation
+## background: procedural generation
 
 Instead of loading an image file, the background is generated with code:
 
@@ -4003,7 +4003,7 @@ background = pygame.transform.scale(background, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
 ---
 
-## Brick Sprites: Cached Rendering
+## Brick sprites: cached rendering
 
 \`\`\`python
 BRICK_SPRITES = {}  # cache
@@ -4027,7 +4027,7 @@ Each unique brick appearance (health level + power-up type) gets rendered once a
 
 ---
 
-## Common Gerber Questions: Quick Answers
+## common Gerber questions: quick answers
 
 **"Walk me through the game loop."**
 "Events first; check for quit, spacebar launch, spacebar restart. Then update; move platform, move ball, check collisions, check if ball fell off screen. Then draw; background, platform, ball, bricks, HUD. Then flip the display."

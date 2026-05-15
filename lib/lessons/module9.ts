@@ -9,7 +9,7 @@ export const lessonsModule9: Lesson[] = [
     title: "String Methods in Pandas",
     badge: "concept",
     theory: `
-## The str Accessor
+## the .str accessor
 
 Pandas exposes a \`str\` accessor that lets you call string methods across an entire column at once. It's one of the most useful features once you know it's there.
 
@@ -21,7 +21,7 @@ df["name"].str.strip()   # remove leading/trailing whitespace
 
 Without the \`.str\` you'd have to loop through rows. With it, everything just works on the whole column.
 
-## Common String Methods
+## common methods
 
 **Changing case:**
 \`\`\`python
@@ -44,7 +44,7 @@ df["text"].str.replace("old", "new")
 df["text"].str.replace(r"\\d+", "", regex=True)  # remove all digits
 \`\`\`
 
-## Searching with contains
+## searching with contains
 
 This one's super handy for filtering. It returns True/False for each row.
 
@@ -65,7 +65,7 @@ Watch out though; \`contains\` throws errors if you have NaN values. Use \`na=Fa
 df[df["name"].str.contains("son", na=False)]
 \`\`\`
 
-## Extracting with extract
+## extract
 
 If you need to pull out specific parts of strings, \`extract\` uses regex groups.
 
@@ -79,7 +79,7 @@ df["phone"].str.extract(r"\\((\\d{3})\\)")
 
 The parentheses in the regex define what gets captured. This part tripped me up at first but it makes sense once you see it.
 
-## Splitting Strings
+## splitting
 
 \`\`\`python
 # Split into a list
@@ -182,7 +182,7 @@ print(science_students["name"])`,
     title: "Working with Numbers & Types",
     badge: "concept",
     theory: `
-## Checking Data Types
+## checking dtypes
 
 First thing you wanna do with any new dataset is check what types you're working with.
 
@@ -199,7 +199,7 @@ Common types you'll see:
 - \`bool\`; True/False
 - \`datetime64\`; dates
 
-## Converting Types with astype
+## astype
 
 When pandas reads a CSV, it guesses types. Sometimes it guesses wrong.
 
@@ -212,7 +212,7 @@ df["active"] = df["active"].astype(bool)
 
 If the conversion isn't possible (like turning "hello" into an int), it'll throw an error. Which is actually helpful.
 
-## pd.to_numeric for Messy Data
+## pd.to_numeric for messy data
 
 Here's the thing; \`astype\` is strict. If you have even one bad value, it fails. \`pd.to_numeric\` is more forgiving.
 
@@ -226,7 +226,7 @@ df["price"] = pd.to_numeric(df["price"], errors="ignore")
 
 I use \`errors="coerce"\` way more than I expected. Real data is messy.
 
-## Rounding Numbers
+## rounding
 
 \`\`\`python
 df["price"].round(2)     # round to 2 decimal places
@@ -241,7 +241,7 @@ np.floor(df["price"])    # always round down
 np.ceil(df["price"])     # always round up
 \`\`\`
 
-## Formatting with apply
+## formatting via apply
 
 For display formatting, \`apply\` is your friend.
 
@@ -256,7 +256,7 @@ df["rate"].apply(lambda x: f"{x:.1%}")
 df["population"].apply(lambda x: f"{x:,}")
 \`\`\`
 
-## Handling Mixed Types
+## mixed-type columns
 
 Sometimes a column has both numbers and text. This happens more than you'd think.
 
@@ -385,7 +385,7 @@ It's pretty smart about formats; it can figure out "2024-01-15", "01/15/2024", "
 df["date"] = pd.to_datetime(df["date"], format="%d-%m-%Y")
 \`\`\`
 
-## The dt Accessor
+## the .dt accessor
 
 Just like \`.str\` for strings, \`.dt\` gives you access to date parts.
 
@@ -400,7 +400,7 @@ df["date"].dt.month_name() # "January", "February", etc
 
 \`dt.weekday\` returns 0 for Monday, which is the part that's easy to forget.
 
-## Date Arithmetic
+## date arithmetic
 
 You can do math with dates. It's actually pretty intuitive.
 
@@ -417,7 +417,7 @@ df["end_date"] - df["start_date"]
 (df["end_date"] - df["start_date"]).dt.days
 \`\`\`
 
-## Timedelta for Offsets
+## Timedelta offsets
 
 \`\`\`python
 from datetime import timedelta
@@ -436,7 +436,7 @@ pd.DateOffset(months=1)   # add exactly 1 month
 pd.DateOffset(years=1)    # add exactly 1 year
 \`\`\`
 
-## Formatting Dates with strftime
+## strftime
 
 When you need dates as strings in a specific format:
 
@@ -455,7 +455,7 @@ Common format codes:
 - \`%A\`; full day name
 - \`%H:%M:%S\`; time
 
-## Filtering by Date
+## filtering by date
 
 \`\`\`python
 # Filter to a specific month
@@ -567,11 +567,11 @@ print(sales.head(3))`,
     title: "Combining DataFrames",
     badge: "concept",
     theory: `
-## Why Combine DataFrames?
+## combining DataFrames
 
 Real data is almost never in one table. You've got customers in one place, orders in another, products somewhere else. Combining them is like half the job.
 
-## merge: SQL-style Joins
+## merge
 
 \`merge\` is the main one. It's basically SQL joins.
 
@@ -583,7 +583,7 @@ result = pd.merge(orders, customers, on="customer_id")
 result = pd.merge(orders, customers, left_on="cust_id", right_on="customer_id")
 \`\`\`
 
-## Types of Joins
+## join types
 
 \`\`\`python
 # Inner join (default); only matching rows
@@ -601,7 +601,7 @@ pd.merge(df1, df2, on="id", how="outer")
 
 Inner is the default and what you want most of the time. Left join is second most common, the "give me all my orders, and whatever customer info exists" pattern.
 
-## Handling Duplicate Column Names
+## duplicate column names
 
 If both DataFrames have a column with the same name (besides the join key), you get suffixes:
 
@@ -614,7 +614,7 @@ pd.merge(df1, df2, on="id")
 pd.merge(df1, df2, on="id", suffixes=("_left", "_right"))
 \`\`\`
 
-## concat: Stacking DataFrames
+## concat
 
 Use \`concat\` when you want to stack DataFrames on top of each other (or side by side).
 
@@ -632,7 +632,7 @@ Watch the index though; by default it keeps the original indexes. Use \`ignore_i
 combined = pd.concat([df1, df2], ignore_index=True)
 \`\`\`
 
-## join: Quick Index-Based Merging
+## join (index-based)
 
 \`join\` is basically merge but uses the index by default.
 
@@ -646,11 +646,6 @@ df1.join(df2.set_index("key"), on="key")
 
 \`merge\` gets used more often than \`join\` because it's more explicit about what's happening.
 
-## When to Use What
-
-- **merge**: Most cases. When you have a column to match on.
-- **concat**: Stacking identical structure data (like monthly files).
-- **join**: When you're working with indexes specifically.
 `,
     starterCode: `# Let's create some related data to merge
 import io
@@ -774,7 +769,7 @@ print(result)`,
     title: "Pivot Tables & Reshaping",
     badge: "concept",
     theory: `
-## pivot_table: Excel-Style Summaries
+## pivot_table
 
 If you've used pivot tables in Excel, this is the same idea but way more powerful.
 
@@ -809,7 +804,7 @@ df.groupby(["region", "product"])["sales"].sum().unstack()
 
 The result looks exactly like a pivot table. I actually prefer this approach sometimes because it's more explicit about what's happening.
 
-## melt: Unpivoting (Wide to Long)
+## melt (wide to long)
 
 Sometimes data comes in wide format and you need it long. \`melt\` fixes that.
 
@@ -830,7 +825,7 @@ pd.melt(df, id_vars=["name"], var_name="month", value_name="sales")
 
 This is super useful when you need to plot data or do time series analysis.
 
-## stack and unstack
+## stack / unstack
 
 These are for reshaping multi-index data.
 
@@ -843,7 +838,7 @@ grouped.unstack()  # years become columns
 pivoted.stack()
 \`\`\`
 
-## fill_value for Missing Combinations
+## fill_value for missing combos
 
 When pivoting, some combinations might not exist in your data. You get NaN.
 
@@ -857,7 +852,7 @@ pd.pivot_table(
 )
 \`\`\`
 
-## Adding Margins (Totals)
+## margins (totals)
 
 \`\`\`python
 pd.pivot_table(
