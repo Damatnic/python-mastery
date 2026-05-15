@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Lazy so the build doesn't crash when OPENAI_API_KEY isn't set yet.
+let _openai: OpenAI | null = null;
+function getOpenAI(): OpenAI | null {
+  if (_openai) return _openai;
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) return null;
+  _openai = new OpenAI({ apiKey });
+  return _openai;
+}
 
 interface TutorRequest {
   messages: Array<{ role: "user" | "assistant"; content: string }>;
@@ -49,7 +55,8 @@ export async function POST(request: NextRequest) {
     const body: TutorRequest = await request.json();
     const { messages, context } = body;
 
-    if (!process.env.OPENAI_API_KEY) {
+    const openai = getOpenAI();
+    if (!openai) {
       return NextResponse.json(
         { error: "AI tutor is not configured on this deployment." },
         { status: 503 },
