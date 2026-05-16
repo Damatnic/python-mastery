@@ -3,60 +3,126 @@
 import { useState, useEffect, useCallback, useRef, use } from "react";
 import Link from "next/link";
 import { Sidebar } from "@/components/Sidebar";
-import { LessonView } from "@/components/LessonView";
-import { TutorChat, type TutorChatHandle } from "@/components/TutorChat";
 import { MobileModuleNav } from "@/components/MobileModuleNav";
 import { InterfaceOnboarding } from "@/components/InterfaceOnboarding";
-import { getAllModules, getLessonBySlug, getNextLesson, getPreviousLesson } from "@/lib/lessons";
+import { TutorChat, type TutorChatHandle } from "@/components/TutorChat";
+import { TheoryContent } from "@/components/TheoryContent";
+import ExampleBlock from "@/components/ExampleBlock";
+import ChallengeBlock from "@/components/ChallengeBlock";
+import ProjectChallengeBlock from "@/components/ProjectChallengeBlock";
+import { LessonAnchorNav, type AnchorSection } from "@/components/LessonAnchorNav";
+import { NextLessonCard } from "@/components/NextLessonCard";
+import LessonToolDock, { type DockTool } from "@/components/LessonToolDock";
+import PythonCheatSheet from "@/components/PythonCheatSheet";
+import { PyodideProvider, usePyodideRuntime } from "@/components/PyodideProvider";
+import {
+  getAllModules,
+  getLessonBySlug,
+  getNextLesson,
+  getPreviousLesson,
+} from "@/lib/lessons";
 import { updateStreak } from "@/lib/streak";
 import { markReviewed } from "@/lib/storage";
 import { getCompletedLessons, markLessonComplete } from "@/lib/progress";
 import { isShowcase } from "@/lib/mode";
 
 interface LessonPageProps {
-  params: Promise<{
-    moduleSlug: string;
-    lessonSlug: string;
-  }>;
+  params: Promise<{ moduleSlug: string; lessonSlug: string }>;
+}
+
+function RuntimeStatus() {
+  const { isLoading, isReady, error } = usePyodideRuntime();
+  return (
+    <span className="font-mono text-xs flex items-center gap-2">
+      {error ? (
+        <>
+          <span className="inline-block w-2 h-2 rounded-full bg-error" aria-hidden="true" />
+          <span className="text-error">pyodide: failed — refresh to retry</span>
+        </>
+      ) : isLoading || !isReady ? (
+        <>
+          <span className="inline-block w-2 h-2 rounded-full bg-warning animate-pulse motion-reduce:animate-none" aria-hidden="true" />
+          <span className="text-warning">pyodide: loading…</span>
+        </>
+      ) : (
+        <>
+          <span className="inline-block w-2 h-2 rounded-full bg-success" aria-hidden="true" />
+          <span className="text-success">pyodide: ready</span>
+        </>
+      )}
+    </span>
+  );
 }
 
 export default function LessonPage({ params }: LessonPageProps) {
   const { moduleSlug, lessonSlug } = use(params);
-  const [completedLessons, setCompletedLessons] = useState<Set<string>>(
-    new Set()
-  );
+
+  const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set());
+  const [completedChallengeIds, setCompletedChallengeIds] = useState<Set<string>>(new Set());
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [dockOpen, setDockOpen] = useState<DockTool | null>(null);
   const [tutorCode, setTutorCode] = useState("");
+  const [showToast, setShowToast] = useState(false);
   const tutorRef = useRef<TutorChatHandle | null>(null);
+  const completeFiredRef = useRef(false);
 
   const modules = getAllModules();
   const lesson = getLessonBySlug(moduleSlug, lessonSlug);
   const nextLesson = lesson ? getNextLesson(moduleSlug, lessonSlug) : null;
   const prevLesson = lesson ? getPreviousLesson(moduleSlug, lessonSlug) : null;
-  const isAlreadyComplete = completedLessons.has(`${moduleSlug}/${lessonSlug}`);
+  const lessonKey = `${moduleSlug}/${lessonSlug}`;
+  const isAlreadyComplete = completedLessons.has(lessonKey);
+  const isPygame = moduleSlug === "game-dev-pygame";
 
   useEffect(() => {
     const set = getCompletedLessons();
     // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrating from localStorage
     setCompletedLessons(set);
-
-    const lessonKey = `${moduleSlug}/${lessonSlug}`;
     if (!isShowcase() && set.has(lessonKey)) {
       markReviewed(lessonKey);
     }
-  }, [moduleSlug, lessonSlug]);
+  }, [lessonKey]);
 
-  const handleComplete = useCallback(() => {
-    if (isShowcase()) return;
-    const lessonKey = `${moduleSlug}/${lessonSlug}`;
+  const fireComplete = useCallback(() => {
+    if (isShowcase() || completeFiredRef.current) return;
+    completeFiredRef.current = true;
     const added = markLessonComplete(lessonKey);
-    if (!added) return;
     setCompletedLessons((prev) => new Set(prev).add(lessonKey));
-    updateStreak();
-  }, [moduleSlug, lessonSlug]);
+    if (added) {
+      updateStreak();
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+    }
+  }, [lessonKey]);
+
+  const handleChallengeComplete = useCallback(
+    (challengeId: string) => {
+      if (!lesson) return;
+      setCompletedChallengeIds((prev) => {
+        if (prev.has(challengeId)) return prev;
+        const next = new Set(prev).add(challengeId);
+        const allDone =
+          lesson.challenges.length > 0 &&
+          lesson.challenges.every((c) => next.has(c.id));
+        if (allDone) fireComplete();
+        return next;
+      });
+    },
+    [lesson, fireComplete],
+  );
 
   const handleAskTutor = useCallback((prompt: string) => {
+    setDockOpen(null);
     tutorRef.current?.openWithPrompt(prompt);
+  }, []);
+
+  const handleDockOpen = useCallback((tool: DockTool | null) => {
+    if (tool === "tutor") {
+      setDockOpen(null);
+      tutorRef.current?.openWithPrompt("");
+      return;
+    }
+    setDockOpen(tool);
   }, []);
 
   if (!lesson) {
@@ -65,8 +131,7 @@ export default function LessonPage({ params }: LessonPageProps) {
         <p>
           <span className="text-accent">damato@python</span>
           <span className="text-muted-foreground">:</span>
-          <span className="text-muted-foreground">~$</span>{" "}
-          cat /learn/{moduleSlug}/{lessonSlug}
+          <span className="text-muted-foreground">~$</span> cat /learn/{moduleSlug}/{lessonSlug}
         </p>
         <p className="mt-2 text-error">cat: no such lesson</p>
         <Link
@@ -79,36 +144,242 @@ export default function LessonPage({ params }: LessonPageProps) {
     );
   }
 
+  const hasChallenges = lesson.challenges.length > 0;
+  const totalChallenges = lesson.challenges.length;
+
+  const anchorSections: AnchorSection[] = (() => {
+    const s: AnchorSection[] = [{ id: "theory", label: "theory" }];
+    if (lesson.examples.length > 0)
+      s.push({ id: "examples", label: "examples", badge: String(lesson.examples.length) });
+    if (hasChallenges)
+      s.push({
+        id: "challenges",
+        label: "challenges",
+        badge: `${completedChallengeIds.size}/${totalChallenges}`,
+      });
+    if (lesson.projectChallenge) s.push({ id: "project", label: "project" });
+    return s;
+  })();
+
+  const allChallengesDone =
+    hasChallenges && completedChallengeIds.size === totalChallenges;
+  const showNextLessonCard = allChallengesDone || isAlreadyComplete;
+
   return (
-    <div className="h-screen flex overflow-hidden">
-      <div className="hidden lg:block">
-        <Sidebar modules={modules} completedLessons={completedLessons} />
-      </div>
-      <MobileModuleNav
-        open={mobileNavOpen}
-        onClose={() => setMobileNavOpen(false)}
-        modules={modules}
-        completedLessons={completedLessons}
-      />
-      <main className="flex-1 flex flex-col overflow-hidden">
-        <LessonView
-          lesson={lesson}
-          onComplete={handleComplete}
-          prevLesson={prevLesson ? { slug: prevLesson.slug, moduleSlug: prevLesson.moduleSlug, title: prevLesson.title } : null}
-          nextLesson={nextLesson ? { slug: nextLesson.slug, moduleSlug: nextLesson.moduleSlug, title: nextLesson.title } : null}
-          isAlreadyComplete={isAlreadyComplete}
-          onOpenMobileNav={() => setMobileNavOpen(true)}
-          onOpenTutorWithPrompt={handleAskTutor}
-          onActiveCodeChange={setTutorCode}
+    <PyodideProvider>
+      <div className="min-h-screen bg-background text-foreground">
+        <header className="border-b border-border sticky top-0 z-40 bg-background/95 backdrop-blur">
+          <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between gap-3 text-xs font-mono">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setMobileNavOpen(true)}
+                className="lg:hidden px-2 py-1 rounded border border-border text-muted-foreground hover:text-foreground hover:border-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                aria-label="open module nav"
+              >
+                ☰
+              </button>
+              <Link
+                href="/learn"
+                className="text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded"
+              >
+                <span className="text-accent">$</span> cd ../lessons
+              </Link>
+            </div>
+            <RuntimeStatus />
+          </div>
+        </header>
+
+        <MobileModuleNav
+          open={mobileNavOpen}
+          onClose={() => setMobileNavOpen(false)}
+          modules={modules}
+          completedLessons={completedLessons}
         />
-      </main>
-      <TutorChat
-        ref={tutorRef}
-        lessonTitle={lesson.title}
-        moduleSlug={moduleSlug}
-        currentCode={tutorCode}
-      />
-      <InterfaceOnboarding />
-    </div>
+
+        <div className="border-b border-border/60 bg-card/20">
+          <div className="max-w-7xl mx-auto px-6 py-2 font-mono text-xs text-muted-foreground">
+            <nav aria-label="Breadcrumb" className="flex items-center gap-1 truncate">
+              <Link href="/" className="hover:text-foreground transition-colors rounded">
+                ~
+              </Link>
+              <span>/</span>
+              <Link href="/learn" className="hover:text-foreground transition-colors rounded">
+                lessons
+              </Link>
+              <span>/</span>
+              <span className="text-foreground/80 truncate">{moduleSlug}</span>
+              <span>/</span>
+              <span className="text-foreground truncate">{lessonSlug}</span>
+            </nav>
+          </div>
+        </div>
+
+        {showToast && (
+          <div
+            className="fixed top-16 left-1/2 -translate-x-1/2 z-50 animate-slide-down motion-reduce:animate-none font-mono text-sm"
+            role="status"
+            aria-live="polite"
+          >
+            <div className="flex items-baseline gap-2 px-4 py-2 rounded border border-success bg-background/95 backdrop-blur">
+              <span className="text-success">exit 0</span>
+              <span className="text-muted-foreground">·</span>
+              <span className="text-foreground">lesson complete</span>
+            </div>
+          </div>
+        )}
+
+        <div className="flex">
+          <div className="hidden lg:block">
+            <Sidebar modules={modules} completedLessons={completedLessons} />
+          </div>
+
+          <main className="flex-1 max-w-4xl mx-auto px-6 py-8 w-full min-w-0">
+            <section className="mb-4">
+              <p className="font-mono text-xs text-muted-foreground">
+                <span className="text-accent">[{lesson.badge}]</span>
+                <span className="ml-2 text-muted-foreground">{lesson.module}</span>
+                {isAlreadyComplete && <span className="ml-2 text-success">· done</span>}
+              </p>
+              <h1 className="mt-2 text-2xl font-semibold text-foreground">{lesson.title}</h1>
+            </section>
+
+            <LessonAnchorNav sections={anchorSections} />
+
+            <div className="space-y-10 mt-6">
+              <section id="theory" className="scroll-mt-32">
+                <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-3">
+                  # theory
+                </p>
+                <TheoryContent content={lesson.theory} />
+              </section>
+
+              {lesson.examples.length > 0 && (
+                <section id="examples" className="scroll-mt-32">
+                  <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-3">
+                    # examples <span className="text-muted-foreground/70">[{lesson.examples.length}]</span>
+                  </p>
+                  <div className="space-y-6">
+                    {lesson.examples.map((example, idx) => (
+                      <ExampleBlock
+                        key={idx}
+                        example={example}
+                        index={idx}
+                        isPygame={isPygame}
+                        onActiveCodeChange={setTutorCode}
+                      />
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {hasChallenges && (
+                <section id="challenges" className="scroll-mt-32">
+                  <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-3">
+                    # challenges <span className="text-muted-foreground/70">[{totalChallenges}]</span>
+                  </p>
+                  <div className="space-y-6">
+                    {lesson.challenges.map((challenge, idx) => (
+                      <ChallengeBlock
+                        key={challenge.id}
+                        challenge={challenge}
+                        starterCode={lesson.starterCode}
+                        challengeNumber={idx + 1}
+                        totalChallenges={totalChallenges}
+                        isPygame={isPygame}
+                        onComplete={() => handleChallengeComplete(challenge.id)}
+                        onAskTutor={handleAskTutor}
+                        onActiveCodeChange={setTutorCode}
+                      />
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {lesson.projectChallenge && (
+                <section id="project" className="scroll-mt-32">
+                  <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-3">
+                    # project
+                  </p>
+                  <ProjectChallengeBlock
+                    projectChallenge={lesson.projectChallenge}
+                    moduleSlug={moduleSlug}
+                    lessonSlug={lessonSlug}
+                    isPygame={isPygame}
+                    onActiveCodeChange={setTutorCode}
+                  />
+                </section>
+              )}
+
+              {showNextLessonCard && (
+                <NextLessonCard
+                  nextLesson={
+                    nextLesson
+                      ? {
+                          slug: nextLesson.slug,
+                          moduleSlug: nextLesson.moduleSlug,
+                          title: nextLesson.title,
+                        }
+                      : null
+                  }
+                />
+              )}
+            </div>
+
+            <nav
+              className="mt-12 pt-6 border-t border-border font-mono text-xs flex items-center justify-between gap-3"
+              aria-label="Lesson navigation"
+            >
+              {prevLesson ? (
+                <Link
+                  href={`/learn/${prevLesson.moduleSlug}/${prevLesson.slug}`}
+                  className="flex items-baseline gap-2 px-3 py-2 rounded border border-border hover:border-accent/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background min-w-0"
+                >
+                  <span className="text-muted-foreground">← prev:</span>
+                  <span className="text-foreground truncate max-w-[220px]">{prevLesson.title}</span>
+                </Link>
+              ) : (
+                <div />
+              )}
+              {nextLesson ? (
+                <Link
+                  href={`/learn/${nextLesson.moduleSlug}/${nextLesson.slug}`}
+                  className="flex items-baseline gap-2 px-3 py-2 rounded border border-accent text-accent hover:bg-accent/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background min-w-0"
+                >
+                  <span className="text-muted-foreground">next:</span>
+                  <span className="truncate max-w-[220px]">{nextLesson.title}</span>
+                  <span>→</span>
+                </Link>
+              ) : (
+                <Link
+                  href="/learn"
+                  className="flex items-baseline gap-2 px-3 py-2 rounded border border-success text-success hover:bg-success/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                >
+                  <span>exit 0</span>
+                  <span className="text-muted-foreground">·</span>
+                  <span>back to ~/lessons</span>
+                </Link>
+              )}
+            </nav>
+          </main>
+        </div>
+
+        <LessonToolDock tools={["reference", "tutor"]} open={dockOpen} onOpen={handleDockOpen}>
+          <PythonCheatSheet
+            moduleSlug={moduleSlug}
+            open={dockOpen === "reference"}
+            onClose={() => setDockOpen(null)}
+          />
+        </LessonToolDock>
+
+        <TutorChat
+          ref={tutorRef}
+          lessonTitle={lesson.title}
+          moduleSlug={moduleSlug}
+          currentCode={tutorCode}
+        />
+        <InterfaceOnboarding />
+      </div>
+    </PyodideProvider>
   );
 }
