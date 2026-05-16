@@ -42,6 +42,7 @@ export function isLearn(): boolean {
 export function useLearn(): boolean {
   const [learn, setLearn] = useState(false);
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- mode is client-only, resolve after mount
     setLearn(isLearn());
   }, []);
   return learn;
