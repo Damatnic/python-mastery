@@ -61,4 +61,10 @@ export const MODULE_METADATA: Omit<Module, "lessons">[] = [
     description:
       "String cleaning, number formatting, date parsing, combining DataFrames, and pivot tables. Exactly what the WCTC Python Data Manipulation course covers.",
   },
+  {
+    slug: "oop-tooling",
+    title: "OOP & Tooling",
+    description:
+      "Classes and objects, type hints and dataclasses, testing your code, and logging and debugging. The Python beyond scripts that real projects need.",
+  },
 ];

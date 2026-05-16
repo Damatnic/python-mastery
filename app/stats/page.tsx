@@ -5,7 +5,15 @@ import { useEffect, useState } from "react";
 import { getAllModules } from "@/lib/lessons";
 import { getAllProjects } from "@/lib/projects";
 import { getRank, getRankLadder, getStreakData, type StreakData } from "@/lib/streak";
-import { safeJsonParse, safeReadNumber, getReviewedMap } from "@/lib/storage";
+import {
+  safeJsonParse,
+  safeReadNumber,
+  getReviewedMap,
+  isDue,
+  type ReviewState,
+} from "@/lib/storage";
+import { getCompletedLessons } from "@/lib/progress";
+import { isShowcase } from "@/lib/mode";
 
 function bar(pct: number, width = 12): string {
   const filled = Math.round((pct / 100) * width);
@@ -35,13 +43,22 @@ export default function StatsPage() {
     lastActiveDate: null,
     maxStreak: 0,
   });
-  const [reviewedAt, setReviewedAt] = useState<Record<string, string>>({});
+  const [reviewedAt, setReviewedAt] = useState<Record<string, ReviewState>>({});
+  const [showcase, setShowcase] = useState(false);
 
   useEffect(() => {
+    const sc = isShowcase();
+    setShowcase(sc);
+    setCompletedLessons(getCompletedLessons());
+    if (sc) {
+      const allProjects = getAllProjects();
+      setCompletedProjectSteps(
+        new Set(allProjects.flatMap((p) => p.steps.map((s) => s.id))),
+      );
+      setMounted(true);
+      return;
+    }
     setXp(safeReadNumber(localStorage.getItem("python-mastery-xp"), 0));
-    setCompletedLessons(
-      new Set(safeJsonParse<string[]>(localStorage.getItem("python-mastery-completed"), [])),
-    );
     setCompletedProjectSteps(
       new Set(safeJsonParse<string[]>(localStorage.getItem("python-mastery-project-progress"), [])),
     );
@@ -95,26 +112,32 @@ export default function StatsPage() {
     return { slug: p.slug, title: p.title, done, total, pct };
   });
 
-  // Review queue: completed lessons sorted by oldest review timestamp.
+  // Review queue: spaced repetition. Lessons that are DUE (never reviewed
+  // since completion, or past their interval) float to the top.
   const lessonTitleByKey = new Map<string, string>();
   for (const m of modules) {
     for (const l of m.lessons) {
       lessonTitleByKey.set(`${m.slug}/${l.slug}`, l.title);
     }
   }
-  const reviewQueue = [...liveCompletedLessons]
-    .map((k) => {
-      const [moduleSlug, lessonSlug] = k.split("/");
-      return {
-        key: k,
-        moduleSlug,
-        lessonSlug,
-        title: lessonTitleByKey.get(k) ?? k,
-        ts: reviewedAt[k] ?? "",
-      };
+  const reviewItems = [...liveCompletedLessons].map((k) => {
+    const [moduleSlug, lessonSlug] = k.split("/");
+    return {
+      key: k,
+      moduleSlug,
+      lessonSlug,
+      title: lessonTitleByKey.get(k) ?? k,
+      ts: reviewedAt[k]?.at ?? "",
+      due: isDue(k, reviewedAt),
+    };
+  });
+  const dueCount = reviewItems.filter((r) => r.due).length;
+  const reviewQueue = reviewItems
+    .sort((a, b) => {
+      if (a.due !== b.due) return a.due ? -1 : 1;
+      return a.ts.localeCompare(b.ts);
     })
-    .sort((a, b) => a.ts.localeCompare(b.ts))
-    .slice(0, 5);
+    .slice(0, 8);
 
   const weakModules = moduleRows.filter((m) => m.pct < 50 && m.total > 0).slice(0, 5);
 
@@ -163,6 +186,19 @@ export default function StatsPage() {
           <p className="mt-8 text-xs text-muted-foreground">loading state from localstorage…</p>
         ) : (
           <>
+            {showcase && (
+              <section className="mt-8">
+                <p className="text-xs uppercase tracking-widest text-muted-foreground"># status</p>
+                <p className="mt-3 text-sm">
+                  <span className="text-emerald-400">course complete</span>
+                  <span className="text-muted-foreground">
+                    {" "}· {totalLessons} / {totalLessons} lessons · {totalProjectSteps} /{" "}
+                    {totalProjectSteps} project steps
+                  </span>
+                </p>
+              </section>
+            )}
+            {!showcase && (
             <section className="mt-8">
               <p className="text-xs uppercase tracking-widest text-muted-foreground"># profile</p>
               <div className="mt-3 grid sm:grid-cols-2 gap-x-10 gap-y-2 text-sm">
@@ -210,6 +246,7 @@ export default function StatsPage() {
                 </div>
               )}
             </section>
+            )}
 
             <section className="mt-10">
               <p className="text-xs uppercase tracking-widest text-muted-foreground"># totals</p>
@@ -224,10 +261,12 @@ export default function StatsPage() {
                   <span className="text-foreground">{liveCompletedProjectSteps.size}</span>
                   <span className="text-muted-foreground"> / {totalProjectSteps}</span>
                 </p>
-                <p>
-                  lesson projects{"  "}
-                  <span className="text-foreground">{completedProjectChallenges.size}</span>
-                </p>
+                {!showcase && (
+                  <p>
+                    lesson projects{"  "}
+                    <span className="text-foreground">{completedProjectChallenges.size}</span>
+                  </p>
+                )}
               </div>
             </section>
 
@@ -270,10 +309,19 @@ export default function StatsPage() {
               </ul>
             </section>
 
+            {!showcase && (
             <section className="mt-10">
-              <p className="text-xs uppercase tracking-widest text-muted-foreground"># review queue</p>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">
+                # review queue
+                {dueCount > 0 && (
+                  <span className="ml-2 text-amber-400 normal-case tracking-normal">
+                    {dueCount} due
+                  </span>
+                )}
+              </p>
               <p className="mt-1 text-[11px] text-muted-foreground">
-                completed lessons you haven&apos;t opened in a while. the top one is the most forgotten.
+                spaced repetition. opening a due lesson and re-solving it pushes
+                the next review further out. due ones are first.
               </p>
               {reviewQueue.length === 0 ? (
                 <p className="mt-3 text-xs text-muted-foreground">no completed lessons yet</p>
@@ -288,7 +336,9 @@ export default function StatsPage() {
                         {r.moduleSlug}/{r.lessonSlug}
                       </Link>
                       <span className="text-muted-foreground truncate hidden md:inline">{r.title}</span>
-                      <span className="text-muted-foreground tabular-nums">{daysSinceReview(r.ts)}</span>
+                      <span className={`tabular-nums ${r.due ? "text-amber-400" : "text-muted-foreground"}`}>
+                        {r.due ? "due now" : daysSinceReview(r.ts)}
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -297,6 +347,7 @@ export default function StatsPage() {
                 tip: from the home shell, type <span className="text-foreground/80">review</span> to open a random one.
               </p>
             </section>
+            )}
 
             {weakModules.length > 0 && (
               <section className="mt-10">
@@ -315,6 +366,7 @@ export default function StatsPage() {
               </section>
             )}
 
+            {!showcase && (
             <section className="mt-10">
               <p className="text-xs uppercase tracking-widest text-muted-foreground"># rank ladder</p>
               <ul className="mt-3 text-xs space-y-2">
@@ -337,6 +389,7 @@ export default function StatsPage() {
                 })}
               </ul>
             </section>
+            )}
           </>
         )}
       </main>

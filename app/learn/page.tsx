@@ -5,24 +5,26 @@ import Link from "next/link";
 import { ModuleCard } from "@/components/ModuleCard";
 import { getAllModules } from "@/lib/lessons";
 import { getStreakData } from "@/lib/streak";
-import { safeJsonParse, safeReadNumber } from "@/lib/storage";
+import { safeReadNumber, getDueLessons } from "@/lib/storage";
+import { getCompletedLessons } from "@/lib/progress";
+import { isShowcase } from "@/lib/mode";
 
 export default function LearnDashboard() {
   const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set());
   const [totalXP, setTotalXP] = useState(0);
   const [streak, setStreak] = useState(0);
+  const [dueCount, setDueCount] = useState(0);
   const modules = getAllModules();
 
   useEffect(() => {
-    const list = safeJsonParse<string[]>(
-      localStorage.getItem("python-mastery-completed"),
-      [],
-    );
+    const completed = getCompletedLessons();
     // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrating from localStorage
-    setCompletedLessons(new Set(list));
+    setCompletedLessons(completed);
+    if (isShowcase()) return;
     setTotalXP(safeReadNumber(localStorage.getItem("python-mastery-xp"), 0));
     const streakData = getStreakData();
     setStreak(streakData.currentStreak);
+    setDueCount(getDueLessons([...completed]).length);
   }, []);
 
   const totalLessons = modules.reduce((sum, m) => sum + m.lessons.length, 0);
@@ -56,6 +58,14 @@ export default function LearnDashboard() {
             {completedCount} of {totalLessons} lessons done
             {streak > 0 && <>{" · "}<span className="text-warning">{streak}d streak</span></>}
             {totalXP > 0 && <>{" · "}<span className="text-accent">{totalXP} xp</span></>}
+            {dueCount > 0 && (
+              <>
+                {" · "}
+                <Link href="/stats" className="text-amber-400 hover:underline">
+                  {dueCount} due for review
+                </Link>
+              </>
+            )}
           </p>
         </section>
 

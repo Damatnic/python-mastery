@@ -12,6 +12,56 @@ import { usePyodide } from "@/lib/pyodide";
 import { safeJsonParse, safeReadNumber } from "@/lib/storage";
 import type { Lesson, Example, Challenge, ProjectChallenge } from "@/lib/types";
 import { PROJECT_THREAD_INFO } from "@/lib/project-threads";
+import { useLearn } from "@/lib/mode";
+
+// In learn mode the explanation is hidden until you commit a prediction.
+// Predicting from the code first is the retrieval rep that builds memory.
+function ExampleCard({
+  example,
+  onLoad,
+}: {
+  example: Example;
+  onLoad: () => void;
+}) {
+  const learn = useLearn();
+  const [revealed, setRevealed] = useState(false);
+  const showExplanation = !learn || revealed;
+
+  return (
+    <div className="p-4 rounded border border-border bg-card">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="font-mono text-sm text-foreground">{example.title}</h3>
+        <div className="flex items-center gap-2 font-mono text-xs">
+          <CopyButton text={example.code} />
+          <button
+            onClick={onLoad}
+            className="px-2 py-1 rounded border border-border text-muted-foreground hover:text-foreground hover:border-accent/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          >
+            load in editor
+          </button>
+        </div>
+      </div>
+      <pre className="p-4 rounded bg-[#0f0f12] border border-border text-xs overflow-x-auto">
+        <code className="text-foreground">{example.code}</code>
+      </pre>
+      {showExplanation ? (
+        <p className="text-sm text-muted-foreground mt-3">{example.explanation}</p>
+      ) : (
+        <div className="mt-3">
+          <p className="font-mono text-xs text-muted-foreground mb-2">
+            predict: what does this output / do? then reveal.
+          </p>
+          <button
+            onClick={() => setRevealed(true)}
+            className="px-2 py-1 rounded border border-border font-mono text-xs text-accent hover:border-accent/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          >
+            reveal explanation →
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface LessonViewProps {
   lesson: Lesson;
@@ -767,24 +817,11 @@ export function LessonView({
               </p>
               <div className="space-y-4">
                 {lesson.examples.map((example, index) => (
-                  <div key={index} className="p-4 rounded border border-border bg-card">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-mono text-sm text-foreground">{example.title}</h3>
-                      <div className="flex items-center gap-2 font-mono text-xs">
-                        <CopyButton text={example.code} />
-                        <button
-                          onClick={() => loadExample(example)}
-                          className="px-2 py-1 rounded border border-border text-muted-foreground hover:text-foreground hover:border-accent/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                        >
-                          load in editor
-                        </button>
-                      </div>
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-3">{example.explanation}</p>
-                    <pre className="p-4 rounded bg-[#0f0f12] border border-border text-xs overflow-x-auto">
-                      <code className="text-foreground">{example.code}</code>
-                    </pre>
-                  </div>
+                  <ExampleCard
+                    key={index}
+                    example={example}
+                    onLoad={() => loadExample(example)}
+                  />
                 ))}
               </div>
             </section>

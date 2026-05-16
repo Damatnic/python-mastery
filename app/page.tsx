@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import HomeTerminal from "@/components/HomeTerminal";
 import { getAllModules } from "@/lib/lessons";
+import { getCompletedLessons } from "@/lib/progress";
 
 const modules = getAllModules().map((m, i) => ({
   num: String(i + 1).padStart(2, "0"),
@@ -19,9 +20,8 @@ export default function Home() {
   const [lastTouched, setLastTouched] = useState<string | null>(null);
 
   useEffect(() => {
+    setCompleted(getCompletedLessons());
     try {
-      const saved = localStorage.getItem("python-mastery-completed");
-      if (saved) setCompleted(new Set(JSON.parse(saved)));
       const ts = localStorage.getItem("python-mastery-last-active");
       if (ts) {
         const d = new Date(parseInt(ts, 10));

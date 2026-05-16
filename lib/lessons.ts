@@ -10,6 +10,7 @@ import { lessonsModule7 } from "./lessons/module7";
 import { lessonsModuleNumpy } from "./lessons/moduleNumpy";
 import { lessonsModule8 } from "./lessons/module8";
 import { lessonsModule9 } from "./lessons/module9";
+import { lessonsModuleOop } from "./lessons/moduleOop";
 
 const ALL_LESSONS: Lesson[] = [
   ...lessonsModule1,
@@ -22,6 +23,7 @@ const ALL_LESSONS: Lesson[] = [
   ...lessonsModuleNumpy,
   ...lessonsModule8,
   ...lessonsModule9,
+  ...lessonsModuleOop,
 ];
 
 export function getAllModules(): Module[] {

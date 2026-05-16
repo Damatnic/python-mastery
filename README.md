@@ -1,6 +1,6 @@
 # Python Mastery
 
-Interactive Python learning platform. Write real Python and pandas code directly in your browser, no installation needed. 51 lessons across 9 modules, plus 3 guided projects.
+Interactive Python learning platform. Write real Python and pandas code directly in your browser, no installation needed. 61 lessons across 11 modules, plus 3 guided projects.
 
 **Live site:** [damato-python.vercel.app](https://damato-python.vercel.app)
 
@@ -13,7 +13,7 @@ Interactive Python learning platform. Write real Python and pandas code directly
 - **Progress tracking and streaks.** State persists across sessions. Continue where you left off.
 - **Built specifically for WCTC coursework.** The Data Manipulation module mirrors what's actually being taught in WCTC's Python Data Manipulation class.
 
-## Curriculum (9 modules, 51 lessons)
+## Curriculum (11 modules, 61 lessons)
 
 | Module | Topic | Lessons |
 |---|---|---|

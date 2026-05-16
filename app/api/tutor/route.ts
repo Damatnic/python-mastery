@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
+import { clientIp, rateLimit } from "@/lib/rate-limit";
 
 // Lazy so the build doesn't crash when OPENAI_API_KEY isn't set yet.
 let _openai: OpenAI | null = null;
@@ -52,6 +53,14 @@ Current context:
 
 export async function POST(request: NextRequest) {
   try {
+    const limit = rateLimit(clientIp(request));
+    if (!limit.ok) {
+      return NextResponse.json(
+        { error: "rate limit: too many tutor requests. give it a minute." },
+        { status: 429, headers: { "Retry-After": String(limit.retryAfter) } },
+      );
+    }
+
     const body: TutorRequest = await request.json();
     const { messages, context } = body;
 

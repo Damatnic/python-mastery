@@ -1,3 +1,5 @@
+import { isShowcase } from "@/lib/mode";
+
 const STREAK_KEY = "python-mastery-streak";
 const LAST_ACTIVE_KEY = "python-mastery-last-active";
 const MAX_STREAK_KEY = "python-mastery-max-streak";
@@ -48,7 +50,7 @@ export function getStreakData(): StreakData {
 }
 
 export function updateStreak(): StreakData {
-  if (typeof window === "undefined") {
+  if (typeof window === "undefined" || isShowcase()) {
     return { currentStreak: 0, lastActiveDate: null, maxStreak: 0 };
   }
 

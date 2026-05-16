@@ -9,7 +9,9 @@ import { MobileModuleNav } from "@/components/MobileModuleNav";
 import { InterfaceOnboarding } from "@/components/InterfaceOnboarding";
 import { getAllModules, getLessonBySlug, getNextLesson, getPreviousLesson } from "@/lib/lessons";
 import { updateStreak } from "@/lib/streak";
-import { safeJsonParse, safeSetItem, markReviewed } from "@/lib/storage";
+import { markReviewed } from "@/lib/storage";
+import { getCompletedLessons, markLessonComplete } from "@/lib/progress";
+import { isShowcase } from "@/lib/mode";
 
 interface LessonPageProps {
   params: Promise<{
@@ -34,26 +36,22 @@ export default function LessonPage({ params }: LessonPageProps) {
   const isAlreadyComplete = completedLessons.has(`${moduleSlug}/${lessonSlug}`);
 
   useEffect(() => {
-    const list = safeJsonParse<string[]>(localStorage.getItem("python-mastery-completed"), []);
+    const set = getCompletedLessons();
     // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrating from localStorage
-    setCompletedLessons(new Set(list));
+    setCompletedLessons(set);
 
     const lessonKey = `${moduleSlug}/${lessonSlug}`;
-    if (list.includes(lessonKey)) {
+    if (!isShowcase() && set.has(lessonKey)) {
       markReviewed(lessonKey);
     }
   }, [moduleSlug, lessonSlug]);
 
   const handleComplete = useCallback(() => {
+    if (isShowcase()) return;
     const lessonKey = `${moduleSlug}/${lessonSlug}`;
-    setCompletedLessons((prev) => {
-      const next = new Set(prev);
-      next.add(lessonKey);
-      safeSetItem("python-mastery-completed", JSON.stringify([...next]));
-      window.dispatchEvent(new Event("lessons-updated"));
-      return next;
-    });
-
+    const added = markLessonComplete(lessonKey);
+    if (!added) return;
+    setCompletedLessons((prev) => new Set(prev).add(lessonKey));
     updateStreak();
   }, [moduleSlug, lessonSlug]);
 
