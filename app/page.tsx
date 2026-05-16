@@ -40,7 +40,9 @@ export default function Home() {
             <HomeTerminal modules={modules} />
           </div>
           <p className="text-xs text-muted-foreground">
-            // type <span className="text-foreground/80">help</span> · ↑↓ history · tab completes
+            {'// type '}
+            <span className="text-foreground/80">help</span>
+            {' · ↑↓ history · tab completes'}
           </p>
         </section>
 
@@ -114,7 +116,17 @@ export default function Home() {
           <span>
             <span className="text-success">exit 0</span> · personal use · next.js + pyodide
           </span>
-          <Link href="/projects" className="hover:text-foreground transition-colors">projects/</Link>
+          <span className="flex flex-wrap gap-x-3 gap-y-1">
+            <Link href="/projects" className="hover:text-foreground transition-colors">projects/</Link>
+            <a
+              href="https://python-practice-omega.vercel.app"
+              className="hover:text-foreground transition-colors"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              practice/
+            </a>
+          </span>
         </div>
       </footer>
     </div>
