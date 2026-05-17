@@ -15,8 +15,6 @@ export interface TutorChatHandle {
   openWithPrompt: (prompt: string) => void;
 }
 
-const SEEN_KEY = "python-mastery-tutor-seen";
-
 interface Message {
   role: "user" | "assistant";
   content: string;
@@ -33,29 +31,10 @@ export const TutorChat = forwardRef<TutorChatHandle, TutorChatProps>(function Tu
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [errored, setErrored] = useState<string | null>(null);
-  const [pulse, setPulse] = useState(false);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
   const restoreFocusRef = useRef<HTMLElement | null>(null);
-
-  useEffect(() => {
-    try {
-      if (localStorage.getItem(SEEN_KEY) === "1") return;
-    } catch {
-      return;
-    }
-    setPulse(true);
-    const t = setTimeout(() => {
-      setPulse(false);
-      try {
-        localStorage.setItem(SEEN_KEY, "1");
-      } catch {
-        // ignore
-      }
-    }, 8000);
-    return () => clearTimeout(t);
-  }, []);
 
   useImperativeHandle(ref, () => ({
     openWithPrompt: (prompt: string) => {
@@ -161,33 +140,13 @@ export const TutorChat = forwardRef<TutorChatHandle, TutorChatProps>(function Tu
     setErrored(null);
   }
 
-  if (!open) {
-    return (
-      <button
-        data-tour-target="tutor"
-        type="button"
-        onClick={() => {
-          setOpen(true);
-          setPulse(false);
-          try {
-            localStorage.setItem(SEEN_KEY, "1");
-          } catch {
-            // ignore
-          }
-        }}
-        className={`fixed bottom-4 right-4 z-40 rounded-full border border-emerald-400/40 bg-stone-950/90 px-4 py-2 font-mono text-xs text-emerald-300 shadow-lg backdrop-blur hover:border-emerald-400 hover:text-emerald-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-950 ${
-          pulse ? "ring-2 ring-emerald-400/60 animate-pulse motion-reduce:animate-none" : ""
-        }`}
-        aria-label="Open AI tutor"
-      >
-        ✦ tutor
-      </button>
-    );
-  }
+  // No own floating launcher — the bottom-right tool dock is the single
+  // entry point (opened via openWithPrompt). Avoids stacking on the dock.
+  if (!open) return null;
 
   return (
     <div
-      className="fixed bottom-4 right-4 z-40 flex max-h-[80vh] w-[90vw] max-w-md flex-col overflow-hidden rounded-lg border border-stone-700 bg-stone-950/95 shadow-2xl backdrop-blur"
+      className="fixed bottom-4 right-4 z-50 flex max-h-[80vh] w-[90vw] max-w-md flex-col overflow-hidden rounded-lg border border-stone-700 bg-stone-950/95 shadow-2xl backdrop-blur"
       ref={panelRef}
       role="dialog"
       aria-modal="true"
