@@ -229,8 +229,8 @@ export default function LessonPage({ params }: LessonPageProps) {
           </div>
         )}
 
-        <div className="flex">
-          <div className="hidden lg:block">
+        <div className="flex items-start">
+          <div className="hidden lg:block lg:sticky lg:top-12 lg:h-[calc(100vh-3rem)] lg:overflow-hidden shrink-0">
             <Sidebar modules={modules} completedLessons={completedLessons} />
           </div>
 
