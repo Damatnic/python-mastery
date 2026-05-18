@@ -67,6 +67,7 @@ export default function LessonPage({ params }: LessonPageProps) {
   const completeFiredRef = useRef(false);
 
   const modules = getAllModules();
+  const currentModule = modules.find((m) => m.slug === moduleSlug);
   const lesson = getLessonBySlug(moduleSlug, lessonSlug);
   const nextLesson = lesson ? getNextLesson(moduleSlug, lessonSlug) : null;
   const prevLesson = lesson ? getPreviousLesson(moduleSlug, lessonSlug) : null;
@@ -190,12 +191,14 @@ export default function LessonPage({ params }: LessonPageProps) {
           </div>
         </header>
 
-        <MobileModuleNav
-          open={mobileNavOpen}
-          onClose={() => setMobileNavOpen(false)}
-          modules={modules}
-          completedLessons={completedLessons}
-        />
+        {currentModule && (
+          <MobileModuleNav
+            open={mobileNavOpen}
+            onClose={() => setMobileNavOpen(false)}
+            module={currentModule}
+            completedLessons={completedLessons}
+          />
+        )}
 
         <div className="border-b border-border/60 bg-card/20">
           <div className="max-w-7xl mx-auto px-6 py-2 font-mono text-xs text-muted-foreground">
@@ -230,9 +233,11 @@ export default function LessonPage({ params }: LessonPageProps) {
         )}
 
         <div className="flex items-start">
-          <div className="hidden lg:block lg:sticky lg:top-12 lg:h-[calc(100vh-3rem)] lg:overflow-hidden shrink-0">
-            <Sidebar modules={modules} completedLessons={completedLessons} />
-          </div>
+          {currentModule && (
+            <div className="hidden lg:block lg:sticky lg:top-12 lg:h-[calc(100vh-3rem)] lg:overflow-y-auto shrink-0">
+              <Sidebar module={currentModule} completedLessons={completedLessons} />
+            </div>
+          )}
 
           <main className="flex-1 max-w-4xl mx-auto px-6 py-8 w-full min-w-0">
             <section className="mb-4">

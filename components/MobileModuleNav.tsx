@@ -7,11 +7,11 @@ import { Sidebar } from "./Sidebar";
 interface MobileModuleNavProps {
   open: boolean;
   onClose: () => void;
-  modules: Module[];
+  module: Module;
   completedLessons: Set<string>;
 }
 
-export function MobileModuleNav({ open, onClose, modules, completedLessons }: MobileModuleNavProps) {
+export function MobileModuleNav({ open, onClose, module, completedLessons }: MobileModuleNavProps) {
   const panelRef = useRef<HTMLDivElement | null>(null);
   const restoreFocusRef = useRef<HTMLElement | null>(null);
 
@@ -91,8 +91,8 @@ export function MobileModuleNav({ open, onClose, modules, completedLessons }: Mo
             close
           </button>
         </div>
-        <div className="h-[calc(100%-2.5rem)] overflow-hidden">
-          <Sidebar modules={modules} completedLessons={completedLessons} />
+        <div className="h-[calc(100%-2.5rem)] overflow-y-auto">
+          <Sidebar module={module} completedLessons={completedLessons} />
         </div>
       </div>
     </div>
