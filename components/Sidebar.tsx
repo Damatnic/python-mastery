@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Module } from "@/lib/types";
+import { DownloadNotesButton } from "@/components/DownloadNotesButton";
 
 interface SidebarProps {
   module: Module;
@@ -71,9 +72,11 @@ export function Sidebar({ module, completedLessons }: SidebarProps) {
         </ul>
       </div>
 
+      <DownloadNotesButton module={module} />
+
       <Link
         href="/learn"
-        className="mt-3 block px-2 text-[11px] text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded"
+        className="mt-1 block px-2 text-[11px] text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded"
       >
         ← cd ~/lessons
       </Link>
