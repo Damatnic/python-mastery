@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import HomeTerminal from "@/components/HomeTerminal";
+import { DownloadNotesButton } from "@/components/DownloadNotesButton";
 import { getAllModules } from "@/lib/lessons";
 import { getCompletedLessons } from "@/lib/progress";
 
-const modules = getAllModules().map((m, i) => ({
+const fullModules = getAllModules();
+const modules = fullModules.map((m, i) => ({
   num: String(i + 1).padStart(2, "0"),
   slug: m.slug,
   firstLesson: m.lessons[0]?.slug ?? "",
@@ -40,7 +42,7 @@ export default function Home() {
         <section className="mt-8">
           <p className="text-xs uppercase tracking-widest text-muted-foreground"># modules</p>
           <ul className="mt-3 border-y border-border/60 divide-y divide-border/40">
-            {modules.map((m) => {
+            {modules.map((m, idx) => {
               const doneCount = (() => {
                 try {
                   return Array.from(completed).filter((k) => k.startsWith(`${m.slug}/`)).length;
@@ -57,10 +59,10 @@ export default function Home() {
                 ? "text-accent"
                 : "text-muted-foreground";
               return (
-                <li key={m.slug}>
+                <li key={m.slug} className="flex items-center gap-1">
                   <Link
                     href={`/learn/${m.slug}/${m.firstLesson}`}
-                    className="group grid grid-cols-[2.5rem_minmax(0,1fr)_5rem_7rem_1rem] gap-3 items-center py-2 px-2 -mx-2 rounded hover:bg-card/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    className="group grid flex-1 grid-cols-[2.5rem_minmax(0,1fr)_5rem_7rem_1rem] gap-3 items-center py-2 px-2 -ml-2 rounded hover:bg-card/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                     aria-label={`Open module ${m.title}`}
                   >
                     <span className="text-muted-foreground">{m.num}</span>
@@ -72,6 +74,7 @@ export default function Home() {
                     <span className={`text-xs ${statusClass}`}>{status}</span>
                     <span className="text-muted-foreground group-hover:text-accent transition-colors">→</span>
                   </Link>
+                  <DownloadNotesButton module={fullModules[idx]} compact />
                 </li>
               );
             })}
@@ -109,14 +112,6 @@ export default function Home() {
           </span>
           <span className="flex flex-wrap gap-x-3 gap-y-1">
             <Link href="/projects" className="hover:text-foreground transition-colors">projects/</Link>
-            <a
-              href="https://python-practice-omega.vercel.app"
-              className="hover:text-foreground transition-colors"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              practice/
-            </a>
           </span>
         </div>
       </footer>
