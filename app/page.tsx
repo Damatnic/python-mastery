@@ -17,19 +17,10 @@ const modules = getAllModules().map((m, i) => ({
 
 export default function Home() {
   const [completed, setCompleted] = useState<Set<string>>(new Set());
-  const [lastTouched, setLastTouched] = useState<string | null>(null);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrating from localStorage
     setCompleted(getCompletedLessons());
-    try {
-      const ts = localStorage.getItem("python-mastery-last-active");
-      if (ts) {
-        const d = new Date(parseInt(ts, 10));
-        if (!Number.isNaN(d.getTime())) {
-          setLastTouched(d.toISOString().slice(0, 10));
-        }
-      }
-    } catch {}
   }, []);
 
   return (

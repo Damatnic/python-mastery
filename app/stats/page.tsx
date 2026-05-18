@@ -45,8 +45,12 @@ export default function StatsPage() {
   });
   const [reviewedAt, setReviewedAt] = useState<Record<string, ReviewState>>({});
   const [showcase, setShowcase] = useState(false);
+  // Captured once (lazy init) so relative-time labels stay pure across renders.
+  const [now] = useState(() => Date.now());
 
   useEffect(() => {
+    // Mount-time hydration from localStorage / mode — all setState here is intentional.
+    /* eslint-disable react-hooks/set-state-in-effect -- hydrating from localStorage */
     const sc = isShowcase();
     setShowcase(sc);
     setCompletedLessons(getCompletedLessons());
@@ -69,6 +73,7 @@ export default function StatsPage() {
     setStreakInfo(getStreakData());
     setReviewedAt(getReviewedMap());
     setMounted(true);
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
   const modules = getAllModules();
@@ -143,7 +148,7 @@ export default function StatsPage() {
 
   const daysSinceReview = (iso: string): string => {
     if (!iso) return "never";
-    const days = Math.round((Date.now() - new Date(iso).getTime()) / 86_400_000);
+    const days = Math.round((now - new Date(iso).getTime()) / 86_400_000);
     if (days <= 0) return "today";
     if (days === 1) return "1d ago";
     return `${days}d ago`;

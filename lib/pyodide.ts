@@ -83,12 +83,15 @@ export function usePyodide(): UsePyodideReturn {
   }, []);
 
   useEffect(() => {
+    // Capture the stable pending-runs map for the cleanup closure (the ref
+    // itself may be reassigned by the time cleanup runs).
+    const pendingMap = pendingRef.current;
     workerRef.current = spawnWorker();
     return () => {
       workerRef.current?.terminate();
       workerRef.current = null;
       // Reject all pending runs
-      for (const pending of pendingRef.current.values()) {
+      for (const pending of pendingMap.values()) {
         clearTimeout(pending.timer);
         pending.resolve({
           output: "",
@@ -97,7 +100,7 @@ export function usePyodide(): UsePyodideReturn {
           executionTime: 0,
         });
       }
-      pendingRef.current.clear();
+      pendingMap.clear();
     };
   }, [spawnWorker]);
 

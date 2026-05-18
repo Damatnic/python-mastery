@@ -56,6 +56,7 @@ export function InterfaceOnboarding() {
     // so the user doesn't get the tour again on next visit.
     if (step >= STEPS.length) {
       markSeen();
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- guided-tour stepper: clears highlight when walked past last step
       setRect(null);
       return;
     }

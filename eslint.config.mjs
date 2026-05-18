@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Static assets, not source — the Pyodide worker is a plain web worker.
+    "public/**",
   ]),
 ]);
 
