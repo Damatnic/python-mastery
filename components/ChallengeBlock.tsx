@@ -6,7 +6,12 @@ import { OutputPanel } from "./OutputPanel";
 import { CopyButton } from "./CopyButton";
 import { usePyodideRuntime } from "./PyodideProvider";
 import { createValidator } from "@/lib/validator";
+import { useLearn } from "@/lib/mode";
 import type { Challenge } from "@/lib/types";
+
+function firstLine(s: string): string {
+  return s.split("\n").find((l) => l.trim().length > 0)?.trim() ?? "";
+}
 
 interface ChallengeBlockProps {
   challenge: Challenge;
@@ -15,6 +20,9 @@ interface ChallengeBlockProps {
   challengeNumber: number;
   totalChallenges: number;
   isPygame?: boolean;
+  /** Active-recall review: start blank (ignore saved code) and don't persist,
+   *  so re-solving is genuine recall and the real saved solution is untouched. */
+  reviewMode?: boolean;
   onAskTutor?: (prompt: string) => void;
   onActiveCodeChange?: (code: string) => void;
 }
@@ -32,13 +40,17 @@ export default function ChallengeBlock({
   challengeNumber,
   totalChallenges,
   isPygame = false,
+  reviewMode = false,
   onAskTutor,
   onActiveCodeChange,
 }: ChallengeBlockProps) {
   const { isReady, runCode } = usePyodideRuntime();
+  const learn = useLearn();
   const seed = seedFor(challenge, starterCode);
 
   const [code, setCode] = useState(seed);
+  const [why, setWhy] = useState("");
+  const [showWhy, setShowWhy] = useState(false);
   const [output, setOutput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [executionTime, setExecutionTime] = useState(0);
@@ -56,9 +68,10 @@ export default function ChallengeBlock({
 
   const codeKey = `python-mastery-code-${challenge.id}`;
   const heightKey = `python-mastery-editor-h-${challenge.id}`;
+  const whyKey = `python-mastery-why-${challenge.id}`;
 
   useEffect(() => {
-    const savedCode = localStorage.getItem(codeKey);
+    const savedCode = reviewMode ? null : localStorage.getItem(codeKey);
     setCode(savedCode || seed);
     const savedH = localStorage.getItem(heightKey);
     if (savedH) {
@@ -70,12 +83,14 @@ export default function ChallengeBlock({
     setExecutionTime(0);
     setAttempts(0);
     setIsCorrect(false);
+    setWhy(localStorage.getItem(whyKey) || "");
+    setShowWhy(false);
     hasFiredCompleteRef.current = false;
     // eslint-disable-next-line react-hooks/exhaustive-deps -- re-seed only when the challenge changes
   }, [challenge.id]);
 
   useEffect(() => {
-    if (code !== seed) localStorage.setItem(codeKey, code);
+    if (!reviewMode && code !== seed) localStorage.setItem(codeKey, code);
     onActiveCodeChange?.(code);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- seed identity is stable per challenge
   }, [code]);
@@ -322,8 +337,49 @@ export default function ChallengeBlock({
           <p className={`font-mono text-xs ${isCorrect ? "text-success" : "text-warning"}`}>
             {isCorrect
               ? "exit 0 · challenge validated"
-              : "# not there yet · check the output and try again"}
+              : error
+                ? `# error · ${firstLine(error).slice(0, 90)}`
+                : output.trim()
+                  ? `# not there yet · your output: "${firstLine(output).slice(0, 70)}${
+                      firstLine(output).length > 70 ? "…" : ""
+                    }" — re-read the prompt`
+                  : "# not there yet · your code produced no output (the challenge expects some)"}
           </p>
+        )}
+
+        {isCorrect && learn && (
+          <div className="font-mono text-xs">
+            {!showWhy ? (
+              <button
+                type="button"
+                onClick={() => setShowWhy(true)}
+                className="text-muted-foreground hover:text-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
+              >
+                + explain: in one sentence, why does this work?
+              </button>
+            ) : (
+              <div className="space-y-1">
+                <label className="text-muted-foreground" htmlFor={`why-${challenge.id}`}>
+                  why does this work? <span className="text-muted-foreground/60">(for you — saved locally, never sent)</span>
+                </label>
+                <textarea
+                  id={`why-${challenge.id}`}
+                  value={why}
+                  onChange={(e) => {
+                    setWhy(e.target.value);
+                    try {
+                      localStorage.setItem(whyKey, e.target.value);
+                    } catch {
+                      /* private mode / quota */
+                    }
+                  }}
+                  rows={2}
+                  className="w-full resize-none rounded border border-border bg-card/40 px-2 py-1.5 text-foreground placeholder:text-muted-foreground/50 focus:border-accent focus:outline-none"
+                  placeholder="in your own words…"
+                />
+              </div>
+            )}
+          </div>
         )}
 
         {validatorBroken && (

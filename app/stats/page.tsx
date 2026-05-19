@@ -325,8 +325,9 @@ export default function StatsPage() {
                 )}
               </p>
               <p className="mt-1 text-[11px] text-muted-foreground">
-                spaced repetition. opening a due lesson and re-solving it pushes
-                the next review further out. due ones are first.
+                spaced repetition. re-solving a challenge in a due lesson from
+                memory (not just opening it) records the review and pushes the
+                next one further out. due ones are first.
               </p>
               {reviewQueue.length === 0 ? (
                 <p className="mt-3 text-xs text-muted-foreground">no completed lessons yet</p>
@@ -349,7 +350,11 @@ export default function StatsPage() {
                 </ul>
               )}
               <p className="mt-3 text-[11px] text-muted-foreground/70">
-                tip: from the home shell, type <span className="text-foreground/80">review</span> to open a random one.
+                <Link href="/review" className="text-accent hover:underline">
+                  start mixed review →
+                </Link>{" "}
+                · interleaved across modules, due first. or type{" "}
+                <span className="text-foreground/80">review</span> in the home shell.
               </p>
             </section>
             )}

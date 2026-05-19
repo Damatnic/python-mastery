@@ -22,7 +22,7 @@ import {
   getPreviousLesson,
 } from "@/lib/lessons";
 import { updateStreak } from "@/lib/streak";
-import { markReviewed } from "@/lib/storage";
+import { markReviewed, isDue } from "@/lib/storage";
 import { getCompletedLessons, markLessonComplete } from "@/lib/progress";
 import { isShowcase } from "@/lib/mode";
 
@@ -63,8 +63,14 @@ export default function LessonPage({ params }: LessonPageProps) {
   const [dockOpen, setDockOpen] = useState<DockTool | null>(null);
   const [tutorCode, setTutorCode] = useState("");
   const [showToast, setShowToast] = useState(false);
+  // Recall-gated SRS: a due+completed lesson opened in learn mode is a
+  // review session. The box only advances when a challenge is actually
+  // re-solved (see handleChallengeComplete) — never just by opening.
+  const [reviewSession, setReviewSession] = useState(false);
+  const [reviewRecorded, setReviewRecorded] = useState(false);
   const tutorRef = useRef<TutorChatHandle | null>(null);
   const completeFiredRef = useRef(false);
+  const reviewMarkedRef = useRef(false);
 
   const modules = getAllModules();
   const currentModule = modules.find((m) => m.slug === moduleSlug);
@@ -79,9 +85,9 @@ export default function LessonPage({ params }: LessonPageProps) {
     const set = getCompletedLessons();
     // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrating from localStorage
     setCompletedLessons(set);
-    if (!isShowcase() && set.has(lessonKey)) {
-      markReviewed(lessonKey);
-    }
+    // Opening a due+completed lesson does NOT advance the SRS box — that
+    // only happens on a real re-solve. Here we just flag the review session.
+    setReviewSession(!isShowcase() && set.has(lessonKey) && isDue(lessonKey));
   }, [lessonKey]);
 
   const fireComplete = useCallback(() => {
@@ -99,6 +105,13 @@ export default function LessonPage({ params }: LessonPageProps) {
   const handleChallengeComplete = useCallback(
     (challengeId: string) => {
       if (!lesson) return;
+      // Active-recall review: re-solving one challenge from memory in a due
+      // review session is enough to record the review and push the box out.
+      if (reviewSession && !reviewMarkedRef.current && !isShowcase()) {
+        reviewMarkedRef.current = true;
+        markReviewed(lessonKey);
+        setReviewRecorded(true);
+      }
       setCompletedChallengeIds((prev) => {
         if (prev.has(challengeId)) return prev;
         const next = new Set(prev).add(challengeId);
@@ -109,7 +122,7 @@ export default function LessonPage({ params }: LessonPageProps) {
         return next;
       });
     },
-    [lesson, fireComplete],
+    [lesson, fireComplete, reviewSession, lessonKey],
   );
 
   const handleAskTutor = useCallback((prompt: string) => {
@@ -249,6 +262,27 @@ export default function LessonPage({ params }: LessonPageProps) {
               <h1 className="mt-2 text-2xl font-semibold text-foreground">{lesson.title}</h1>
             </section>
 
+            {reviewSession && (
+              <div
+                className="mb-6 rounded border border-warning/40 bg-warning/[0.06] px-4 py-3 font-mono text-xs"
+                role="status"
+              >
+                {reviewRecorded ? (
+                  <span className="text-success">
+                    ✓ review recorded · next review pushed further out
+                  </span>
+                ) : (
+                  <>
+                    <span className="text-warning">review · due now</span>
+                    <span className="ml-2 text-muted-foreground">
+                      re-solve a challenge from memory (editor starts blank) to
+                      record the review and widen the next interval
+                    </span>
+                  </>
+                )}
+              </div>
+            )}
+
             <LessonAnchorNav sections={anchorSections} />
 
             <div className="space-y-10 mt-6">
@@ -292,6 +326,7 @@ export default function LessonPage({ params }: LessonPageProps) {
                         challengeNumber={idx + 1}
                         totalChallenges={totalChallenges}
                         isPygame={isPygame}
+                        reviewMode={reviewSession}
                         onComplete={() => handleChallengeComplete(challenge.id)}
                         onAskTutor={handleAskTutor}
                         onActiveCodeChange={setTutorCode}

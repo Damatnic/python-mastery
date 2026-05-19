@@ -68,7 +68,8 @@ export default function HomeTerminal({ modules }: HomeTerminalProps) {
           out.push("whoami            rank · xp · streak");
           out.push("cd <module>       open module first lesson");
           out.push("search <keyword>  find a lesson by keyword");
-          out.push("review [module]   open a random completed lesson (to revisit)");
+          out.push("review            interleaved mixed review (recall-gated SRS)");
+          out.push("review <module>   revisit a random completed lesson in <module>");
           out.push("cat readme        project overview");
           out.push("clear             clear screen");
           break;
@@ -91,14 +92,20 @@ export default function HomeTerminal({ modules }: HomeTerminalProps) {
           break;
         }
         case "review": {
+          // No arg → interleaved cumulative review across modules.
+          if (!arg) {
+            out.push("opening mixed review…");
+            router.push("/review");
+            break;
+          }
           const allModules = getAllModules();
           const validKeys = new Set(
             allModules.flatMap((m) => m.lessons.map((l) => `${m.slug}/${l.slug}`)),
           );
           const p = readProgress();
-          const pool = arg
-            ? p.completed.filter((k) => validKeys.has(k) && k.startsWith(`${arg}/`))
-            : p.completed.filter((k) => validKeys.has(k));
+          const pool = p.completed.filter(
+            (k) => validKeys.has(k) && k.startsWith(`${arg}/`),
+          );
           if (pool.length === 0) {
             out.push(
               arg
