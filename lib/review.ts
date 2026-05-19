@@ -29,7 +29,7 @@ function shuffle<T>(arr: T[]): T[] {
 function toItem(key: string): ReviewItem | null {
   const [moduleSlug, lessonSlug] = splitKey(key);
   if (!moduleSlug || !lessonSlug) return null;
-  // pygame challenges can't run/validate in the Pyodide runtime — skip them.
+  // pygame challenges can't run/validate in the Pyodide runtime; skip them.
   if (moduleSlug === "game-dev-pygame") return null;
   const lesson = getLessonBySlug(moduleSlug, lessonSlug);
   if (!lesson || lesson.challenges.length === 0) return null;

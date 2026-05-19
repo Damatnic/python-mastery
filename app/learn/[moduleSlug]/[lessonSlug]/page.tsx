@@ -37,7 +37,7 @@ function RuntimeStatus() {
       {error ? (
         <>
           <span className="inline-block w-2 h-2 rounded-full bg-error" aria-hidden="true" />
-          <span className="text-error">pyodide: failed — refresh to retry</span>
+          <span className="text-error">pyodide: failed · refresh to retry</span>
         </>
       ) : isLoading || !isReady ? (
         <>
@@ -64,8 +64,8 @@ export default function LessonPage({ params }: LessonPageProps) {
   const [tutorCode, setTutorCode] = useState("");
   const [showToast, setShowToast] = useState(false);
   // Recall-gated SRS: a due+completed lesson opened in learn mode is a
-  // review session. The box only advances when a challenge is actually
-  // re-solved (see handleChallengeComplete) — never just by opening.
+  // review session. The box only advances on a real re-solve (see
+  // handleChallengeComplete), never just by opening.
   const [reviewSession, setReviewSession] = useState(false);
   const [reviewRecorded, setReviewRecorded] = useState(false);
   const tutorRef = useRef<TutorChatHandle | null>(null);
@@ -85,7 +85,7 @@ export default function LessonPage({ params }: LessonPageProps) {
     const set = getCompletedLessons();
     // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrating from localStorage
     setCompletedLessons(set);
-    // Opening a due+completed lesson does NOT advance the SRS box — that
+    // Opening a due+completed lesson does NOT advance the SRS box; that
     // only happens on a real re-solve. Here we just flag the review session.
     setReviewSession(!isShowcase() && set.has(lessonKey) && isDue(lessonKey));
   }, [lessonKey]);

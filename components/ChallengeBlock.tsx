@@ -244,7 +244,7 @@ export default function ChallengeBlock({
 
       {isPygame && (
         <div className="px-4 py-2 border-b border-warning/30 bg-warning/[0.05] font-mono text-[11px] text-warning">
-          pygame needs a real window — copy this into a .py file and run it locally.
+          pygame needs a real window. copy this into a .py file and run it locally.
         </div>
       )}
 
@@ -342,7 +342,7 @@ export default function ChallengeBlock({
                 : output.trim()
                   ? `# not there yet · your output: "${firstLine(output).slice(0, 70)}${
                       firstLine(output).length > 70 ? "…" : ""
-                    }" — re-read the prompt`
+                    }" · re-read the prompt`
                   : "# not there yet · your code produced no output (the challenge expects some)"}
           </p>
         )}
@@ -360,7 +360,7 @@ export default function ChallengeBlock({
             ) : (
               <div className="space-y-1">
                 <label className="text-muted-foreground" htmlFor={`why-${challenge.id}`}>
-                  why does this work? <span className="text-muted-foreground/60">(for you — saved locally, never sent)</span>
+                  why does this work? <span className="text-muted-foreground/60">(for you, saved locally, never sent)</span>
                 </label>
                 <textarea
                   id={`why-${challenge.id}`}
