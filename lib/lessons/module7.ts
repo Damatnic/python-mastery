@@ -348,11 +348,11 @@ print(students[["name", "grade", "gpa", "subject", "department"]])`,
     challenges: [
       {
         id: "m7l2c1",
-        prompt: "Use apply() to create a 'passed' column that is True if score >= 70, False otherwise.",
-        hint: "students['score'].apply(lambda x: x >= 70)",
+        prompt: "Use apply() to create an 'honor_roll' column that is True if score >= 90, False otherwise. (Some students clear the bar, some don't.)",
+        hint: "students['score'].apply(lambda x: x >= 90)",
         validateFn: `return output.includes("True") && output.includes("False")`,
-        solution: `students["passed"] = students["score"].apply(lambda x: x >= 70)
-print(students[["name", "score", "passed"]])`,
+        solution: `students["honor_roll"] = students["score"].apply(lambda x: x >= 90)
+print(students[["name", "score", "honor_roll"]])`,
       },
       {
         id: "m7l2c2",

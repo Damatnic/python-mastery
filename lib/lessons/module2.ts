@@ -529,7 +529,7 @@ permits = pd.read_csv(io.StringIO(permits_csv), sep='|')
 
 active_permits = permits[(permits["Status"] == "issued") | (permits["Status"] == "complete")]
 print(active_permits)`,
-      validateFn: `return output.includes("BP2023-0001") && output.includes("BP2023-0002") && output.includes("issued") && output.includes("complete") && !output.includes("cancelled") && !output.includes("withdrawn")`,
+      validateFn: `return output.includes("BP2023-0001") && output.includes("BP2023-0002") && output.includes("BP2023-0015") && !output.includes("BP2023-0004") && !output.includes("BP2023-0007") && !output.includes("BP2023-0011")`,
       hint: "Use | for OR and wrap each condition in parentheses: (permits['Status'] == 'issued') | (permits['Status'] == 'complete')",
       xpReward: 50,
     },

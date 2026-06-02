@@ -1020,8 +1020,8 @@ html_table = """
 </table>
 """
 
-# Parse HTML table
-df = pd.read_html(html_table)[0]
+# Parse HTML table (wrap in io.StringIO so it works across pandas versions)
+df = pd.read_html(io.StringIO(html_table))[0]
 
 # Clean revenue column
 df["Revenue"] = df["Revenue"].str.replace("$", "", regex=False).str.replace(",", "", regex=False).astype(float)

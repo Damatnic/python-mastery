@@ -358,7 +358,7 @@ except ValueError as e:
         id: "m8l3c1",
         prompt: "Given prices = np.array([10, 25, 40, 5]), apply a 15% discount and a $2 shipping surcharge in one expression. Print the result formatted as 'final: [a b c d]' (let numpy print the array).",
         hint: "prices * 0.85 + 2",
-        validateFn: `return /final:\\s*\\[\\s*10\\.5\\s+23\\.25\\s+36\\s+6\\.25\\s*\\]/i.test(output)`,
+        validateFn: `return /final:\\s*\\[\\s*10\\.5\\s+23\\.25\\s+36\\.?\\s+6\\.25\\s*\\]/i.test(output)`,
         solution: `import numpy as np
 prices = np.array([10, 25, 40, 5])
 final = prices * 0.85 + 2
