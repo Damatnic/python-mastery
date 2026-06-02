@@ -8,6 +8,12 @@ export const MODULE_METADATA: Omit<Module, "lessons">[] = [
       "Variables, data structures, loops, and functions. The stuff you'll use in every script you ever write.",
   },
   {
+    slug: "core-python",
+    title: "Core Python Deep Dive",
+    description:
+      "Comprehensions, generators, iterators, decorators, context managers, exceptions, sets, and async. The language features that separate someone who can write Python from someone who reads it fluently.",
+  },
+  {
     slug: "pandas-fundamentals",
     title: "Pandas Fundamentals",
     description:
@@ -63,8 +69,14 @@ export const MODULE_METADATA: Omit<Module, "lessons">[] = [
   },
   {
     slug: "oop-tooling",
-    title: "OOP & Tooling",
+    title: "Object-Oriented Python",
     description:
-      "Classes and objects, type hints and dataclasses, testing your code, and logging and debugging. The Python beyond scripts that real projects need.",
+      "Classes, dataclasses, inheritance and polymorphism, properties, dunder methods, abstract base classes, and Pythonic patterns. How to model real problems with objects instead of piles of functions.",
+  },
+  {
+    slug: "tooling-environments",
+    title: "Tooling & Environments",
+    description:
+      "Virtual environments, pip, pytest, mocking, debugging, profiling, and the linters and formatters real teams run. The workflow around the code that makes a project maintainable.",
   },
 ];

@@ -15,6 +15,15 @@ const CHEAT_SHEETS: Record<string, CheatItem[]> = {
     { title: "String formatting", code: 'f"Hello {name}"', description: "Insert variables into strings" },
     { title: "List creation", code: "[1, 2, 3]", description: "Create a list of items" },
   ],
+  "core-python": [
+    { title: "Generator", code: "(x*x for x in nums)", description: "Lazy, one value at a time" },
+    { title: "yield", code: "def g():\\n    yield 1", description: "Make a generator function" },
+    { title: "Decorator", code: "@wraps\\ndef deco(f): ...", description: "Wrap a function" },
+    { title: "Context manager", code: "with open(p) as f:", description: "Setup + guaranteed cleanup" },
+    { title: "Custom exception", code: "class MyErr(Exception): pass", description: "Self-describing errors" },
+    { title: "Counter", code: "Counter(items).most_common(1)", description: "Tally and rank" },
+    { title: "await", code: "result = await coro()", description: "Run an async call" },
+  ],
   "pandas-fundamentals": [
     { title: "Read CSV", code: "pd.read_csv('file.csv')", description: "Load data from CSV file" },
     { title: "View first rows", code: "df.head()", description: "See first 5 rows" },
@@ -53,9 +62,20 @@ const CHEAT_SHEETS: Record<string, CheatItem[]> = {
   ],
   "oop-tooling": [
     { title: "Define class", code: "class C:\\n    def __init__(self): ...", description: "Blueprint for objects" },
+    { title: "Inherit", code: "class Dog(Animal):", description: "Subclass a parent" },
+    { title: "super()", code: "super().__init__(name)", description: "Call the parent method" },
     { title: "Dataclass", code: "@dataclass\\nclass P: x: int", description: "Auto __init__/__repr__" },
-    { title: "Type hint", code: "def f(a: int) -> int:", description: "Document in/out types" },
-    { title: "Assert test", code: "assert double(2) == 4", description: "Cheap inline test" },
+    { title: "Property", code: "@property\\ndef area(self): ...", description: "Method that reads like an attribute" },
+    { title: "Dunder add", code: "def __add__(self, other): ...", description: "Make + work on objects" },
+    { title: "Abstract method", code: "@abstractmethod\\ndef pay(self): ...", description: "Force subclasses to implement" },
+  ],
+  "tooling-environments": [
+    { title: "Create venv", code: "python -m venv .venv", description: "Isolated per-project packages" },
+    { title: "Install", code: "pip install -r requirements.txt", description: "Reproduce dependencies" },
+    { title: "pytest", code: "def test_add():\\n    assert add(2,3)==5", description: "Plain-assert tests" },
+    { title: "Mock", code: "m = Mock(); m.return_value = 5", description: "Stand-in for real services" },
+    { title: "Time it", code: "timeit.timeit(stmt, number=1000)", description: "Measure before optimizing" },
+    { title: "Format + lint", code: "black . && ruff check .", description: "Auto-format, then lint" },
   ],
 };
 

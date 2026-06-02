@@ -255,6 +255,17 @@ re.search(r"\\d+", "Order 123")  # Match object or None
 re.sub(r"\\d+", "X", "Order 123")  # "Order X"
 \`\`\`
 
+## the building blocks
+
+A pattern is made of character classes and quantifiers:
+
+\`\`\`python
+# \\d digit   \\w word char   \\s space   .  any char
+# +  one or more   *  zero or more   ?  optional   {2,4} a range
+# ^  start of string   $  end of string
+re.findall(r"\\w+@\\w+\\.\\w+", "a@b.com and c@d.org")  # both emails
+\`\`\`
+
 ## groups
 
 \`\`\`python
@@ -264,6 +275,23 @@ if match:
     area = match.group(1)   # "555"
     number = match.group(2)  # "1234"
 \`\`\`
+
+Numbered groups get unreadable fast. Name them with \`(?P<name>...)\` and pull
+them out by name:
+
+\`\`\`python
+m = re.search(r"(?P<area>\\d{3})-(?P<line>\\d{4})", "call 555-1234")
+print(m.group("area"))   # 555
+print(m.group("line"))   # 1234
+\`\`\`
+
+⚠️ Warning: \`+\` and \`*\` are greedy, they grab as much as possible. \`r"<.+>"\`
+on \`"<a><b>"\` matches the whole thing, not just \`<a>\`. Add \`?\` to make it
+lazy: \`r"<.+?>"\` stops at the first \`>\`.
+
+💡 Key: always write regex as a raw string (\`r"..."\`). Without the \`r\`,
+Python treats \`\\d\` as an escape sequence before regex ever sees it, and your
+pattern quietly breaks.
 
 ## pandas + regex
 
@@ -358,6 +386,17 @@ print(caps)`,
 text = "Order #12345 total $99.99"
 result = re.sub(r"\\d", "X", text)
 print(result)`,
+      },
+      {
+        id: "m5l2c3",
+        prompt:
+          "The string 'log: 2026-05-01 ERROR' has a date. Use a named group (?P<date>...) to capture the YYYY-MM-DD date, then print it with m.group('date'). It should print 2026-05-01.",
+        hint: "pattern r'(?P<date>\\\\d{4}-\\\\d{2}-\\\\d{2})', then re.search and m.group('date')",
+        validateFn: `return output.includes("2026-05-01")`,
+        solution: `import re
+text = "log: 2026-05-01 ERROR"
+m = re.search(r"(?P<date>\\d{4}-\\d{2}-\\d{2})", text)
+print(m.group("date"))`,
       },
     ],
     projectChallenge: {

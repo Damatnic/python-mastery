@@ -1,6 +1,7 @@
 import type { Module, Lesson } from "./types";
 import { MODULE_METADATA } from "./modules";
 import { lessonsModule1 } from "./lessons/module1";
+import { lessonsModuleCore } from "./lessons/moduleCore";
 import { lessonsModule2 } from "./lessons/module2";
 import { lessonsModule3 } from "./lessons/module3";
 import { lessonsModule4 } from "./lessons/module4";
@@ -11,9 +12,11 @@ import { lessonsModuleNumpy } from "./lessons/moduleNumpy";
 import { lessonsModule8 } from "./lessons/module8";
 import { lessonsModule9 } from "./lessons/module9";
 import { lessonsModuleOop } from "./lessons/moduleOop";
+import { lessonsModuleTooling } from "./lessons/moduleTooling";
 
 const ALL_LESSONS: Lesson[] = [
   ...lessonsModule1,
+  ...lessonsModuleCore,
   ...lessonsModule2,
   ...lessonsModule3,
   ...lessonsModule4,
@@ -24,6 +27,7 @@ const ALL_LESSONS: Lesson[] = [
   ...lessonsModule8,
   ...lessonsModule9,
   ...lessonsModuleOop,
+  ...lessonsModuleTooling,
 ];
 
 export function getAllModules(): Module[] {

@@ -583,6 +583,35 @@ print(soup.find("h1").get_text())
 \`\`\`
 
 There's a real HTML page bundled with this site at \`/sample-data/electronics-store.html\` for the examples below. It has an inventory table, category list, and "featured" section so you can practice every common selector against actual markup, not a synthetic string.
+
+## what BeautifulSoup can't do
+
+BeautifulSoup parses the HTML that the server sent. That is exactly what you
+want for static pages. But many modern sites send a near-empty shell and build
+the real content in the browser with JavaScript. BeautifulSoup never sees that
+content, because it does not run JavaScript.
+
+⚠️ Warning: if \`find_all\` comes back empty on a page that clearly has data,
+the page is probably rendered client-side. Check by viewing the raw source
+(\`requests.get(url).text\`), not the browser inspector. If the data is not in
+the raw HTML, you need a tool that drives a real browser, like Playwright or
+Selenium, or you find the JSON API the page itself calls.
+
+## scrape responsibly
+
+Scraping pulls real resources off someone else's server, and the rules are not
+optional:
+
+- Check the site's \`robots.txt\` and terms of service before you scrape.
+- Identify yourself with a real \`User-Agent\` and slow down. One request every
+  second or two is polite; hammering a site is not.
+- Cache what you fetch so you do not re-download the same page on every run.
+- Prefer an official API when one exists. It is faster, more stable, and
+  allowed.
+
+💡 Key: the goal is to be a guest, not a denial-of-service attack. A scraper
+that respects rate limits and robots.txt can run for years; a greedy one gets
+your IP banned by lunch.
 `,
     starterCode: `# Fetch the sample HTML and parse it with BeautifulSoup.
 from pyodide.http import pyfetch
