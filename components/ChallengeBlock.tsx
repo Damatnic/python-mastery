@@ -25,6 +25,7 @@ interface ChallengeBlockProps {
   reviewMode?: boolean;
   onAskTutor?: (prompt: string) => void;
   onActiveCodeChange?: (code: string) => void;
+  onActiveErrorChange?: (error: string | undefined) => void;
 }
 
 const SOLUTION_GATE = 3;
@@ -43,6 +44,7 @@ export default function ChallengeBlock({
   reviewMode = false,
   onAskTutor,
   onActiveCodeChange,
+  onActiveErrorChange,
 }: ChallengeBlockProps) {
   const { isReady, runCode } = usePyodideRuntime();
   const learn = useLearn();
@@ -166,6 +168,7 @@ export default function ChallengeBlock({
     setOutput(result.output);
     setError(result.error);
     setExecutionTime(result.executionTime);
+    onActiveErrorChange?.(result.error ?? undefined);
 
     if (!result.error) {
       try {
@@ -190,7 +193,7 @@ export default function ChallengeBlock({
     }
 
     setIsRunning(false);
-  }, [isReady, isPygame, runCode, code, challenge.validateFn, challenge.id, onComplete]);
+  }, [isReady, isPygame, runCode, code, challenge.validateFn, challenge.id, onComplete, onActiveErrorChange]);
 
   const handleReset = useCallback(() => {
     try {
@@ -392,6 +395,7 @@ export default function ChallengeBlock({
         <div className="flex items-center gap-3 pt-2 border-t border-border/60 font-mono text-xs">
           {challenge.hint && !showHint && !isCorrect && (
             <button
+              type="button"
               onClick={() => setShowHint(true)}
               className="px-2 py-1 rounded border border-border text-warning hover:bg-warning/10 hover:border-warning/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-warning focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
@@ -409,6 +413,7 @@ export default function ChallengeBlock({
           )}
           {attempts >= SOLUTION_GATE && !isCorrect && !showSolution && (
             <button
+              type="button"
               onClick={() => setShowSolution(true)}
               className="px-2 py-1 rounded border border-border text-muted-foreground hover:text-foreground hover:border-accent/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >

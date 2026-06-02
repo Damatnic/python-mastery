@@ -81,6 +81,7 @@ export default function ExampleBlock({
               predict: what does this output / do? then reveal.
             </p>
             <button
+              type="button"
               onClick={() => setRevealed(true)}
               className="px-2 py-1 rounded border border-border font-mono text-xs text-accent hover:border-accent/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >

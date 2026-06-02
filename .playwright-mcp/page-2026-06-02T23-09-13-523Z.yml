@@ -1,0 +1,369 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - link "$ cd ../lessons" [ref=e6] [cursor=pointer]:
+        - /url: /learn
+    - navigation "Breadcrumb" [ref=e9]:
+      - link "~" [ref=e10] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e11]: /
+      - link "lessons" [ref=e12] [cursor=pointer]:
+        - /url: /learn
+      - generic [ref=e13]: /
+      - generic [ref=e14]: capstone
+      - generic [ref=e15]: /
+      - generic [ref=e16]: capstone-customer-value
+    - generic [ref=e17]:
+      - complementary [ref=e18]:
+        - navigation "Module lessons" [ref=e19]:
+          - generic [ref=e20]:
+            - paragraph [ref=e21]: "# capstone"
+            - list [ref=e22]:
+              - listitem [ref=e23]:
+                - 'link "01 Capstone: Customer Value Leaderboard" [ref=e24] [cursor=pointer]':
+                  - /url: /learn/capstone/capstone-customer-value
+                  - generic [ref=e25]: ✓
+                  - generic [ref=e26]: "01"
+                  - generic [ref=e27]: "Capstone: Customer Value Leaderboard"
+              - listitem [ref=e28]:
+                - 'link "02 Capstone: School Performance Report" [ref=e29] [cursor=pointer]':
+                  - /url: /learn/capstone/capstone-school-report
+                  - generic [ref=e30]: ✓
+                  - generic [ref=e31]: "02"
+                  - generic [ref=e32]: "Capstone: School Performance Report"
+              - listitem [ref=e33]:
+                - 'link "03 Capstone: Org & Salary Analysis" [ref=e34] [cursor=pointer]':
+                  - /url: /learn/capstone/capstone-org-analysis
+                  - generic [ref=e35]: ✓
+                  - generic [ref=e36]: "03"
+                  - generic [ref=e37]: "Capstone: Org & Salary Analysis"
+            - button "Download notes for Capstone Projects as Markdown" [ref=e38]: ⤓ download notes (.md)
+      - main [ref=e39]:
+        - generic [ref=e40]:
+          - paragraph [ref=e41]:
+            - generic [ref=e42]: "[challenge]"
+            - generic [ref=e43]: lesson 63
+            - text: · done
+          - 'heading "Capstone: Customer Value Leaderboard" [level=1] [ref=e44]'
+        - navigation "lesson sections" [ref=e45]:
+          - list [ref=e46]:
+            - listitem [ref=e47]:
+              - link "theory" [ref=e48] [cursor=pointer]:
+                - /url: "#theory"
+                - generic [ref=e50]: theory
+            - listitem [ref=e51]:
+              - link "examples [2]" [ref=e52] [cursor=pointer]:
+                - /url: "#examples"
+                - generic [ref=e342]: ">"
+                - generic [ref=e53]: examples
+                - generic [ref=e54]: "[2]"
+            - listitem [ref=e55]:
+              - link "challenges [0/2]" [ref=e56] [cursor=pointer]:
+                - /url: "#challenges"
+                - generic [ref=e57]: challenges
+                - generic [ref=e58]: "[0/2]"
+        - generic [ref=e74]:
+          - generic [ref=e75]:
+            - paragraph [ref=e76]: "# theory"
+            - generic [ref=e78]:
+              - 'heading "put it together: joins, aggregation, and a window in one query" [level=2] [ref=e343]'
+              - paragraph [ref=e344]: "This is a synthesis lesson. No new syntax, just the pieces you already have working together on a real question: who are our best customers, and which products drive the most revenue."
+              - paragraph [ref=e345]: "Ranking customers by spend needs a join (customers to orders), an aggregate (SUM of order totals), and a window (RANK over that sum):"
+              - paragraph
+              - generic [ref=e346]:
+                - paragraph
+                - paragraph
+                - generic [ref=e347]:
+                  - paragraph
+                  - paragraph [ref=e348]: SQL
+                  - paragraph [ref=e349]: Syntax
+                  - paragraph
+                - paragraph
+                - paragraph
+                - generic [ref=e350]:
+                  - code [ref=e351]:
+                    - text: SELECT c.name,
+                    - paragraph
+                    - paragraph [ref=e352]: SUM(o.total) AS total_spent,
+                    - paragraph [ref=e353]: RANK() OVER (ORDER BY SUM(o.total) DESC) AS spend_rank
+                    - paragraph [ref=e354]: FROM customers c
+                    - paragraph [ref=e355]: JOIN orders o ON o.customer_id = c.id
+                    - paragraph [ref=e356]: GROUP BY c.id, c.name
+                  - paragraph [ref=e357]:
+                    - code [ref=e358]: ORDER BY spend_rank;
+                - paragraph
+                - paragraph
+              - paragraph
+              - paragraph [ref=e359]:
+                - text: "Notice the window function sits on top of the aggregate:"
+                - code [ref=e360]: RANK() OVER (ORDER BY SUM(o.total) DESC)
+                - text: ranks the grouped totals. That layering, aggregate first, window over the result, is the move that unlocks most real reporting.
+              - paragraph [ref=e361]:
+                - text: "> 💡"
+                - strong [ref=e362]: "Key:"
+                - text: you can use an aggregate inside a window's ORDER BY. The database computes the GROUP BY, then ranks the grouped rows. This is how leaderboards, top-N-per-group, and share-of-total reports get written.
+          - generic [ref=e99]:
+            - paragraph [ref=e100]:
+              - text: "# examples"
+              - generic [ref=e101]: "[2]"
+            - generic [ref=e102]:
+              - generic [ref=e103]:
+                - generic [ref=e104]:
+                  - generic [ref=e105]: Example 1
+                  - button "Copy" [ref=e106]:
+                    - img [ref=e107]
+                    - generic [ref=e110]: Copy
+                - heading "Customer spend leaderboard" [level=3] [ref=e111]
+                - paragraph [ref=e112]: RANK over the summed total per customer
+                - generic [ref=e113]:
+                  - code [ref=e117]:
+                    - generic [ref=e118]:
+                      - textbox "Editor content" [ref=e119]
+                      - textbox [ref=e120]
+                      - generic [ref=e122]:
+                        - generic [ref=e125]: "1"
+                        - generic [ref=e127]: "2"
+                        - generic [ref=e129]: "3"
+                        - generic [ref=e131]: "4"
+                        - generic [ref=e133]: "5"
+                        - generic [ref=e135]: "6"
+                      - generic [ref=e152]:
+                        - generic [ref=e154]: SELECT c.name,
+                        - generic [ref=e156]: SUM(o.total) AS total_spent,
+                        - generic [ref=e158]: RANK() OVER (ORDER BY SUM(o.total) DESC) AS spend_rank
+                        - generic [ref=e160]: FROM customers c
+                        - generic [ref=e162]: JOIN orders o ON o.customer_id = c.id
+                        - generic [ref=e164]: GROUP BY c.id, c.name
+                  - generic [ref=e166]:
+                    - button "run" [active] [ref=e167]
+                    - button "reset" [ref=e168]
+                    - generic [ref=e169]: ⌘↵ to run
+                - generic [ref=e364]:
+                  - generic [ref=e365]:
+                    - generic [ref=e366]:
+                      - generic [ref=e367]:
+                        - img [ref=e368]
+                        - generic [ref=e370]: "20"
+                        - generic [ref=e371]: rows
+                      - generic [ref=e372]:
+                        - img [ref=e373]
+                        - generic [ref=e376]: 5ms
+                    - generic [ref=e377]: 3 columns
+                  - table [ref=e379]:
+                    - rowgroup [ref=e380]:
+                      - row "name total_spent spend_rank" [ref=e381]:
+                        - columnheader "name" [ref=e382] [cursor=pointer]:
+                          - generic [ref=e383]:
+                            - generic "text" [ref=e384]:
+                              - img [ref=e385]
+                            - generic [ref=e387]: name
+                            - img [ref=e389]
+                        - columnheader "total_spent" [ref=e392] [cursor=pointer]:
+                          - generic [ref=e393]:
+                            - generic "numeric" [ref=e394]:
+                              - img [ref=e395]
+                            - generic [ref=e398]: total_spent
+                            - img [ref=e400]
+                        - columnheader "spend_rank" [ref=e403] [cursor=pointer]:
+                          - generic [ref=e404]:
+                            - generic "numeric" [ref=e405]:
+                              - img [ref=e406]
+                            - generic [ref=e409]: spend_rank
+                            - img [ref=e411]
+                    - rowgroup [ref=e414]:
+                      - row "Isabella Anderson 2,699.98 1" [ref=e415]:
+                        - cell "Isabella Anderson" [ref=e416]
+                        - cell "2,699.98" [ref=e417]
+                        - cell "1" [ref=e418]
+                      - row "Olivia Davis 2,329.96 2" [ref=e419]:
+                        - cell "Olivia Davis" [ref=e420]
+                        - cell "2,329.96" [ref=e421]
+                        - cell "2" [ref=e422]
+                      - row "Henry White 2,179.97 3" [ref=e423]:
+                        - cell "Henry White" [ref=e424]
+                        - cell "2,179.97" [ref=e425]
+                        - cell "3" [ref=e426]
+                      - row "Evelyn Clark 1,899.98 4" [ref=e427]:
+                        - cell "Evelyn Clark" [ref=e428]
+                        - cell "1,899.98" [ref=e429]
+                        - cell "4" [ref=e430]
+                      - row "John Smith 1,799.95 5" [ref=e431]:
+                        - cell "John Smith" [ref=e432]
+                        - cell "1,799.95" [ref=e433]
+                        - cell "5" [ref=e434]
+                      - row "Sophia Miller 1,499.99 6" [ref=e435]:
+                        - cell "Sophia Miller" [ref=e436]
+                        - cell "1,499.99" [ref=e437]
+                        - cell "6" [ref=e438]
+                      - row "Alexander Martin 1,399.99 7" [ref=e439]:
+                        - cell "Alexander Martin" [ref=e440]
+                        - cell "1,399.99" [ref=e441]
+                        - cell "7" [ref=e442]
+                      - row "Emma Wilson 1,049.98 8" [ref=e443]:
+                        - cell "Emma Wilson" [ref=e444]
+                        - cell "1,049.98" [ref=e445]
+                        - cell "8" [ref=e446]
+                      - row "Mia Jackson 999.99 9" [ref=e447]:
+                        - cell "Mia Jackson" [ref=e448]
+                        - cell "999.99" [ref=e449]
+                        - cell "9" [ref=e450]
+                      - row "Harper Martinez 999.99 9" [ref=e451]:
+                        - cell "Harper Martinez" [ref=e452]
+                        - cell "999.99" [ref=e453]
+                        - cell "9" [ref=e454]
+                      - row "Amelia Garcia 899.97 11" [ref=e455]:
+                        - cell "Amelia Garcia" [ref=e456]
+                        - cell "899.97" [ref=e457]
+                        - cell "11" [ref=e458]
+                      - row "Daniel Lewis 699.99 12" [ref=e459]:
+                        - cell "Daniel Lewis" [ref=e460]
+                        - cell "699.99" [ref=e461]
+                        - cell "12" [ref=e462]
+                      - row "William Johnson 539.96 13" [ref=e463]:
+                        - cell "William Johnson" [ref=e464]
+                        - cell "539.96" [ref=e465]
+                        - cell "13" [ref=e466]
+                      - row "Aria Walker 279.98 14" [ref=e467]:
+                        - cell "Aria Walker" [ref=e468]
+                        - cell "279.98" [ref=e469]
+                        - cell "14" [ref=e470]
+                      - row "Charlotte Harris 259.97 15" [ref=e471]:
+                        - cell "Charlotte Harris" [ref=e472]
+                        - cell "259.97" [ref=e473]
+                        - cell "15" [ref=e474]
+                      - row "James Brown 209.97 16" [ref=e475]:
+                        - cell "James Brown" [ref=e476]
+                        - cell "209.97" [ref=e477]
+                        - cell "16" [ref=e478]
+                      - row "Benjamin Taylor 179.97 17" [ref=e479]:
+                        - cell "Benjamin Taylor" [ref=e480]
+                        - cell "179.97" [ref=e481]
+                        - cell "17" [ref=e482]
+                      - row "Sebastian Rodriguez 174.97 18" [ref=e483]:
+                        - cell "Sebastian Rodriguez" [ref=e484]
+                        - cell "174.97" [ref=e485]
+                        - cell "18" [ref=e486]
+                      - row "Lucas Thomas 89.99 19" [ref=e487]:
+                        - cell "Lucas Thomas" [ref=e488]
+                        - cell "89.99" [ref=e489]
+                        - cell "19" [ref=e490]
+                      - row "Jack Robinson 39.99 20" [ref=e491]:
+                        - cell "Jack Robinson" [ref=e492]
+                        - cell "39.99" [ref=e493]
+                        - cell "20" [ref=e494]
+              - generic [ref=e170]:
+                - generic [ref=e171]:
+                  - generic [ref=e172]: Example 2
+                  - button "Copy" [ref=e173]:
+                    - img [ref=e174]
+                    - generic [ref=e177]: Copy
+                - heading "Each product's share of revenue" [level=3] [ref=e178]
+                - paragraph [ref=e179]: A window SUM over the grand total gives a percentage
+                - generic [ref=e180]:
+                  - code [ref=e184]:
+                    - generic [ref=e185]:
+                      - textbox "Editor content" [ref=e186]
+                      - textbox [ref=e187]
+                      - generic [ref=e189]:
+                        - generic [ref=e192]: "1"
+                        - generic [ref=e194]: "2"
+                        - generic [ref=e196]: "3"
+                        - generic [ref=e198]: "4"
+                        - generic [ref=e200]: "5"
+                        - generic [ref=e202]: "6"
+                      - generic [ref=e226]:
+                        - generic [ref=e228]: SELECT p.name,
+                        - generic [ref=e230]: SUM(oi.quantity * oi.unit_price) AS revenue,
+                        - generic [ref=e232]: ROUND(100.0 * SUM(oi.quantity * oi.unit_price)
+                        - generic [ref=e234]: / SUM(SUM(oi.quantity * oi.unit_price)) OVER (), 1) AS pct_of_total
+                        - generic [ref=e236]: FROM products p
+                        - generic [ref=e238]: JOIN order_items oi ON oi.product_id = p.id
+                  - generic [ref=e240]:
+                    - button "run" [ref=e241]
+                    - button "reset" [ref=e242]
+                    - generic [ref=e243]: ⌘↵ to run
+          - generic [ref=e244]:
+            - paragraph [ref=e245]:
+              - text: "# challenges"
+              - generic [ref=e246]: "[2]"
+            - generic [ref=e247]:
+              - generic [ref=e248]:
+                - generic [ref=e249]:
+                  - generic [ref=e250]:
+                    - generic [ref=e251]: "# challenge"
+                    - generic [ref=e252]: 01/02
+                  - generic [ref=e253]: todo
+                - generic [ref=e254]: "Build a customer leaderboard: return name, total_spent (sum of their order totals), and spend_rank using RANK() over the total descending. Order by spend_rank."
+                - generic [ref=e255]: "columns: name, total_spent, spend_rank"
+                - generic [ref=e256]:
+                  - generic [ref=e257]:
+                    - generic [ref=e258]:
+                      - code [ref=e262]:
+                        - generic [ref=e263]:
+                          - textbox "Editor content" [ref=e264]
+                          - textbox [ref=e265]
+                          - generic [ref=e270]: "1"
+                      - generic [ref=e277]:
+                        - button "run" [ref=e278]
+                        - button "reset" [ref=e279]
+                        - generic [ref=e280]: ⌘↵ to run
+                    - generic [ref=e281]:
+                      - button "expand editor" [ref=e282]: "[ expand ]"
+                      - slider "editor height" [ref=e283]: ─ drag to resize ─
+                      - generic [ref=e284]: 150px
+                  - generic [ref=e285]:
+                    - button "show hint" [ref=e286]
+                    - button "> stuck? ask the tutor" [ref=e287]
+              - generic [ref=e288]:
+                - generic [ref=e289]:
+                  - generic [ref=e290]:
+                    - generic [ref=e291]: "# challenge"
+                    - generic [ref=e292]: 02/02
+                  - generic [ref=e293]: todo
+                - generic [ref=e294]: "For each product in order_items return name, revenue (sum of quantity * unit_price), and pct_of_total: revenue as a percentage of total revenue using a window SUM over (). Round the percentage to 1 decimal, order by revenue descending."
+                - generic [ref=e295]: "columns: name, revenue, pct_of_total"
+                - generic [ref=e296]:
+                  - generic [ref=e297]:
+                    - generic [ref=e298]:
+                      - code [ref=e302]:
+                        - generic [ref=e303]:
+                          - textbox "Editor content" [ref=e304]
+                          - textbox [ref=e305]
+                          - generic [ref=e310]: "1"
+                      - generic [ref=e317]:
+                        - button "run" [ref=e318]
+                        - button "reset" [ref=e319]
+                        - generic [ref=e320]: ⌘↵ to run
+                    - generic [ref=e321]:
+                      - button "expand editor" [ref=e322]: "[ expand ]"
+                      - slider "editor height" [ref=e323]: ─ drag to resize ─
+                      - generic [ref=e324]: 150px
+                  - generic [ref=e325]:
+                    - button "show hint" [ref=e326]
+                    - button "> stuck? ask the tutor" [ref=e327]
+          - generic [ref=e328]:
+            - paragraph [ref=e329]: ✓ lesson done
+            - paragraph [ref=e330]: "next up: Capstone: School Performance Report"
+            - link "go to next lesson →" [ref=e331] [cursor=pointer]:
+              - /url: /learn/capstone/capstone-school-report
+              - generic [ref=e332]: go to next lesson
+              - generic [ref=e333]: →
+        - navigation "Lesson navigation" [ref=e60]:
+          - 'link "← prev: Indexes That Actually Help" [ref=e61] [cursor=pointer]':
+            - /url: /learn/performance-indexing/indexes-that-help
+            - generic [ref=e62]: "← prev:"
+            - generic [ref=e63]: Indexes That Actually Help
+          - 'link "next: Capstone: School Performance Report →" [ref=e64] [cursor=pointer]':
+            - /url: /learn/capstone/capstone-school-report
+            - generic [ref=e65]: "next:"
+            - generic [ref=e66]: "Capstone: School Performance Report"
+            - generic [ref=e67]: →
+    - region "lesson tools" [ref=e68]:
+      - button "expand tools" [ref=e69]:
+        - generic [ref=e70]: $
+        - generic [ref=e71]: tools
+        - generic [ref=e72]: ▸
+  - alert [ref=e73]
+  - generic [ref=e341]:
+    - alert
+    - alert

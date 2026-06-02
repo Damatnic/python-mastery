@@ -7,22 +7,13 @@ import Link from "next/link";
 import { CodeEditor } from "./CodeEditor";
 import { OutputPanel } from "./OutputPanel";
 import { usePyodide } from "@/lib/pyodide";
+import { createValidator } from "@/lib/validator";
 import type { Project } from "@/lib/types";
 
 interface ProjectViewProps {
   project: Project;
   completedSteps: Set<string>;
   onStepComplete: (stepId: string) => void;
-}
-
-// Note: This validation pattern matches LessonView.tsx - used for educational code validation
-function createValidator(
-  validateFnString: string
-): (output: string, locals: Record<string, unknown>) => boolean {
-  return new Function("output", "locals", validateFnString) as (
-    output: string,
-    locals: Record<string, unknown>
-  ) => boolean;
 }
 
 export function ProjectView({
@@ -150,6 +141,7 @@ export function ProjectView({
               return (
                 <li key={step.id}>
                   <button
+                    type="button"
                     onClick={() => goToStep(index)}
                     className={`w-full text-left flex items-baseline gap-2 px-2 py-1.5 rounded text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
                       isCurrent
@@ -170,6 +162,7 @@ export function ProjectView({
 
         <div className="p-4 border-t border-border text-xs">
           <button
+            type="button"
             onClick={() => setShowDataPreview(!showDataPreview)}
             className="text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded"
           >
@@ -186,6 +179,7 @@ export function ProjectView({
           </span>
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={() => goToStep(currentStepIndex - 1)}
               disabled={currentStepIndex === 0}
               className="px-2 py-1 rounded border border-border text-muted-foreground hover:text-foreground hover:border-accent/50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
@@ -193,6 +187,7 @@ export function ProjectView({
               ← prev
             </button>
             <button
+              type="button"
               onClick={() => goToStep(currentStepIndex + 1)}
               disabled={currentStepIndex === project.steps.length - 1}
               className="px-2 py-1 rounded border border-border text-muted-foreground hover:text-foreground hover:border-accent/50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
@@ -225,6 +220,7 @@ export function ProjectView({
 
               <div className="mt-6 font-mono text-xs">
                 <button
+                  type="button"
                   onClick={() => setShowHints(!showHints)}
                   className="text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded"
                 >
@@ -305,12 +301,14 @@ export function ProjectView({
               </div>
               <div className="flex items-center gap-2">
                 <button
+                  type="button"
                   onClick={handleReset}
                   className="px-2 py-1 rounded border border-border text-muted-foreground hover:text-foreground hover:border-accent/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                   reset
                 </button>
                 <button
+                  type="button"
                   onClick={handleRun}
                   disabled={!isReady || isRunning}
                   className="px-2 py-1 rounded border border-accent text-accent hover:bg-accent/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"

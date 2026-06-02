@@ -161,6 +161,7 @@ export default function ProjectChallengeBlock({
 
         <div className="font-mono text-xs">
           <button
+            type="button"
             onClick={() => setShowHint(!showHint)}
             className="text-warning hover:text-warning/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-warning focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded"
           >
@@ -178,12 +179,14 @@ export default function ProjectChallengeBlock({
             <span className="text-muted-foreground"># your code</span>
             <div className="flex items-center gap-2">
               <button
+                type="button"
                 onClick={handleReset}
                 className="px-2 py-1 rounded border border-border text-muted-foreground hover:text-foreground hover:border-accent/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 reset
               </button>
               <button
+                type="button"
                 onClick={handleRun}
                 disabled={!isReady || isRunning || isPygame}
                 className="px-2 py-1 rounded border border-warning text-warning hover:bg-warning/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-warning focus-visible:ring-offset-2 focus-visible:ring-offset-background"
@@ -221,6 +224,7 @@ export default function ProjectChallengeBlock({
         {attempts >= SOLUTION_GATE && !completed && (
           <div className="font-mono text-xs">
             <button
+              type="button"
               onClick={() => setShowSolution(!showSolution)}
               className="text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded"
             >

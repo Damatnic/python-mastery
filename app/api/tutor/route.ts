@@ -61,8 +61,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body: TutorRequest = await request.json();
+    const rawBody: unknown = await request.json().catch(() => null);
+    if (!rawBody || typeof rawBody !== "object") {
+      return NextResponse.json({ error: "invalid request body" }, { status: 400 });
+    }
+    const body = rawBody as TutorRequest;
     const { messages, context } = body;
+    if (!Array.isArray(messages) || !context || typeof context !== "object") {
+      return NextResponse.json({ error: "missing required fields: messages, context" }, { status: 400 });
+    }
 
     const openai = getOpenAI();
     if (!openai) {

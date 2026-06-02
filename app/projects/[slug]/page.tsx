@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, use } from "react";
 import { notFound } from "next/navigation";
 import { ProjectView } from "@/components/ProjectView";
 import { getProjectBySlug } from "@/lib/projects";
+import { safeJsonParse } from "@/lib/storage";
 
 const STORAGE_KEY = "python-mastery-project-progress";
 
@@ -19,10 +20,8 @@ export default function ProjectPage({ params }: ProjectPageProps) {
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrating from localStorage
-      setCompletedSteps(new Set(JSON.parse(saved)));
-    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrating from localStorage
+    setCompletedSteps(new Set(safeJsonParse<string[]>(saved, [])));
     setIsLoaded(true);
   }, []);
 

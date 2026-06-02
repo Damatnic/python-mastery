@@ -1,0 +1,81 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - link "$ cd ../lessons" [ref=e6] [cursor=pointer]:
+        - /url: /learn
+    - navigation "Breadcrumb" [ref=e9]:
+      - link "~" [ref=e10] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e11]: /
+      - link "lessons" [ref=e12] [cursor=pointer]:
+        - /url: /learn
+      - generic [ref=e13]: /
+      - generic [ref=e14]: capstone
+      - generic [ref=e15]: /
+      - generic [ref=e16]: capstone-customer-value
+    - generic [ref=e17]:
+      - complementary [ref=e18]:
+        - navigation "Module lessons" [ref=e19]:
+          - generic [ref=e20]:
+            - paragraph [ref=e21]: "# capstone"
+            - list [ref=e22]:
+              - listitem [ref=e23]:
+                - 'link "01 Capstone: Customer Value Leaderboard" [ref=e24] [cursor=pointer]':
+                  - /url: /learn/capstone/capstone-customer-value
+                  - generic [ref=e25]: ✓
+                  - generic [ref=e26]: "01"
+                  - generic [ref=e27]: "Capstone: Customer Value Leaderboard"
+              - listitem [ref=e28]:
+                - 'link "02 Capstone: School Performance Report" [ref=e29] [cursor=pointer]':
+                  - /url: /learn/capstone/capstone-school-report
+                  - generic [ref=e30]: ✓
+                  - generic [ref=e31]: "02"
+                  - generic [ref=e32]: "Capstone: School Performance Report"
+              - listitem [ref=e33]:
+                - 'link "03 Capstone: Org & Salary Analysis" [ref=e34] [cursor=pointer]':
+                  - /url: /learn/capstone/capstone-org-analysis
+                  - generic [ref=e35]: ✓
+                  - generic [ref=e36]: "03"
+                  - generic [ref=e37]: "Capstone: Org & Salary Analysis"
+            - button "Download notes for Capstone Projects as Markdown" [ref=e38]: ⤓ download notes (.md)
+      - main [ref=e39]:
+        - generic [ref=e40]:
+          - paragraph [ref=e41]:
+            - generic [ref=e42]: "[challenge]"
+            - generic [ref=e43]: lesson 63
+            - text: · done
+          - 'heading "Capstone: Customer Value Leaderboard" [level=1] [ref=e44]'
+        - navigation "lesson sections" [ref=e45]:
+          - list [ref=e46]:
+            - listitem [ref=e47]:
+              - link "theory" [ref=e48] [cursor=pointer]:
+                - /url: "#theory"
+                - generic [ref=e49]: ">"
+                - generic [ref=e50]: theory
+            - listitem [ref=e51]:
+              - link "examples [2]" [ref=e52] [cursor=pointer]:
+                - /url: "#examples"
+                - generic [ref=e53]: examples
+                - generic [ref=e54]: "[2]"
+            - listitem [ref=e55]:
+              - link "challenges [0/2]" [ref=e56] [cursor=pointer]:
+                - /url: "#challenges"
+                - generic [ref=e57]: challenges
+                - generic [ref=e58]: "[0/2]"
+        - paragraph [ref=e59]: loading store.db…
+        - navigation "Lesson navigation" [ref=e60]:
+          - 'link "← prev: Indexes That Actually Help" [ref=e61] [cursor=pointer]':
+            - /url: /learn/performance-indexing/indexes-that-help
+            - generic [ref=e62]: "← prev:"
+            - generic [ref=e63]: Indexes That Actually Help
+          - 'link "next: Capstone: School Performance Report →" [ref=e64] [cursor=pointer]':
+            - /url: /learn/capstone/capstone-school-report
+            - generic [ref=e65]: "next:"
+            - generic [ref=e66]: "Capstone: School Performance Report"
+            - generic [ref=e67]: →
+    - region "lesson tools" [ref=e68]:
+      - button "expand tools" [ref=e69]:
+        - generic [ref=e70]: $
+        - generic [ref=e71]: tools
+        - generic [ref=e72]: ▸
+  - alert [ref=e73]

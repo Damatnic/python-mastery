@@ -62,6 +62,7 @@ export default function LessonPage({ params }: LessonPageProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [dockOpen, setDockOpen] = useState<DockTool | null>(null);
   const [tutorCode, setTutorCode] = useState("");
+  const [tutorError, setTutorError] = useState<string | undefined>(undefined);
   const [showToast, setShowToast] = useState(false);
   // Recall-gated SRS: a due+completed lesson opened in learn mode is a
   // review session. The box only advances on a real re-solve (see
@@ -330,6 +331,7 @@ export default function LessonPage({ params }: LessonPageProps) {
                         onComplete={() => handleChallengeComplete(challenge.id)}
                         onAskTutor={handleAskTutor}
                         onActiveCodeChange={setTutorCode}
+                        onActiveErrorChange={setTutorError}
                       />
                     ))}
                   </div>
@@ -417,6 +419,7 @@ export default function LessonPage({ params }: LessonPageProps) {
           lessonTitle={lesson.title}
           moduleSlug={moduleSlug}
           currentCode={tutorCode}
+          errorMessage={tutorError}
         />
         <InterfaceOnboarding />
       </div>
