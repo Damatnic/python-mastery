@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import ModeToggle from "@/components/ModeToggle";
 
 export default function StartPage() {
   return (
@@ -26,10 +25,6 @@ export default function StartPage() {
           If you have never coded before, that is fine. The first module assumes you know nothing and gets
           you running real code in about a minute.
         </p>
-
-        <div className="mt-6">
-          <ModeToggle />
-        </div>
 
         <section className="mt-10">
           <p className="text-xs uppercase tracking-widest text-muted-foreground"># the path</p>
@@ -58,7 +53,7 @@ export default function StartPage() {
           <p className="text-xs uppercase tracking-widest text-muted-foreground"># how to actually learn it</p>
           <ul className="mt-4 space-y-2 text-muted-foreground leading-relaxed">
             <li>Write the challenges from memory before you peek. The struggle is where it sticks.</li>
-            <li>Turn on learn mode (the button above) so the site spaces finished lessons back to you over days. That spacing is the difference between cramming and remembering.</li>
+            <li>The site spaces finished lessons back to you over days. That spacing is the difference between cramming something and actually remembering it.</li>
             <li>Short and often beats long and rare. Fifteen minutes a day will outrun a weekly cram.</li>
           </ul>
         </section>
