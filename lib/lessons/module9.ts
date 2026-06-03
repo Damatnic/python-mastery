@@ -219,9 +219,6 @@ Here's the thing; \`astype\` is strict. If you have even one bad value, it fails
 \`\`\`python
 # errors='coerce' turns bad values into NaN instead of crashing
 df["price"] = pd.to_numeric(df["price"], errors="coerce")
-
-# errors='ignore' just leaves bad values as-is
-df["price"] = pd.to_numeric(df["price"], errors="ignore")
 \`\`\`
 
 I use \`errors="coerce"\` way more than I expected. Real data is messy.

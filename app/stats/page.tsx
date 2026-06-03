@@ -49,7 +49,7 @@ export default function StatsPage() {
   const [now] = useState(() => Date.now());
 
   useEffect(() => {
-    // Mount-time hydration from localStorage / mode — all setState here is intentional.
+    // Mount-time hydration from localStorage / mode, all setState here is intentional.
     /* eslint-disable react-hooks/set-state-in-effect -- hydrating from localStorage */
     const sc = isShowcase();
     setShowcase(sc);

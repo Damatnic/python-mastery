@@ -140,7 +140,7 @@ export const TutorChat = forwardRef<TutorChatHandle, TutorChatProps>(function Tu
     setErrored(null);
   }
 
-  // No own floating launcher — the bottom-right tool dock is the single
+  // No own floating launcher, the bottom-right tool dock is the single
   // entry point (opened via openWithPrompt). Avoids stacking on the dock.
   if (!open) return null;
 

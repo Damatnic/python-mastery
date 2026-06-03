@@ -34,8 +34,8 @@ df.dropna(thresh=3)            # Keep rows with at least 3 non-NaN
 df.fillna(0)                   # Fill all NaN with 0
 df.fillna({"age": 0, "city": "Unknown"})  # Different values per column
 df["age"].fillna(df["age"].mean())  # Fill with mean
-df.fillna(method="ffill")      # Forward fill (use previous value)
-df.fillna(method="bfill")      # Backward fill (use next value)
+df.ffill()                     # Forward fill (carry the previous value down)
+df.bfill()                     # Backward fill (carry the next value up)
 \`\`\`
 
 ## checking
@@ -250,8 +250,7 @@ df["id"] = df["id"].astype(str)
 
 \`\`\`python
 pd.to_numeric(series, errors="raise")   # Default: raise error on invalid
-pd.to_numeric(series, errors="coerce")  # Convert invalid to NaN
-pd.to_numeric(series, errors="ignore")  # Return original on error
+pd.to_numeric(series, errors="coerce")  # Convert invalid to NaN (the one you want)
 \`\`\`
 
 ## date formats

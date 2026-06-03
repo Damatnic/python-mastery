@@ -120,7 +120,7 @@ export default function ExampleBlock({
 
         {isPygame && (
           <p className="font-mono text-[11px] text-warning">
-            pygame needs a real window — copy this into a .py file and run it locally.
+            pygame needs a real window. Copy this into a .py file and run it locally.
           </p>
         )}
 

@@ -13,7 +13,7 @@ interface SidebarProps {
 // Lesson-page module nav: shows only the CURRENT module's lessons (mirrors
 // sql-mastery's LessonNav). completedLessons is the mode-aware set from the
 // page (getCompletedLessons), so showcase shows every lesson complete and
-// learn shows real per-browser progress — no direct localStorage reads here.
+// learn shows real per-browser progress, no direct localStorage reads here.
 export function Sidebar({ module, completedLessons }: SidebarProps) {
   const pathname = usePathname();
   const completedCount = module.lessons.filter((l) =>

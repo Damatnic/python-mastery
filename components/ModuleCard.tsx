@@ -71,11 +71,13 @@ export function ModuleCard({
       href={`/learn/${module.slug}/${firstIncompleteLesson.slug}`}
       className={`group block font-mono p-4 rounded border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
         isLocked
-          ? "border-border/50 bg-card/30"
+          ? "border-border/50 bg-card/30 cursor-not-allowed"
           : "border-border bg-card hover:bg-card-hover hover:border-accent/50"
       }`}
       aria-label={`Open module ${module.title}${isLocked ? ", locked" : ""}`}
       aria-disabled={isLocked || undefined}
+      tabIndex={isLocked ? -1 : undefined}
+      onClick={isLocked ? (e) => e.preventDefault() : undefined}
     >
       <div className="flex items-baseline gap-2 text-sm">
         <span className="text-accent">{String(moduleIndex + 1).padStart(2, "0")}</span>

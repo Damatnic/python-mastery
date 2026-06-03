@@ -12,7 +12,7 @@ export function moduleNotesMarkdown(module: Module): string {
 
   module.lessons.forEach((lesson, i) => {
     out.push(`\n---\n`);
-    out.push(`## ${String(i + 1).padStart(2, "0")} — ${lesson.title}`);
+    out.push(`## ${String(i + 1).padStart(2, "0")}. ${lesson.title}`);
     if (lesson.theory?.trim()) out.push(`\n${lesson.theory.trim()}`);
 
     if (lesson.examples.length) {
@@ -38,7 +38,7 @@ export function moduleNotesMarkdown(module: Module): string {
     out.push(`\n---\n`);
     out.push(`## Quick reference`);
     for (const t of tips) {
-      out.push(`\n- \`${t.code}\` — ${t.description}${t.title ? ` (${t.title})` : ""}`);
+      out.push(`\n- \`${t.code}\`: ${t.description}${t.title ? ` (${t.title})` : ""}`);
     }
   }
 

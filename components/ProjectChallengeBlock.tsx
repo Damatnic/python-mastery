@@ -83,7 +83,7 @@ export default function ProjectChallengeBlock({
         if (ok && !completed && !xpAwardedRef.current) {
           xpAwardedRef.current = true;
           setCompleted(true);
-          // Showcase is frozen — never mutate XP/progress for portfolio visitors.
+          // Showcase is frozen, never mutate XP/progress for portfolio visitors.
           if (!isShowcase()) {
             const xp =
               parseInt(localStorage.getItem("python-mastery-xp") || "0", 10) || 0;
@@ -217,7 +217,7 @@ export default function ProjectChallengeBlock({
 
         {isPygame && (
           <p className="font-mono text-[11px] text-warning">
-            pygame needs a real window — run this locally.
+            pygame needs a real window. Run this locally.
           </p>
         )}
 
