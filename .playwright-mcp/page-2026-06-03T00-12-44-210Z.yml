@@ -1,0 +1,232 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - link "$ cd ../lessons" [ref=e6] [cursor=pointer]:
+        - /url: /learn
+      - generic [ref=e9]: "pyodide: loading…"
+  - navigation "Breadcrumb" [ref=e12]:
+    - link "~" [ref=e13] [cursor=pointer]:
+      - /url: /
+    - generic [ref=e14]: /
+    - link "lessons" [ref=e15] [cursor=pointer]:
+      - /url: /learn
+    - generic [ref=e16]: /
+    - generic [ref=e17]: start-here
+    - generic [ref=e18]: /
+    - generic [ref=e19]: how-this-works
+  - generic [ref=e20]:
+    - navigation "Module lessons" [ref=e22]:
+      - generic [ref=e23]:
+        - generic [ref=e24]:
+          - paragraph [ref=e25]: "# start-here"
+          - generic [ref=e26]: 0/3
+        - list [ref=e27]:
+          - listitem [ref=e28]:
+            - link "01 Your First Line of Code" [ref=e29] [cursor=pointer]:
+              - /url: /learn/start-here/how-this-works
+              - generic [ref=e30]: ">"
+              - generic [ref=e31]: "01"
+              - generic [ref=e32]: Your First Line of Code
+          - listitem [ref=e33]:
+            - link "02 Variables Are Labeled Boxes" [ref=e34] [cursor=pointer]:
+              - /url: /learn/start-here/variables-intro
+              - generic [ref=e35]: "02"
+              - generic [ref=e36]: Variables Are Labeled Boxes
+          - listitem [ref=e37]:
+            - link "03 How to Learn Here" [ref=e38] [cursor=pointer]:
+              - /url: /learn/start-here/how-to-learn-here
+              - generic [ref=e39]: "03"
+              - generic [ref=e40]: How to Learn Here
+      - button "Download notes for Start Here as Markdown" [ref=e41]: ⤓ download notes (.md)
+      - link "← cd ~/lessons" [ref=e42] [cursor=pointer]:
+        - /url: /learn
+    - main [ref=e43]:
+      - generic [ref=e44]:
+        - paragraph [ref=e45]:
+          - generic [ref=e46]: "[concept]"
+          - text: Start Here
+        - heading "Your First Line of Code" [level=1] [ref=e47]
+      - navigation "lesson sections" [ref=e48]:
+        - list [ref=e49]:
+          - listitem [ref=e50]:
+            - link "theory" [ref=e51] [cursor=pointer]:
+              - /url: "#theory"
+              - generic [ref=e52]: ">"
+              - generic [ref=e53]: theory
+          - listitem [ref=e54]:
+            - link "examples [2]" [ref=e55] [cursor=pointer]:
+              - /url: "#examples"
+              - generic [ref=e56]: examples
+              - generic [ref=e57]: "[2]"
+          - listitem [ref=e58]:
+            - link "challenges [0/2]" [ref=e59] [cursor=pointer]:
+              - /url: "#challenges"
+              - generic [ref=e60]: challenges
+              - generic [ref=e61]: "[0/2]"
+      - generic [ref=e62]:
+        - generic [ref=e63]:
+          - paragraph [ref=e64]: "# theory"
+          - generic [ref=e65]:
+            - paragraph [ref=e66]: Welcome. If you have never written a single line of code, you are in exactly the right place. We start from zero.
+            - paragraph [ref=e67]: Code is just instructions you write for the computer to follow. You type the instructions, you press a button, and the computer does what you said. That is the whole game.
+            - paragraph [ref=e68]:
+              - text: The most basic instruction in Python is
+              - code [ref=e69]: print
+              - text: . It means "show this on the screen." You put what you want to show inside the parentheses and quotes.
+            - code [ref=e71]: print("hello")
+            - paragraph [ref=e72]: "When you run that, the computer shows:"
+            - code [ref=e73]: hello
+            - paragraph [ref=e74]:
+              - text: That text it shows back is called the
+              - strong [ref=e75]: output
+              - text: . You write code, you run it, you read the output. You will do that thousands of times.
+            - generic [ref=e76]: "!key concept·the box where you type is the editor. The ,[object Object], button (or Cmd+Enter) makes your code go. The panel below it shows the output."
+            - generic [ref=e77]: "!tip·the quotes matter. ,[object Object], shows the word hello. The quotes tell Python \"this is plain text, do not try to understand it, just show it.\""
+            - paragraph [ref=e78]: You are about to run your first program. It is a small thing, but everyone who writes code for a living started exactly here.
+        - generic [ref=e79]:
+          - paragraph [ref=e80]:
+            - text: "# examples"
+            - generic [ref=e81]: "[2]"
+          - generic [ref=e82]:
+            - generic [ref=e83]:
+              - generic [ref=e84]:
+                - generic [ref=e85]:
+                  - generic [ref=e86]: "# example 01"
+                  - generic [ref=e87]: · print shows text
+                - button "Copy" [ref=e88]:
+                  - generic [ref=e89]:
+                    - img [ref=e90]
+                    - text: Copy
+              - generic [ref=e92]:
+                - paragraph [ref=e93]: Whatever is inside the quotes gets shown on screen
+                - generic [ref=e94]:
+                  - generic [ref=e96]:
+                    - generic [ref=e97]:
+                      - generic [ref=e99]: "1"
+                      - generic [ref=e100]:
+                        - generic: print("good morning")
+                        - textbox [disabled] [ref=e101]: print("good morning")
+                    - generic [ref=e102]:
+                      - generic [ref=e103]:
+                        - generic [ref=e105]: 🐍
+                        - img [ref=e106]
+                      - generic [ref=e108]: Loading Python
+                      - generic [ref=e109]: Setting up pandas & numpy...
+                  - generic [ref=e110]:
+                    - button "reset" [ref=e111]
+                    - button "run" [disabled] [ref=e112]
+            - generic [ref=e113]:
+              - generic [ref=e114]:
+                - generic [ref=e115]:
+                  - generic [ref=e116]: "# example 02"
+                  - generic [ref=e117]: · you can print a number too
+                - button "Copy" [ref=e118]:
+                  - generic [ref=e119]:
+                    - img [ref=e120]
+                    - text: Copy
+              - generic [ref=e122]:
+                - paragraph [ref=e123]: Numbers do not need quotes
+                - generic [ref=e124]:
+                  - generic [ref=e126]:
+                    - generic [ref=e127]:
+                      - generic [ref=e129]: "1"
+                      - generic [ref=e130]:
+                        - generic: print(7)
+                        - textbox [disabled] [ref=e131]: print(7)
+                    - generic [ref=e132]:
+                      - generic [ref=e133]:
+                        - generic [ref=e135]: 🐍
+                        - img [ref=e136]
+                      - generic [ref=e138]: Loading Python
+                      - generic [ref=e139]: Setting up pandas & numpy...
+                  - generic [ref=e140]:
+                    - button "reset" [ref=e141]
+                    - button "run" [disabled] [ref=e142]
+        - generic [ref=e143]:
+          - paragraph [ref=e144]:
+            - text: "# challenges"
+            - generic [ref=e145]: "[2]"
+          - generic [ref=e146]:
+            - generic [ref=e147]:
+              - generic [ref=e148]:
+                - generic [ref=e149]:
+                  - text: "# challenge"
+                  - generic [ref=e150]: 01/02
+                - generic [ref=e151]: todo
+              - generic [ref=e152]: See the words 'your name here' in the editor below? Replace them with your actual name (keep the quotes), then press Run. The output should show your name.
+              - generic [ref=e153]:
+                - generic [ref=e154]:
+                  - generic [ref=e156]:
+                    - generic [ref=e157]:
+                      - generic [ref=e158]:
+                        - generic [ref=e159]: "1"
+                        - generic [ref=e160]: "2"
+                        - generic [ref=e161]: "3"
+                        - generic [ref=e162]: "4"
+                        - generic [ref=e163]: "5"
+                        - generic [ref=e164]: "6"
+                      - generic [ref=e165]:
+                        - generic: "print(\"hello\") # See the words 'your name here' in the editor below? Replace them with your actual name (keep the quotes), then press Run. The output should show your name. # Your code here:"
+                        - textbox [disabled] [ref=e166]: "print(\"hello\") # See the words 'your name here' in the editor below? Replace them with your actual name (keep the quotes), then press Run. The output should show your name. # Your code here:"
+                    - generic [ref=e167]:
+                      - generic [ref=e168]:
+                        - generic [ref=e170]: 🐍
+                        - img [ref=e171]
+                      - generic [ref=e173]: Loading Python
+                      - generic [ref=e174]: Setting up pandas & numpy...
+                  - generic [ref=e175]:
+                    - button "expand editor" [ref=e176]: "[ expand ]"
+                    - slider "editor height" [ref=e177]: ─ drag to resize ─
+                    - generic [ref=e178]:
+                      - button "reset" [ref=e179]
+                      - button "run" [disabled] [ref=e180]
+                - generic [ref=e181]:
+                  - button "show hint" [ref=e182]
+                  - button "> stuck? ask the tutor" [ref=e183]
+            - generic [ref=e184]:
+              - generic [ref=e185]:
+                - generic [ref=e186]:
+                  - text: "# challenge"
+                  - generic [ref=e187]: 02/02
+                - generic [ref=e188]: todo
+              - generic [ref=e189]: Now make Python show a number. Print the number 42 (numbers do not need quotes). The output should contain 42.
+              - generic [ref=e190]:
+                - generic [ref=e191]:
+                  - generic [ref=e193]:
+                    - generic [ref=e194]:
+                      - generic [ref=e195]:
+                        - generic [ref=e196]: "1"
+                        - generic [ref=e197]: "2"
+                        - generic [ref=e198]: "3"
+                        - generic [ref=e199]: "4"
+                        - generic [ref=e200]: "5"
+                        - generic [ref=e201]: "6"
+                      - generic [ref=e202]:
+                        - generic: "print(\"hello\") # Now make Python show a number. Print the number 42 (numbers do not need quotes). The output should contain 42. # Your code here:"
+                        - textbox [disabled] [ref=e203]: "print(\"hello\") # Now make Python show a number. Print the number 42 (numbers do not need quotes). The output should contain 42. # Your code here:"
+                    - generic [ref=e204]:
+                      - generic [ref=e205]:
+                        - generic [ref=e207]: 🐍
+                        - img [ref=e208]
+                      - generic [ref=e210]: Loading Python
+                      - generic [ref=e211]: Setting up pandas & numpy...
+                  - generic [ref=e212]:
+                    - button "expand editor" [ref=e213]: "[ expand ]"
+                    - slider "editor height" [ref=e214]: ─ drag to resize ─
+                    - generic [ref=e215]:
+                      - button "reset" [ref=e216]
+                      - button "run" [disabled] [ref=e217]
+                - generic [ref=e218]:
+                  - button "show hint" [ref=e219]
+                  - button "> stuck? ask the tutor" [ref=e220]
+      - navigation "Lesson navigation" [ref=e221]:
+        - 'link "next: Variables Are Labeled Boxes →" [ref=e222] [cursor=pointer]':
+          - /url: /learn/start-here/variables-intro
+          - generic [ref=e223]: "next:"
+          - generic [ref=e224]: Variables Are Labeled Boxes
+          - generic [ref=e225]: →
+  - region "lesson tools" [ref=e226]:
+    - button "expand tools" [ref=e227]:
+      - generic [ref=e228]: $
+      - generic [ref=e229]: tools
+      - generic [ref=e230]: ▸

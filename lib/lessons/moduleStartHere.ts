@@ -63,9 +63,9 @@ writes code for a living started exactly here.
       {
         id: "sh1c1",
         prompt:
-          "See the words 'your name here' in the editor below? Replace them with your actual name (keep the quotes), then press Run. The output should show your name.",
+          "The editor below has print(\"hello\"). Change the word hello to your own name, keeping the quotes, then press Run. You should see your name in the output.",
         hint: "Type your name between the quotes, like print(\"Sam\"), then click Run.",
-        validateFn: `return output.trim().length > 0 && !output.toLowerCase().includes("your name here")`,
+        validateFn: `return output.trim().length > 0 && output.trim().toLowerCase() !== "hello"`,
         solution: `print("Sam")`,
       },
       {
