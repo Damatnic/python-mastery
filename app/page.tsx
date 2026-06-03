@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import HomeTerminal from "@/components/HomeTerminal";
+import ModeToggle from "@/components/ModeToggle";
 import { DownloadNotesButton } from "@/components/DownloadNotesButton";
 import { getAllModules } from "@/lib/lessons";
 import { getCompletedLessons } from "@/lib/progress";
@@ -37,6 +38,21 @@ export default function Home() {
             <span className="text-foreground/80">help</span>
             {' · ↑↓ history · tab completes'}
           </p>
+        </section>
+
+        <section className="mt-6">
+          <ModeToggle />
+        </section>
+
+        <section className="mt-6 flex flex-wrap items-center gap-3">
+          <Link
+            href="/start"
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-accent text-accent hover:bg-accent/10 transition-colors text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          >
+            new here? start here →
+          </Link>
+          <Link href="/glossary" className="text-xs text-muted-foreground hover:text-foreground transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">glossary</Link>
+          <Link href="/next-steps" className="text-xs text-muted-foreground hover:text-foreground transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">where to go next</Link>
         </section>
 
         <section className="mt-8">
@@ -111,7 +127,11 @@ export default function Home() {
             <span className="text-success">exit 0</span> · personal use · next.js + pyodide
           </span>
           <span className="flex flex-wrap gap-x-3 gap-y-1">
-            <Link href="/projects" className="hover:text-foreground transition-colors">projects/</Link>
+            <Link href="/start" className="hover:text-foreground transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">start</Link>
+            <Link href="/glossary" className="hover:text-foreground transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">glossary</Link>
+            <Link href="/next-steps" className="hover:text-foreground transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">next steps</Link>
+            <Link href="/projects" className="hover:text-foreground transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">projects/</Link>
+            <a href="https://damato-sql.vercel.app" className="hover:text-foreground transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">learn sql →</a>
           </span>
         </div>
       </footer>

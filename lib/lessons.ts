@@ -1,5 +1,6 @@
 import type { Module, Lesson } from "./types";
 import { MODULE_METADATA } from "./modules";
+import { lessonsModuleStartHere } from "./lessons/moduleStartHere";
 import { lessonsModule1 } from "./lessons/module1";
 import { lessonsModuleCore } from "./lessons/moduleCore";
 import { lessonsModule2 } from "./lessons/module2";
@@ -15,6 +16,7 @@ import { lessonsModuleOop } from "./lessons/moduleOop";
 import { lessonsModuleTooling } from "./lessons/moduleTooling";
 
 const ALL_LESSONS: Lesson[] = [
+  ...lessonsModuleStartHere,
   ...lessonsModule1,
   ...lessonsModuleCore,
   ...lessonsModule2,

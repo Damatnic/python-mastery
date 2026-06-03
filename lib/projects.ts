@@ -1,11 +1,13 @@
 import type { Project } from "./types";
 import { logAnalyzerProject } from "./projects/log-analyzer";
+import { textAnalyzerProject } from "./projects/text-analyzer";
 import { buildingPermitsProject } from "./projects/building-permits";
 import { surveyExplorerProject } from "./projects/survey-explorer";
 import { salesDashboardProject } from "./projects/sales-dashboard";
 
 const ALL_PROJECTS: Project[] = [
   logAnalyzerProject,
+  textAnalyzerProject,
   buildingPermitsProject,
   surveyExplorerProject,
   salesDashboardProject,

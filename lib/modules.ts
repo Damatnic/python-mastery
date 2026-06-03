@@ -2,6 +2,12 @@ import type { Module } from "./types";
 
 export const MODULE_METADATA: Omit<Module, "lessons">[] = [
   {
+    slug: "start-here",
+    title: "Start Here",
+    description:
+      "Never written code before? Start at zero. Run your first line, learn what a variable is, and see how to use this site. No prior knowledge needed.",
+  },
+  {
     slug: "python-basics",
     title: "Python Basics",
     description:
