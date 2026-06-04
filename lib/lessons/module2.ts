@@ -571,7 +571,7 @@ df["expensive"] = df["price"] > 50
 
 ## apply
 
-For more complex transformations:
+For more complex transformations. The \`lambda x: ...\` below is just a one-line throwaway function (input before the colon, result after); there is a full lambda lesson later in Functions & Apply, so do not worry about the syntax yet.
 \`\`\`python
 # Apply a function to each value
 df["price_formatted"] = df["price"].apply(lambda x: f"\${x:.2f}")

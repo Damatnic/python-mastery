@@ -508,7 +508,7 @@ with open("output.txt", "w") as f:
 
 ## the with statement
 
-Always use \`with\` to ensure files are properly closed:
+Always use \`with\` to ensure files are properly closed. \`with\` is a context manager: it sets something up, runs your block, then cleans up automatically even if an error happens. You do not need the deeper details to read and write files; there is a full lesson on context managers later in Core Python.
 
 \`\`\`python
 # Good - file automatically closes

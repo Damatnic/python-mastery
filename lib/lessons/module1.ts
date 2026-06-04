@@ -345,6 +345,7 @@ permits = pd.read_csv(io.StringIO(permits_csv), sep='|')
 
 # TODO: Create a list of unique neighborhoods from the Neighborhood column
 # Hint: Get the column as a list, then use set() to remove duplicates, then convert back to list
+# (set() just holds unique items with no duplicates; there is a full lesson on sets later, so the one line is all you need here)
 `,
       solution: `import pandas as pd
 import io
