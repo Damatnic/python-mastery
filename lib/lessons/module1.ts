@@ -9,7 +9,7 @@ export const lessonsModule1: Lesson[] = [
     title: "Variables & F-Strings",
     badge: "concept",
     theory: `
-Variables hold values. Python figures out the type:
+Variables hold values. A value has a kind, called its type: text (in quotes), whole numbers, decimal numbers, and True or False. You do not declare which. Python reads the value and figures it out:
 
 \`\`\`python
 name = "Alice"
@@ -18,19 +18,25 @@ price = 19.99
 is_active = True
 \`\`\`
 
-F-strings embed expressions inside strings. Prefix with \`f\`, put expressions in \`{}\`:
+You already used \`print("hello")\` to show plain text. An f-string lets you drop a variable straight into that text instead of typing it out. Put an \`f\` right before the opening quote, then wrap the variable name in \`{}\`:
+
+\`\`\`python
+name = "Sam"
+print(f"hi {name}")  # shows: hi Sam
+\`\`\`
+
+You can do math inside the braces too:
 
 \`\`\`python
 print(f"hi {name}, you are {age} years old")
 print(f"total: \${price * 3:.2f}")  # math works inside braces
 \`\`\`
 
-\`:.2f\` is a format spec. A few you'll reach for constantly:
+Once you are comfortable dropping a value in, you can format it. The three you will use in this lesson:
 
 - \`:.2f\` two decimals (\`3.14159\` becomes \`3.14\`)
 - \`:,\` thousands separator (\`1000000\` becomes \`1,000,000\`)
 - \`:.0%\` percent (\`0.85\` becomes \`85%\`)
-- \`:>10\` right-align inside 10 chars
 `,
     starterCode: `# Try creating variables and printing with f-strings
 name = "Your Name"
@@ -111,7 +117,8 @@ print(f"Weekly pay: \${weekly_pay:.2f}")`,
       threadTitle: "SF Permits Analysis",
       taskTitle: "Format Permit Summary",
       context: "You're building a permit lookup system. Given a permit number and its details, create a formatted summary line that displays the key information clearly.",
-      starterCode: `import pandas as pd
+      starterCode: `# Heads up: the pandas lines below just load the data. You will learn pandas later (Pandas Fundamentals). For now, ignore how it works and use the three variables already pulled out for you: permit_number, street_name, status.
+import pandas as pd
 import io
 
 permits_csv = """Permit Number|Permit Type|Street Number|Street Name|Status|Filed Date|Issued Date|Neighborhood|Existing Use|Proposed Use
@@ -182,7 +189,7 @@ print(f"Permit {permit_number} on {street_name} has status: {status}")`,
     title: "Lists & Tuples",
     badge: "concept",
     theory: `
-A list is an ordered, mutable collection. Square brackets:
+A list holds several values in order, and you can change it after you make it (that's what "mutable" means). Square brackets:
 
 \`\`\`python
 fruits = ["apple", "banana", "cherry"]
@@ -373,200 +380,6 @@ print(f"Total: {len(neighborhoods)}")`,
     module: "Python Basics",
     moduleSlug: "python-basics",
     lessonNumber: 3,
-    slug: "dictionaries",
-    title: "Dictionaries",
-    badge: "concept",
-    theory: `
-A dict is a hashmap. Keys to values:
-
-\`\`\`python
-person = {"name": "Alice", "age": 30, "city": "Boston"}
-\`\`\`
-
-Access with brackets or \`.get()\`. The first raises \`KeyError\` on missing keys; \`.get()\` returns \`None\` or a default:
-
-\`\`\`python
-person["name"]               # "Alice"
-person.get("job")            # None
-person.get("job", "unknown") # "unknown"
-\`\`\`
-
-Add, modify, delete:
-
-\`\`\`python
-person["job"] = "engineer"
-person["age"] = 31
-del person["city"]
-\`\`\`
-
-Useful methods: \`.keys()\`, \`.values()\`, \`.items()\` (iterates pairs).
-
-Nest freely:
-
-\`\`\`python
-employees = {
-    "emp001": {"name": "Alice", "dept": "Engineering"},
-    "emp002": {"name": "Bob", "dept": "Marketing"},
-}
-employees["emp001"]["name"]  # "Alice"
-\`\`\`
-
-Reach for a dict whenever you'd describe the relationship as "look this up by name". Counting occurrences, caching results, indexing rows by id.
-`,
-    starterCode: `# Create a student record as a dictionary
-student = {
-    "name": "Alice",
-    "grade": "A",
-    "score": 95,
-    "subjects": ["Math", "Science"]
-}
-
-# Access values
-print(f"Name: {student['name']}")
-print(f"Score: {student['score']}")
-
-# Safe access with .get()
-print(f"Age: {student.get('age', 'Not specified')}")
-`,
-    examples: [
-      {
-        title: "dictionary basics",
-        explanation: "Creating and accessing dictionary values",
-        code: `product = {
-    "name": "Laptop",
-    "price": 999.99,
-    "in_stock": True,
-    "ratings": [4.5, 5.0, 4.8]
-}
-
-print(f"Product: {product['name']}")
-print(f"Price: \${product['price']}")
-print(f"Avg Rating: {sum(product['ratings'])/len(product['ratings']):.1f}")`,
-      },
-      {
-        title: "iterating over dictionaries",
-        explanation: "Different ways to loop through dict contents",
-        code: `scores = {"Alice": 95, "Bob": 87, "Carol": 92}
-
-# Loop through keys
-print("Students:")
-for name in scores:
-    print(f"  {name}")
-
-# Loop through key-value pairs
-print("\\nScores:")
-for name, score in scores.items():
-    print(f"  {name}: {score}")`,
-      },
-      {
-        title: "nested dictionary access",
-        explanation: "Working with dictionaries inside dictionaries",
-        code: `company = {
-    "name": "TechCorp",
-    "departments": {
-        "engineering": {"head": "Alice", "size": 50},
-        "marketing": {"head": "Bob", "size": 20}
-    }
-}
-
-eng = company["departments"]["engineering"]
-print(f"Engineering head: {eng['head']}")
-print(f"Engineering size: {eng['size']}")`,
-      },
-    ],
-    challenges: [
-      {
-        id: "m1l3c1",
-        prompt: "Create a dictionary called 'book' with keys 'title', 'author', and 'year'. Set values to your favorite book. Print each value.",
-        hint: "Use curly braces {} with key: value pairs",
-        validateFn: `return output.split("\\n").length >= 3`,
-        solution: `book = {
-    "title": "The Pragmatic Programmer",
-    "author": "David Thomas",
-    "year": 2019
-}
-print(f"Title: {book['title']}")
-print(f"Author: {book['author']}")
-print(f"Year: {book['year']}")`,
-      },
-      {
-        id: "m1l3c2",
-        prompt: "Given grades = {'Alice': 95, 'Bob': 82, 'Carol': 91}, print the average of all grades.",
-        hint: "Use .values() to get the numbers, then sum and divide",
-        validateFn: `return output.includes("89.3") || output.includes("89")`,
-        solution: `grades = {'Alice': 95, 'Bob': 82, 'Carol': 91}
-values = list(grades.values())
-average = sum(values) / len(values)
-print(f"Average grade: {average:.1f}")`,
-      },
-    ],
-    projectChallenge: {
-      threadId: "permits",
-      threadTitle: "SF Permits Analysis",
-      taskTitle: "Build Permit Status Lookup",
-      context: "Create a quick lookup dictionary that maps permit numbers to their current status. This will power the status check feature in the permit tracking app.",
-      starterCode: `import pandas as pd
-import io
-
-permits_csv = """Permit Number|Permit Type|Street Number|Street Name|Status|Filed Date|Issued Date|Neighborhood|Existing Use|Proposed Use
-BP2023-0001|alterations|450|Market St|issued|2023-01-15|2023-02-10|Financial District|office|office
-BP2023-0002|new construction|1200|Mission St|complete|2023-01-18|2023-02-28|SoMa|vacant lot|apartments
-BP2023-0003|additions|2847|24th St|issued|2023-01-22|2023-03-05|Mission|1 family dwelling|1 family dwelling
-BP2023-0004|alterations|555|California St|cancelled|2023-01-25||Nob Hill|office|office
-BP2023-0005|demolition|890|Folsom St|complete|2023-02-01|2023-02-15|SoMa|warehouse|vacant lot
-BP2023-0006|new construction|3200|16th St|issued|2023-02-05|2023-04-01|Mission|parking lot|retail
-BP2023-0007|alterations|100|Van Ness Ave|withdrawn|2023-02-10||Civic Center|retail|restaurant
-BP2023-0008|sign erection|1800|Haight St|complete|2023-02-12|2023-02-20|Haight-Ashbury|retail|retail
-BP2023-0009|additions|4521|Judah St|issued|2023-02-15|2023-04-10|Sunset|1 family dwelling|2 family dwelling
-BP2023-0010|alterations|601|Montgomery St|issued|2023-02-18|2023-03-25|Financial District|office|office
-BP2023-0011|new construction|2100|Folsom St|expired|2023-02-20|2023-03-30|Mission|vacant lot|apartments
-BP2023-0012|alterations|789|Brannan St|complete|2023-02-22|2023-04-05|SoMa|warehouse|office
-BP2023-0013|demolition|1550|Howard St|complete|2023-02-25|2023-03-10|SoMa|industrial|vacant lot
-BP2023-0014|additions|3845|Noriega St|issued|2023-03-01|2023-05-01|Sunset|1 family dwelling|1 family dwelling
-BP2023-0015|new construction|425|Mission St|issued|2023-03-05|2023-06-15|Financial District|parking lot|office tower"""
-
-permits = pd.read_csv(io.StringIO(permits_csv), sep='|')
-
-# TODO: Create a dictionary mapping permit numbers to their status
-# Example output: {"BP2023-0001": "issued", "BP2023-0002": "complete", ...}
-# Then print the status of permit BP2023-0004
-`,
-      solution: `import pandas as pd
-import io
-
-permits_csv = """Permit Number|Permit Type|Street Number|Street Name|Status|Filed Date|Issued Date|Neighborhood|Existing Use|Proposed Use
-BP2023-0001|alterations|450|Market St|issued|2023-01-15|2023-02-10|Financial District|office|office
-BP2023-0002|new construction|1200|Mission St|complete|2023-01-18|2023-02-28|SoMa|vacant lot|apartments
-BP2023-0003|additions|2847|24th St|issued|2023-01-22|2023-03-05|Mission|1 family dwelling|1 family dwelling
-BP2023-0004|alterations|555|California St|cancelled|2023-01-25||Nob Hill|office|office
-BP2023-0005|demolition|890|Folsom St|complete|2023-02-01|2023-02-15|SoMa|warehouse|vacant lot
-BP2023-0006|new construction|3200|16th St|issued|2023-02-05|2023-04-01|Mission|parking lot|retail
-BP2023-0007|alterations|100|Van Ness Ave|withdrawn|2023-02-10||Civic Center|retail|restaurant
-BP2023-0008|sign erection|1800|Haight St|complete|2023-02-12|2023-02-20|Haight-Ashbury|retail|retail
-BP2023-0009|additions|4521|Judah St|issued|2023-02-15|2023-04-10|Sunset|1 family dwelling|2 family dwelling
-BP2023-0010|alterations|601|Montgomery St|issued|2023-02-18|2023-03-25|Financial District|office|office
-BP2023-0011|new construction|2100|Folsom St|expired|2023-02-20|2023-03-30|Mission|vacant lot|apartments
-BP2023-0012|alterations|789|Brannan St|complete|2023-02-22|2023-04-05|SoMa|warehouse|office
-BP2023-0013|demolition|1550|Howard St|complete|2023-02-25|2023-03-10|SoMa|industrial|vacant lot
-BP2023-0014|additions|3845|Noriega St|issued|2023-03-01|2023-05-01|Sunset|1 family dwelling|1 family dwelling
-BP2023-0015|new construction|425|Mission St|issued|2023-03-05|2023-06-15|Financial District|parking lot|office tower"""
-
-permits = pd.read_csv(io.StringIO(permits_csv), sep='|')
-
-status_lookup = {}
-for i, row in permits.iterrows():
-    status_lookup[row["Permit Number"]] = row["Status"]
-
-print(f"Status of BP2023-0004: {status_lookup['BP2023-0004']}")`,
-      validateFn: `return output.includes("BP2023-0004") && output.includes("cancelled")`,
-      hint: "Loop through the DataFrame rows using iterrows() and add each permit number and status to a dictionary.",
-      xpReward: 50,
-    },
-  },
-  {
-    module: "Python Basics",
-    moduleSlug: "python-basics",
-    lessonNumber: 4,
     slug: "loops-conditionals",
     title: "Loops & Conditionals",
     badge: "practice",
@@ -582,7 +395,7 @@ else: grade = "F"
 
 Comparison operators you'll use: \`==\`, \`!=\`, \`<\`, \`>\`, \`<=\`, \`>=\`, and \`in\` for membership (\`"apple" in fruits\`).
 
-\`for\` iterates anything iterable:
+\`for\` repeats once for each item in a list, string, or range:
 
 \`\`\`python
 for fruit in fruits:
@@ -748,6 +561,200 @@ print(f"Issued permits: {issued_count}")
 print(f"Complete permits: {complete_count}")`,
       validateFn: `return output.includes("Issued") && output.includes("7") && output.includes("Complete") && output.includes("5")`,
       hint: "Initialize two counter variables, then loop through permits checking if each status equals 'issued' or 'complete'.",
+      xpReward: 50,
+    },
+  },
+  {
+    module: "Python Basics",
+    moduleSlug: "python-basics",
+    lessonNumber: 4,
+    slug: "dictionaries",
+    title: "Dictionaries",
+    badge: "concept",
+    theory: `
+A dict stores values you look up by a name (a "key") instead of by position. Keys to values:
+
+\`\`\`python
+person = {"name": "Alice", "age": 30, "city": "Boston"}
+\`\`\`
+
+Access with brackets or \`.get()\`. The first raises \`KeyError\` on missing keys; \`.get()\` returns \`None\` or a default:
+
+\`\`\`python
+person["name"]               # "Alice"
+person.get("job")            # None
+person.get("job", "unknown") # "unknown"
+\`\`\`
+
+Add, modify, delete:
+
+\`\`\`python
+person["job"] = "engineer"
+person["age"] = 31
+del person["city"]
+\`\`\`
+
+Useful methods: \`.keys()\`, \`.values()\`, \`.items()\` (gives you each key-value pair).
+
+Nest freely:
+
+\`\`\`python
+employees = {
+    "emp001": {"name": "Alice", "dept": "Engineering"},
+    "emp002": {"name": "Bob", "dept": "Marketing"},
+}
+employees["emp001"]["name"]  # "Alice"
+\`\`\`
+
+Reach for a dict whenever you'd describe the relationship as "look this up by name". Counting occurrences, caching results, indexing rows by id.
+`,
+    starterCode: `# Create a student record as a dictionary
+student = {
+    "name": "Alice",
+    "grade": "A",
+    "score": 95,
+    "subjects": ["Math", "Science"]
+}
+
+# Access values
+print(f"Name: {student['name']}")
+print(f"Score: {student['score']}")
+
+# Safe access with .get()
+print(f"Age: {student.get('age', 'Not specified')}")
+`,
+    examples: [
+      {
+        title: "dictionary basics",
+        explanation: "Creating and accessing dictionary values",
+        code: `product = {
+    "name": "Laptop",
+    "price": 999.99,
+    "in_stock": True,
+    "ratings": [4.5, 5.0, 4.8]
+}
+
+print(f"Product: {product['name']}")
+print(f"Price: \${product['price']}")
+print(f"Avg Rating: {sum(product['ratings'])/len(product['ratings']):.1f}")`,
+      },
+      {
+        title: "iterating over dictionaries",
+        explanation: "Different ways to loop through dict contents",
+        code: `scores = {"Alice": 95, "Bob": 87, "Carol": 92}
+
+# Loop through keys
+print("Students:")
+for name in scores:
+    print(f"  {name}")
+
+# Loop through key-value pairs
+print("\\nScores:")
+for name, score in scores.items():
+    print(f"  {name}: {score}")`,
+      },
+      {
+        title: "nested dictionary access",
+        explanation: "Working with dictionaries inside dictionaries",
+        code: `company = {
+    "name": "TechCorp",
+    "departments": {
+        "engineering": {"head": "Alice", "size": 50},
+        "marketing": {"head": "Bob", "size": 20}
+    }
+}
+
+eng = company["departments"]["engineering"]
+print(f"Engineering head: {eng['head']}")
+print(f"Engineering size: {eng['size']}")`,
+      },
+    ],
+    challenges: [
+      {
+        id: "m1l3c1",
+        prompt: "Create a dictionary called 'book' with keys 'title', 'author', and 'year'. Set values to your favorite book. Print each value.",
+        hint: "Use curly braces {} with key: value pairs",
+        validateFn: `return output.split("\\n").length >= 3`,
+        solution: `book = {
+    "title": "The Pragmatic Programmer",
+    "author": "David Thomas",
+    "year": 2019
+}
+print(f"Title: {book['title']}")
+print(f"Author: {book['author']}")
+print(f"Year: {book['year']}")`,
+      },
+      {
+        id: "m1l3c2",
+        prompt: "Given grades = {'Alice': 95, 'Bob': 82, 'Carol': 91}, print the average of all grades.",
+        hint: "Use .values() to get the numbers, then sum and divide",
+        validateFn: `return output.includes("89.3") || output.includes("89")`,
+        solution: `grades = {'Alice': 95, 'Bob': 82, 'Carol': 91}
+values = list(grades.values())
+average = sum(values) / len(values)
+print(f"Average grade: {average:.1f}")`,
+      },
+    ],
+    projectChallenge: {
+      threadId: "permits",
+      threadTitle: "SF Permits Analysis",
+      taskTitle: "Build Permit Status Lookup",
+      context: "Create a quick lookup dictionary that maps permit numbers to their current status. This will power the status check feature in the permit tracking app.",
+      starterCode: `import pandas as pd
+import io
+
+permits_csv = """Permit Number|Permit Type|Street Number|Street Name|Status|Filed Date|Issued Date|Neighborhood|Existing Use|Proposed Use
+BP2023-0001|alterations|450|Market St|issued|2023-01-15|2023-02-10|Financial District|office|office
+BP2023-0002|new construction|1200|Mission St|complete|2023-01-18|2023-02-28|SoMa|vacant lot|apartments
+BP2023-0003|additions|2847|24th St|issued|2023-01-22|2023-03-05|Mission|1 family dwelling|1 family dwelling
+BP2023-0004|alterations|555|California St|cancelled|2023-01-25||Nob Hill|office|office
+BP2023-0005|demolition|890|Folsom St|complete|2023-02-01|2023-02-15|SoMa|warehouse|vacant lot
+BP2023-0006|new construction|3200|16th St|issued|2023-02-05|2023-04-01|Mission|parking lot|retail
+BP2023-0007|alterations|100|Van Ness Ave|withdrawn|2023-02-10||Civic Center|retail|restaurant
+BP2023-0008|sign erection|1800|Haight St|complete|2023-02-12|2023-02-20|Haight-Ashbury|retail|retail
+BP2023-0009|additions|4521|Judah St|issued|2023-02-15|2023-04-10|Sunset|1 family dwelling|2 family dwelling
+BP2023-0010|alterations|601|Montgomery St|issued|2023-02-18|2023-03-25|Financial District|office|office
+BP2023-0011|new construction|2100|Folsom St|expired|2023-02-20|2023-03-30|Mission|vacant lot|apartments
+BP2023-0012|alterations|789|Brannan St|complete|2023-02-22|2023-04-05|SoMa|warehouse|office
+BP2023-0013|demolition|1550|Howard St|complete|2023-02-25|2023-03-10|SoMa|industrial|vacant lot
+BP2023-0014|additions|3845|Noriega St|issued|2023-03-01|2023-05-01|Sunset|1 family dwelling|1 family dwelling
+BP2023-0015|new construction|425|Mission St|issued|2023-03-05|2023-06-15|Financial District|parking lot|office tower"""
+
+permits = pd.read_csv(io.StringIO(permits_csv), sep='|')
+
+# TODO: Create a dictionary mapping permit numbers to their status
+# Example output: {"BP2023-0001": "issued", "BP2023-0002": "complete", ...}
+# Then print the status of permit BP2023-0004
+`,
+      solution: `import pandas as pd
+import io
+
+permits_csv = """Permit Number|Permit Type|Street Number|Street Name|Status|Filed Date|Issued Date|Neighborhood|Existing Use|Proposed Use
+BP2023-0001|alterations|450|Market St|issued|2023-01-15|2023-02-10|Financial District|office|office
+BP2023-0002|new construction|1200|Mission St|complete|2023-01-18|2023-02-28|SoMa|vacant lot|apartments
+BP2023-0003|additions|2847|24th St|issued|2023-01-22|2023-03-05|Mission|1 family dwelling|1 family dwelling
+BP2023-0004|alterations|555|California St|cancelled|2023-01-25||Nob Hill|office|office
+BP2023-0005|demolition|890|Folsom St|complete|2023-02-01|2023-02-15|SoMa|warehouse|vacant lot
+BP2023-0006|new construction|3200|16th St|issued|2023-02-05|2023-04-01|Mission|parking lot|retail
+BP2023-0007|alterations|100|Van Ness Ave|withdrawn|2023-02-10||Civic Center|retail|restaurant
+BP2023-0008|sign erection|1800|Haight St|complete|2023-02-12|2023-02-20|Haight-Ashbury|retail|retail
+BP2023-0009|additions|4521|Judah St|issued|2023-02-15|2023-04-10|Sunset|1 family dwelling|2 family dwelling
+BP2023-0010|alterations|601|Montgomery St|issued|2023-02-18|2023-03-25|Financial District|office|office
+BP2023-0011|new construction|2100|Folsom St|expired|2023-02-20|2023-03-30|Mission|vacant lot|apartments
+BP2023-0012|alterations|789|Brannan St|complete|2023-02-22|2023-04-05|SoMa|warehouse|office
+BP2023-0013|demolition|1550|Howard St|complete|2023-02-25|2023-03-10|SoMa|industrial|vacant lot
+BP2023-0014|additions|3845|Noriega St|issued|2023-03-01|2023-05-01|Sunset|1 family dwelling|1 family dwelling
+BP2023-0015|new construction|425|Mission St|issued|2023-03-05|2023-06-15|Financial District|parking lot|office tower"""
+
+permits = pd.read_csv(io.StringIO(permits_csv), sep='|')
+
+status_lookup = {}
+for i, row in permits.iterrows():
+    status_lookup[row["Permit Number"]] = row["Status"]
+
+print(f"Status of BP2023-0004: {status_lookup['BP2023-0004']}")`,
+      validateFn: `return output.includes("BP2023-0004") && output.includes("cancelled")`,
+      hint: "Loop through the DataFrame rows using iterrows() and add each permit number and status to a dictionary.",
       xpReward: 50,
     },
   },

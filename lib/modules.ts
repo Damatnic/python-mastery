@@ -14,12 +14,6 @@ export const MODULE_METADATA: Omit<Module, "lessons">[] = [
       "Variables, data structures, loops, and functions. The stuff you'll use in every script you ever write.",
   },
   {
-    slug: "core-python",
-    title: "Core Python Deep Dive",
-    description:
-      "Comprehensions, generators, iterators, decorators, context managers, exceptions, sets, and async. The language features that separate someone who can write Python from someone who reads it fluently.",
-  },
-  {
     slug: "pandas-fundamentals",
     title: "Pandas Fundamentals",
     description:
@@ -54,6 +48,12 @@ export const MODULE_METADATA: Omit<Module, "lessons">[] = [
     title: "Functions & Apply",
     description:
       "Write lambda functions, use apply and map, and master vectorized operations for performance.",
+  },
+  {
+    slug: "core-python",
+    title: "Core Python Deep Dive",
+    description:
+      "Comprehensions, generators, iterators, decorators, context managers, exceptions, sets, and async. The language features that separate someone who can write Python from someone who reads it fluently.",
   },
   {
     slug: "numpy-foundations",

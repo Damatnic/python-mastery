@@ -325,6 +325,7 @@ export function ProjectView({
                 onChange={setCode}
                 onRun={handleRun}
                 disabled={!isReady}
+                label="project code editor"
               />
             </div>
 

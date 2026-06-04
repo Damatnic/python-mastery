@@ -7,6 +7,8 @@ interface CodeEditorProps {
   onChange: (value: string) => void;
   onRun: () => void;
   disabled?: boolean;
+  /** Accessible name for the editor textarea (the app's primary control). */
+  label?: string;
 }
 
 // Token types for syntax highlighting
@@ -159,6 +161,7 @@ export function CodeEditor({
   onChange,
   onRun,
   disabled = false,
+  label,
 }: CodeEditorProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const highlightRef = useRef<HTMLDivElement>(null);
@@ -325,6 +328,8 @@ export function CodeEditor({
             spellCheck={false}
             autoCapitalize="off"
             autoCorrect="off"
+            aria-label={label ?? "Python code editor"}
+            aria-keyshortcuts="Control+Enter Meta+Enter Shift+Enter"
             className="absolute inset-0 w-full h-full resize-none p-4 bg-transparent font-mono text-sm leading-6 outline-none disabled:opacity-50 caret-accent"
             style={{
               fontFamily: "var(--font-geist-mono), monospace",

@@ -31,6 +31,7 @@ export default function CommandPalette() {
   const [cmdHistory, setCmdHistory] = useState<string[]>([]);
   const [cmdIdx, setCmdIdx] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
+  const restoreFocusRef = useRef<HTMLElement | null>(null);
   const router = useRouter();
 
   // Global Cmd/Ctrl+K toggles the palette (unless the code editor owns focus).
@@ -48,12 +49,16 @@ export default function CommandPalette() {
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
-  // Focus the input whenever the palette opens.
+  // Focus the input whenever the palette opens, and restore focus to the opener
+  // (the bottom-left trigger, or wherever Cmd+K was pressed) on close.
   useEffect(() => {
-    if (open) {
-      const id = requestAnimationFrame(() => inputRef.current?.focus());
-      return () => cancelAnimationFrame(id);
-    }
+    if (!open) return;
+    restoreFocusRef.current = document.activeElement as HTMLElement | null;
+    const id = requestAnimationFrame(() => inputRef.current?.focus());
+    return () => {
+      cancelAnimationFrame(id);
+      restoreFocusRef.current?.focus?.();
+    };
   }, [open]);
 
   const runCommand = useCallback(
@@ -149,21 +154,23 @@ export default function CommandPalette() {
               className="max-h-[40vh] overflow-y-auto px-3 py-2 cursor-text"
               onClick={() => inputRef.current?.focus()}
             >
-              {history.map((h, i) => (
-                <div key={i} className="mb-1">
-                  <p>
-                    <span className="text-accent">damato@python</span>
-                    <span className="text-muted-foreground">:</span>
-                    <span className="text-muted-foreground">{PROMPT_PATH}</span>{" "}
-                    <span>{h.cmd}</span>
-                  </p>
-                  {h.out.length > 0 && (
-                    <pre className="text-foreground/80 text-xs leading-relaxed mt-1 mb-2 whitespace-pre-wrap">
-                      {h.out.join("\n")}
-                    </pre>
-                  )}
-                </div>
-              ))}
+              <div role="log" aria-live="polite" aria-label="command output">
+                {history.map((h, i) => (
+                  <div key={i} className="mb-1">
+                    <p>
+                      <span className="text-accent">damato@python</span>
+                      <span className="text-muted-foreground">:</span>
+                      <span className="text-muted-foreground">{PROMPT_PATH}</span>{" "}
+                      <span>{h.cmd}</span>
+                    </p>
+                    {h.out.length > 0 && (
+                      <pre className="text-foreground/80 text-xs leading-relaxed mt-1 mb-2 whitespace-pre-wrap">
+                        {h.out.join("\n")}
+                      </pre>
+                    )}
+                  </div>
+                ))}
+              </div>
 
               <p className="flex items-baseline flex-wrap">
                 <span className="text-accent">damato@python</span>

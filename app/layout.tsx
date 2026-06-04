@@ -30,6 +30,12 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className="min-h-screen bg-background text-foreground antialiased font-sans">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:rounded focus:border focus:border-accent focus:bg-background focus:px-3 focus:py-1.5 focus:font-mono focus:text-xs focus:text-accent"
+        >
+          skip to content
+        </a>
         {children}
         <CommandPalette />
       </body>

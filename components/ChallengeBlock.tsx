@@ -67,6 +67,7 @@ export default function ChallengeBlock({
   const dragOriginRef = useRef<{ startY: number; startHeight: number } | null>(null);
   const hasFiredCompleteRef = useRef(false);
   const expandTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const collapseBtnRef = useRef<HTMLButtonElement | null>(null);
 
   const codeKey = `python-mastery-code-${challenge.id}`;
   const heightKey = `python-mastery-editor-h-${challenge.id}`;
@@ -88,8 +89,8 @@ export default function ChallengeBlock({
     setWhy(localStorage.getItem(whyKey) || "");
     setShowWhy(false);
     hasFiredCompleteRef.current = false;
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- re-seed only when the challenge changes
-  }, [challenge.id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- re-seed when the challenge changes or a review session starts
+  }, [challenge.id, reviewMode]);
 
   useEffect(() => {
     if (!reviewMode && code !== seed) localStorage.setItem(codeKey, code);
@@ -115,9 +116,12 @@ export default function ChallengeBlock({
     };
     document.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
+    // Move focus into the dialog so keyboard/screen-reader users land inside it.
+    const focusTimer = setTimeout(() => collapseBtnRef.current?.focus(), 50);
     return () => {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
+      clearTimeout(focusTimer);
       (trigger ?? prevFocused)?.focus?.();
     };
   }, [expanded]);
@@ -196,17 +200,21 @@ export default function ChallengeBlock({
   }, [isReady, isPygame, runCode, code, challenge.validateFn, challenge.id, onComplete, onActiveErrorChange]);
 
   const handleReset = useCallback(() => {
-    try {
-      localStorage.removeItem(codeKey);
-    } catch {
-      // ignore
+    // In a review session the saved solution must survive a reset; only clear
+    // the on-disk code during normal study.
+    if (!reviewMode) {
+      try {
+        localStorage.removeItem(codeKey);
+      } catch {
+        // ignore
+      }
     }
     setCode(seed);
     setOutput("");
     setError(null);
     setExecutionTime(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- seed stable per challenge
-  }, [codeKey]);
+  }, [codeKey, reviewMode]);
 
   const status = isCorrect
     ? "✓ done"
@@ -225,6 +233,7 @@ export default function ChallengeBlock({
       onChange={setCode}
       onRun={handleRun}
       disabled={!isReady || isPygame}
+      label={`code editor for challenge ${challengeNumber}`}
     />
   );
 
@@ -271,6 +280,7 @@ export default function ChallengeBlock({
               onPointerDown={onResizePointerDown}
               onKeyDown={onResizeKeyDown}
               role="slider"
+              aria-orientation="vertical"
               aria-label="editor height"
               aria-valuemin={120}
               aria-valuemax={800}
@@ -311,6 +321,7 @@ export default function ChallengeBlock({
             <div className="flex items-center justify-between mb-3 font-mono text-xs">
               <span className="text-muted-foreground"># editor · esc to close</span>
               <button
+                ref={collapseBtnRef}
                 type="button"
                 onClick={() => setExpanded(false)}
                 className="px-3 py-1 rounded border border-border text-muted-foreground hover:text-foreground hover:border-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"

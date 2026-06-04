@@ -3,7 +3,9 @@
 // perfect sync: a command added once works everywhere.
 
 import { getAllModules } from "@/lib/lessons";
-import { safeJsonParse } from "@/lib/storage";
+import { safeJsonParse, safeReadNumber } from "@/lib/storage";
+import { isShowcase } from "@/lib/mode";
+import { getCompletedLessons } from "@/lib/progress";
 
 export interface TerminalModule {
   slug: string;
@@ -48,8 +50,13 @@ export function getTerminalModules(): TerminalModule[] {
 }
 
 export function readProgress(): { xp: number; streak: number; completed: string[] } {
-  const xp = parseInt(localStorage.getItem("python-mastery-xp") || "0", 10) || 0;
-  const streak = parseInt(localStorage.getItem("python-mastery-streak") || "0", 10) || 0;
+  // On the frozen showcase the progress keys are never written, but the rest of
+  // the site presents the course as complete. Mirror that so whoami/review agree.
+  if (isShowcase()) {
+    return { xp: 0, streak: 0, completed: [...getCompletedLessons()] };
+  }
+  const xp = safeReadNumber(localStorage.getItem("python-mastery-xp"), 0);
+  const streak = safeReadNumber(localStorage.getItem("python-mastery-streak"), 0);
   const completed = safeJsonParse<string[]>(localStorage.getItem("python-mastery-completed"), []);
   return { xp, streak, completed };
 }
@@ -108,7 +115,11 @@ export function runTerminalCommand(raw: string, ctx: TerminalContext): TerminalR
       break;
     case "whoami": {
       const p = readProgress();
-      out.push(`damato · xp ${p.xp} · streak ${p.streak}d · ${p.completed.length} lessons done`);
+      if (isShowcase()) {
+        out.push(`damato · course complete · ${p.completed.length} lessons`);
+      } else {
+        out.push(`damato · xp ${p.xp} · streak ${p.streak}d · ${p.completed.length} lessons done`);
+      }
       break;
     }
     case "review": {
@@ -126,11 +137,7 @@ export function runTerminalCommand(raw: string, ctx: TerminalContext): TerminalR
         (k) => validKeys.has(k) && k.startsWith(`${arg}/`),
       );
       if (pool.length === 0) {
-        out.push(
-          arg
-            ? `review: no completed lessons in module "${arg}". try \`ls\`.`
-            : "review: nothing completed yet. finish a lesson first.",
-        );
+        out.push(`review: no completed lessons in module "${arg}". try \`ls\`.`);
         break;
       }
       const pick = pool[Math.floor(Math.random() * pool.length)];

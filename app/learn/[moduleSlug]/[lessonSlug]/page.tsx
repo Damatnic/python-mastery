@@ -22,7 +22,7 @@ import {
   getPreviousLesson,
 } from "@/lib/lessons";
 import { updateStreak } from "@/lib/streak";
-import { markReviewed, isDue } from "@/lib/storage";
+import { markReviewed, isDue, safeReadNumber, safeSetItem } from "@/lib/storage";
 import { getCompletedLessons, markLessonComplete } from "@/lib/progress";
 import { isShowcase } from "@/lib/mode";
 
@@ -98,6 +98,11 @@ export default function LessonPage({ params }: LessonPageProps) {
     setCompletedLessons((prev) => new Set(prev).add(lessonKey));
     if (added) {
       updateStreak();
+      // Regular lessons must move XP too, or the rank ladder is unreachable
+      // through normal study. Project challenges award their own XP separately.
+      const LESSON_XP = 50;
+      const cur = safeReadNumber(localStorage.getItem("python-mastery-xp"), 0);
+      safeSetItem("python-mastery-xp", String(cur + LESSON_XP));
       setShowToast(true);
       setTimeout(() => setShowToast(false), 3000);
     }
@@ -253,7 +258,7 @@ export default function LessonPage({ params }: LessonPageProps) {
             </div>
           )}
 
-          <main className="flex-1 max-w-4xl mx-auto px-6 py-8 w-full min-w-0">
+          <main id="main" tabIndex={-1} className="flex-1 max-w-4xl mx-auto px-6 py-8 w-full min-w-0">
             <section className="mb-4">
               <p className="font-mono text-xs text-muted-foreground">
                 <span className="text-accent">[{lesson.badge}]</span>

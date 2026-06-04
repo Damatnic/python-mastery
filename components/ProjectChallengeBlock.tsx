@@ -201,6 +201,7 @@ export default function ProjectChallengeBlock({
               onChange={setCode}
               onRun={handleRun}
               disabled={!isReady || isPygame}
+              label="project challenge code editor"
             />
           </div>
           {(output || error || isRunning) && (

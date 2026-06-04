@@ -770,13 +770,13 @@ print(students[["name", "score", "age", "level", "tier"]])`,
         title: "pd.cut for binning",
         explanation: "Group continuous values into bins",
         code: `# Create score bins
-bins = [0, 60, 70, 80, 90, 100]
+bins = [0, 60, 70, 80, 90, 101]
 labels = ["F", "D", "C", "B", "A"]
 students["letter_grade"] = pd.cut(
     students["score"],
     bins=bins,
     labels=labels,
-    right=True  # Include right edge
+    right=False  # lower edge inclusive: 90 -> A, 80 -> B
 )
 
 # Count per grade

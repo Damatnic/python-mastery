@@ -97,6 +97,7 @@ export default function ExampleBlock({
               onChange={setCode}
               onRun={handleRun}
               disabled={!isReady || isPygame}
+              label={`code editor for example ${index + 1}`}
             />
           </div>
           <div className="flex items-center justify-end gap-2 -mt-px border-x border-b border-border bg-card rounded-b px-3 py-1 font-mono text-[11px]">

@@ -1161,7 +1161,7 @@ print(raw_df.head(2))`,
       },
       {
         title: "transform: classify by a derived field",
-        explanation: "Pull comments, group by the post they belong to, flag posts that attract long comments.",
+        explanation: "Pull comments, group by post, then classify each post by its average comment length into tiers.",
         code: `import pandas as pd
 from pyodide.http import pyfetch
 
@@ -1173,14 +1173,14 @@ per_post = comments.groupby("postId").agg(
     avg_body_chars=("body", lambda s: s.str.len().mean()),
 ).round(0).astype(int)
 
-per_post["engagement"] = pd.cut(
-    per_post["comment_count"],
-    bins=[-1, 2, 5, 100],
-    labels=["low", "medium", "high"],
+per_post["length_tier"] = pd.cut(
+    per_post["avg_body_chars"],
+    bins=[-1, 150, 175, 10000],
+    labels=["terse", "normal", "verbose"],
 )
 print(per_post.head(10))
-print("\\nposts by engagement tier:")
-print(per_post["engagement"].value_counts())`,
+print("\\nposts by comment-length tier:")
+print(per_post["length_tier"].value_counts())`,
       },
       {
         title: "load: write the summary back to a CSV string",

@@ -81,21 +81,23 @@ export default function HomeTerminal({ modules }: HomeTerminalProps) {
 
   return (
     <div onClick={focusInput} className="cursor-text">
-      {history.map((h, i) => (
-        <div key={i} className="mb-1">
-          <p>
-            <span className="text-accent">damato@python</span>
-            <span className="text-muted-foreground">:</span>
-            <span className="text-muted-foreground">{PROMPT_PATH}</span>{" "}
-            <span>{h.cmd}</span>
-          </p>
-          {h.out.length > 0 && (
-            <pre className="text-foreground/80 text-xs leading-relaxed mt-1 mb-2 whitespace-pre-wrap">
-              {h.out.join("\n")}
-            </pre>
-          )}
-        </div>
-      ))}
+      <div role="log" aria-live="polite" aria-label="command output">
+        {history.map((h, i) => (
+          <div key={i} className="mb-1">
+            <p>
+              <span className="text-accent">damato@python</span>
+              <span className="text-muted-foreground">:</span>
+              <span className="text-muted-foreground">{PROMPT_PATH}</span>{" "}
+              <span>{h.cmd}</span>
+            </p>
+            {h.out.length > 0 && (
+              <pre className="text-foreground/80 text-xs leading-relaxed mt-1 mb-2 whitespace-pre-wrap">
+                {h.out.join("\n")}
+              </pre>
+            )}
+          </div>
+        ))}
+      </div>
 
       <label className="block">
         <p className="flex items-baseline flex-wrap">
