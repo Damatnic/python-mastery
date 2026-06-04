@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import CommandPalette from "@/components/CommandPalette";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://damato-python.vercel.app"),
@@ -30,6 +31,7 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className="min-h-screen bg-background text-foreground antialiased font-sans">
         {children}
+        <CommandPalette />
       </body>
     </html>
   );
