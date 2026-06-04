@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import CommandPalette from "@/components/CommandPalette";
+import PopQuiz from "@/components/PopQuiz";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://damato-python.vercel.app"),
@@ -38,6 +39,7 @@ export default function RootLayout({
         </a>
         {children}
         <CommandPalette />
+        <PopQuiz />
       </body>
     </html>
   );

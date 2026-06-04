@@ -12,6 +12,8 @@ import ChallengeBlock from "@/components/ChallengeBlock";
 import ProjectChallengeBlock from "@/components/ProjectChallengeBlock";
 import { LessonAnchorNav, type AnchorSection } from "@/components/LessonAnchorNav";
 import { NextLessonCard } from "@/components/NextLessonCard";
+import ModuleCheckpoint from "@/components/ModuleCheckpoint";
+import { hasCheckpoint } from "@/lib/checkpoints";
 import LessonToolDock, { type DockTool } from "@/components/LessonToolDock";
 import PythonCheatSheet from "@/components/PythonCheatSheet";
 import { PyodideProvider, usePyodideRuntime } from "@/components/PyodideProvider";
@@ -105,6 +107,8 @@ export default function LessonPage({ params }: LessonPageProps) {
       safeSetItem("python-mastery-xp", String(cur + LESSON_XP));
       setShowToast(true);
       setTimeout(() => setShowToast(false), 3000);
+      // Let the pop-quiz listener consider a surprise recall check.
+      if (typeof window !== "undefined") window.dispatchEvent(new Event("lesson-completed"));
     }
   }, [lessonKey]);
 
@@ -357,6 +361,11 @@ export default function LessonPage({ params }: LessonPageProps) {
                   />
                 </section>
               )}
+
+              {currentModule &&
+                currentModule.lessons.length > 0 &&
+                currentModule.lessons[currentModule.lessons.length - 1]?.slug === lessonSlug &&
+                hasCheckpoint(moduleSlug) && <ModuleCheckpoint moduleSlug={moduleSlug} />}
 
               {showNextLessonCard && (
                 <NextLessonCard

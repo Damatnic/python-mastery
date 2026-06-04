@@ -10,10 +10,13 @@ import {
   safeReadNumber,
   getReviewedMap,
   isDue,
+  getCompletedCheckpoints,
+  checkpointKey,
   type ReviewState,
 } from "@/lib/storage";
 import { getCompletedLessons } from "@/lib/progress";
 import { isShowcase } from "@/lib/mode";
+import { MODULE_CHECKPOINTS } from "@/lib/checkpoints";
 
 function bar(pct: number, width = 12): string {
   const filled = Math.round((pct / 100) * width);
@@ -44,6 +47,7 @@ export default function StatsPage() {
     maxStreak: 0,
   });
   const [reviewedAt, setReviewedAt] = useState<Record<string, ReviewState>>({});
+  const [completedCheckpoints, setCompletedCheckpoints] = useState<Set<string>>(new Set());
   const [showcase, setShowcase] = useState(false);
   // Captured once (lazy init) so relative-time labels stay pure across renders.
   const [now] = useState(() => Date.now());
@@ -59,6 +63,7 @@ export default function StatsPage() {
       setCompletedProjectSteps(
         new Set(allProjects.flatMap((p) => p.steps.map((s) => s.id))),
       );
+      setCompletedCheckpoints(new Set(Object.keys(MODULE_CHECKPOINTS)));
       setMounted(true);
       return;
     }
@@ -72,6 +77,7 @@ export default function StatsPage() {
 
     setStreakInfo(getStreakData());
     setReviewedAt(getReviewedMap());
+    setCompletedCheckpoints(new Set(getCompletedCheckpoints()));
     setMounted(true);
     /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
@@ -145,6 +151,15 @@ export default function StatsPage() {
     .slice(0, 8);
 
   const weakModules = moduleRows.filter((m) => m.pct < 50 && m.total > 0).slice(0, 5);
+
+  // Module checkpoints: done, and due for a spaced re-check.
+  const checkpointRows = Object.keys(MODULE_CHECKPOINTS).map((slug) => {
+    const done = completedCheckpoints.has(slug);
+    const due = done && !showcase && isDue(checkpointKey(slug), reviewedAt);
+    return { slug, done, due };
+  });
+  const checkpointsDone = checkpointRows.filter((c) => c.done).length;
+  const checkpointsDue = checkpointRows.filter((c) => c.due).length;
 
   const daysSinceReview = (iso: string): string => {
     if (!iso) return "never";
@@ -287,6 +302,26 @@ export default function StatsPage() {
                     <span className="text-muted-foreground tabular-nums">
                       {m.done}/{m.total}
                     </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+
+            <section className="mt-10">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">
+                # checkpoints <span className="text-muted-foreground/60">[{checkpointsDone}/{checkpointRows.length} done{checkpointsDue > 0 ? ` · ${checkpointsDue} due to review` : ""}]</span>
+              </p>
+              <ul className="mt-3 text-xs grid sm:grid-cols-2 gap-x-6 gap-y-1">
+                {checkpointRows.map((c) => (
+                  <li key={c.slug} className="flex items-baseline justify-between gap-3">
+                    <span className="text-foreground truncate">{c.slug}</span>
+                    {c.due ? (
+                      <span className="text-warning tabular-nums shrink-0">due to review</span>
+                    ) : c.done ? (
+                      <span className="text-success tabular-nums shrink-0">✓ done</span>
+                    ) : (
+                      <span className="text-muted-foreground/50 tabular-nums shrink-0">─</span>
+                    )}
                   </li>
                 ))}
               </ul>

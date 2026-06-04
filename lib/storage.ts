@@ -81,3 +81,39 @@ export function markReviewed(slug: string): void {
   safeSetItem(REVIEWED_KEY, JSON.stringify(map));
   window.dispatchEvent(new Event("reviewed-updated"));
 }
+
+// --- Module checkpoints -------------------------------------------------
+// A checkpoint is the end-of-module quiz. Completing one awards XP and enters
+// the same spaced-review schedule so it comes back for retrieval practice.
+const CHECKPOINTS_KEY = "python-mastery-checkpoints";
+const XP_KEY = "python-mastery-xp";
+export const CHECKPOINT_XP = 30;
+
+export function checkpointKey(moduleSlug: string): string {
+  return `checkpoint:${moduleSlug}`;
+}
+
+export function getCompletedCheckpoints(): string[] {
+  if (typeof window === "undefined") return [];
+  return safeJsonParse<string[]>(localStorage.getItem(CHECKPOINTS_KEY), []);
+}
+
+export function isCheckpointCompleted(moduleSlug: string): boolean {
+  return getCompletedCheckpoints().includes(moduleSlug);
+}
+
+// Caller must gate on learn mode; this writes unconditionally.
+export function completeCheckpoint(moduleSlug: string): void {
+  if (typeof window === "undefined") return;
+  const done = getCompletedCheckpoints();
+  if (done.includes(moduleSlug)) {
+    // Re-doing a completed checkpoint counts as a spaced review.
+    markReviewed(checkpointKey(moduleSlug));
+    return;
+  }
+  safeSetItem(CHECKPOINTS_KEY, JSON.stringify([...done, moduleSlug]));
+  const xp = safeReadNumber(localStorage.getItem(XP_KEY), 0);
+  safeSetItem(XP_KEY, String(xp + CHECKPOINT_XP));
+  markReviewed(checkpointKey(moduleSlug));
+  window.dispatchEvent(new Event("checkpoints-updated"));
+}
