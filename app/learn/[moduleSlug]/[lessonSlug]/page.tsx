@@ -14,6 +14,7 @@ import { LessonAnchorNav, type AnchorSection } from "@/components/LessonAnchorNa
 import { NextLessonCard } from "@/components/NextLessonCard";
 import ModuleCheckpoint from "@/components/ModuleCheckpoint";
 import { hasCheckpoint } from "@/lib/checkpoints";
+import YourTurn from "@/components/YourTurn";
 import LessonToolDock, { type DockTool } from "@/components/LessonToolDock";
 import PythonCheatSheet from "@/components/PythonCheatSheet";
 import { PyodideProvider, usePyodideRuntime } from "@/components/PyodideProvider";
@@ -321,6 +322,8 @@ export default function LessonPage({ params }: LessonPageProps) {
                   </div>
                 </section>
               )}
+
+              <YourTurn moduleSlug={moduleSlug} lessonSlug={lessonSlug} />
 
               {hasChallenges && (
                 <section id="challenges" className="scroll-mt-32">

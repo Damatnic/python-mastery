@@ -146,7 +146,7 @@ export const TutorChat = forwardRef<TutorChatHandle, TutorChatProps>(function Tu
 
   return (
     <div
-      className="fixed bottom-4 right-4 z-50 flex max-h-[80vh] w-[90vw] max-w-md flex-col overflow-hidden rounded-lg border border-stone-700 bg-stone-950/95 shadow-2xl backdrop-blur"
+      className="fixed bottom-4 right-4 z-50 flex h-[min(40rem,calc(100vh-7rem))] w-[min(30rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-lg border border-stone-700 bg-stone-950/95 shadow-2xl backdrop-blur"
       ref={panelRef}
       role="dialog"
       aria-modal="true"
