@@ -342,31 +342,15 @@ export function CodeEditor({
       </div>
 
       {disabled && (
-        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex flex-col items-center justify-center z-10">
-          <div className="relative mb-3">
-            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-accent/30 to-purple-500/30 flex items-center justify-center border border-accent/20">
-              <span className="text-2xl">🐍</span>
-            </div>
-            <svg
-              className="absolute inset-0 w-14 h-14 animate-spin"
-              style={{ animationDuration: "2s" }}
-              viewBox="0 0 56 56"
-            >
-              <circle
-                cx="28"
-                cy="28"
-                r="24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeDasharray="100 50"
-                strokeLinecap="round"
-                className="text-accent"
-              />
-            </svg>
-          </div>
-          <span className="text-sm font-medium text-foreground">Loading Python</span>
-          <span className="text-xs text-muted-foreground">Setting up pandas & numpy...</span>
+        <div className="absolute inset-0 bg-[#1e1e1e]/90 flex flex-col items-center justify-center z-10 font-mono">
+          <p className="flex items-center gap-2 text-sm text-warning">
+            <span
+              className="inline-block w-2 h-2 rounded-full bg-warning animate-pulse motion-reduce:animate-none"
+              aria-hidden="true"
+            />
+            pyodide: loading…
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">setting up pandas + numpy in your browser</p>
         </div>
       )}
     </div>
